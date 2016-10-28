@@ -35,24 +35,24 @@ class ImageViewer extends Component {
     }
 
     redraw() {
-        if (this.ctx && this.canvas && this.image) {
-            let p1 = this.ctx.transformedPoint(0, 0);
-            let p2 = this.ctx.transformedPoint(this.canvas.width, this.canvas.height);
-            this.ctx.clearRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
-            this.ctx.save();
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.restore();
-            this.ctx.drawImage(this.image, 0, 0);
+        if (this.context && this.canvas && this.image) {
+            let p1 = this.context.transformedPoint(0, 0);
+            let p2 = this.context.transformedPoint(this.canvas.width, this.canvas.height);
+            this.context.clearRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+            this.context.save();
+            this.context.setTransform(1, 0, 0, 1, 0, 0);
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.restore();
+            this.context.drawImage(this.image, 0, 0);
         }
     };
 
     zoom(clicks) {
-        let pt = this.ctx.transformedPoint(this.lastX, this.lastY);
-        this.ctx.translate(pt.x, pt.y);
+        let pt = this.context.transformedPoint(this.lastX, this.lastY);
+        this.context.translate(pt.x, pt.y);
         let factor = Math.pow(this.scaleFactor, clicks);
-        this.ctx.scale(factor, factor);
-        this.ctx.translate(-pt.x, -pt.y);
+        this.context.scale(factor, factor);
+        this.context.translate(-pt.x, -pt.y);
         this.redraw();
     };
 
@@ -60,7 +60,7 @@ class ImageViewer extends Component {
         document.body.style.mozUserSelect = document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
         this.lastX = evt.offsetX || (evt.pageX - this.canvas.offsetLeft);
         this.lastY = evt.offsetY || (evt.pageY - this.canvas.offsetTop);
-        this.dragStart = this.ctx.transformedPoint(this.lastX, this.lastY);
+        this.dragStart = this.context.transformedPoint(this.lastX, this.lastY);
         this.dragged = false;
     };
 
@@ -69,8 +69,8 @@ class ImageViewer extends Component {
         this.lastY = evt.offsetY || (evt.pageY - this.canvas.offsetTop);
         this.dragged = true;
         if (this.dragStart) {
-            let pt = this.ctx.transformedPoint(this.lastX, this.lastY);
-            this.ctx.translate(pt.x - this.dragStart.x, pt.y - this.dragStart.y);
+            let pt = this.context.transformedPoint(this.lastX, this.lastY);
+            this.context.translate(pt.x - this.dragStart.x, pt.y - this.dragStart.y);
             this.redraw();
         }
     };
@@ -88,8 +88,8 @@ class ImageViewer extends Component {
 
     componentDidMount() {
         this.canvas = ReactDOM.findDOMNode(this);
-        this.ctx = this.canvas.getContext('2d');
-        trackTransforms(this.ctx);
+        this.context = this.canvas.getContext('2d');
+        trackTransforms(this.context);
         this.lastX = this.canvas.width / 2;
         this.lastY = this.canvas.height / 2;
         this.canvas.addEventListener('mousedown', this.onMouseDownCanvas, false);
