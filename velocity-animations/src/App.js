@@ -1,21 +1,40 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from "react";
+import "./App.css";
+import {VelocityTransitionGroup} from "velocity-react";
+import ToolkitDrawer from "./ToolkitDrawer";
+
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+
+    constructor(props, context) {
+        super(props, context);
+        this.onClickToggleDrawer = this.onClickToggleDrawer.bind(this);
+        this.state = {
+            showSubComponent: false
+        };
+    }
+
+    onClickToggleDrawer() {
+        this.setState({showSubComponent: !this.state.showSubComponent})
+    }
+
+    render() {
+        return (
+            <div className="App">
+                <div>
+                    <button role="button" type="button" onClick={this.onClickToggleDrawer}>Toggle</button>
+                </div>
+                <VelocityTransitionGroup enter={{animation: "slideDown"}}
+                                         leave={{animation: "slideUp"}}
+                                         runOnMount={true}>
+                    {this.state.showSubComponent ? <ToolkitDrawer></ToolkitDrawer> : undefined}
+                </VelocityTransitionGroup>
+                <div>
+                    Other content
+                </div>
+            </div>
+        );
+    }
 }
 
 export default App;
