@@ -4,12 +4,11 @@ import TextField from "./TextField";
 
 describe('components.common.TextField', () => {
 
-    const onChange = (e) => {
-    };
-    let wrapper;
+    let onChange, wrapper;
 
-    describe('with autoComplete', function () {
-        beforeEach(function () {
+    describe('with autoComplete', () => {
+        beforeEach(() => {
+            onChange = jest.fn;
             wrapper = shallow(
                 <TextField onChange={onChange}
                            content={'foo'}
@@ -20,8 +19,26 @@ describe('components.common.TextField', () => {
             );
         });
 
-        it('should render', function () {
-            expect(wrapper).not.toBeUndefined();
+        it('should render autoComplete for email', () => {
+            expect(wrapper.find('input').props().autoComplete).toBe('email');
+        });
+    });
+
+
+    describe('with autoComplete', () => {
+        beforeEach(() => {
+            onChange = jest.fn;
+            wrapper = shallow(
+                <TextField onChange={onChange}
+                           content={'foo'}
+                           name={'Foobar'}
+                           title={'Foobar'}
+                           placeholder={'Foobar placeholder'}/>
+            );
+        });
+
+        it('should not render autoComplete', () => {
+            expect(wrapper.find('input').props().autoComplete).toBe(undefined);
         });
     });
 
