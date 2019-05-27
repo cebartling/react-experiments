@@ -12,6 +12,10 @@
     "react-scripts": "3.0.1",
     "redux-starter-kit": "^0.5.1"
   },
+  "devDependencies": {
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.2"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
