@@ -1,0 +1,14 @@
+- args:
+    sql: CREATE EXTENSION IF NOT EXISTS pgcrypto;
+  type: run_sql
+- args:
+    sql: CREATE TABLE "public"."draft_selections"("id" uuid NOT NULL DEFAULT gen_random_uuid(),
+      "round" integer NOT NULL, "position_within_round" integer NOT NULL, "overall_position_in_draft"
+      integer NOT NULL, "team_id" uuid NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY
+      ("team_id") REFERENCES "public"."teams"("id") ON UPDATE no action ON DELETE
+      no action, UNIQUE ("id"));
+  type: run_sql
+- args:
+    name: draft_selections
+    schema: public
+  type: add_existing_table_or_view

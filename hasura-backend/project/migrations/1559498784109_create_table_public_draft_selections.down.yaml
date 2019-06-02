@@ -1,0 +1,3 @@
+- args:
+    sql: DROP TABLE "public"."draft_selections"
+  type: run_sql
