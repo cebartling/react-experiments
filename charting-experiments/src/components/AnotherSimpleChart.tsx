@@ -60,10 +60,12 @@ const AnotherSimpleChart: React.FC = () => {
     ]
   };
 
-  return <ReactECharts
-    option={option}
-    style={{height: 400}}
-  />;
+  return (
+    <ReactECharts
+      option={option}
+      style={{height: 400}}
+    />
+  );
 };
 
 export default AnotherSimpleChart;
