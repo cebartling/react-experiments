@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
-const AnotherSimpleChart: React.FC = () => {
+const AnotherSimpleChart = () => {
   const option = {
     title: {
       text: 'Another Simple Chart Title'

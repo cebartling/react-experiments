@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
 import cloneDeep from 'lodash.clonedeep';
 
-const DynamicUpdatingChart: React.FC = () => {
+const DynamicUpdatingChart = () => {
   const DEFAULT_OPTION = {
     title: {
       text: 'Hello Echarts-for-react.',
@@ -50,7 +50,7 @@ const DynamicUpdatingChart: React.FC = () => {
           let len = 50;
           while (len--) {
             res.unshift(now.toLocaleTimeString().replace(/^\D*/, ''));
-            now = new Date(now - 2000);
+            now = new Date(now.getTime() - 2000);
           }
           return res;
         })()
@@ -98,10 +98,10 @@ const DynamicUpdatingChart: React.FC = () => {
           }
         },
         animationEasing: 'elasticOut',
-        animationDelay: function (idx) {
+        animationDelay: function (idx: number) {
           return idx * 10;
         },
-        animationDelayUpdate: function (idx) {
+        animationDelayUpdate: function (idx: number) {
           return idx * 10;
         },
         data: (function () {
@@ -120,6 +120,7 @@ const DynamicUpdatingChart: React.FC = () => {
           let res = [];
           let len = 0;
           while (len < 50) {
+            // @ts-ignore
             res.push((Math.random() * 10 + 5).toFixed(1) - 0);
             len++;
           }
@@ -129,7 +130,7 @@ const DynamicUpdatingChart: React.FC = () => {
     ]
   };
 
-  let count;
+  let count: number;
 
   const [option, setOption] = useState(DEFAULT_OPTION);
 
@@ -142,11 +143,14 @@ const DynamicUpdatingChart: React.FC = () => {
     data0.shift();
     data0.push(Math.round(Math.random() * 1000));
     data1.shift();
+    // @ts-ignore
     data1.push((Math.random() * 10 + 5).toFixed(1) - 0);
 
     newOption.xAxis[0].data.shift();
+    // @ts-ignore
     newOption.xAxis[0].data.push(axisData);
     newOption.xAxis[1].data.shift();
+    // @ts-ignore
     newOption.xAxis[1].data.push(count++);
 
     setOption(newOption);

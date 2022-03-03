@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
-const NetworkGraph: React.FC = () => {
+const NetworkGraph = () => {
   const webkitDep = {
     "type": "force",
     "categories": [{"name": "HTMLElement", "keyword": {}, "base": "HTMLElement"}, {

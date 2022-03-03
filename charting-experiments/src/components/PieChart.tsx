@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 
-const PieChart: React.FC = () => {
+const PieChart = () => {
   const option = {
     title : {
       text: '某站点用户访问来源',
