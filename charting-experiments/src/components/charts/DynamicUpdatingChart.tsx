@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import cloneDeep from 'lodash.clonedeep';
 
@@ -8,37 +8,57 @@ const DynamicUpdatingChart = () => {
       text: 'Hello Echarts-for-react.',
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     legend: {
-      data: ['最新成交价', '预购队列']
+      data: ['最新成交价', '预购队列'],
     },
     toolbox: {
       show: true,
       feature: {
-        dataView: {readOnly: false},
+        dataView: { readOnly: false },
         restore: {},
-        saveAsImage: {}
-      }
+        saveAsImage: {},
+      },
     },
     grid: {
       top: 60,
       left: 30,
       right: 60,
-      bottom: 30
+      bottom: 30,
     },
     dataZoom: {
       show: false,
       start: 0,
-      end: 100
+      end: 100,
     },
     visualMap: {
       show: false,
       min: 0,
       max: 1000,
-      color: ['#BE002F', '#F20C00', '#F00056', '#FF2D51', '#FF2121', '#FF4C00', '#FF7500',
-        '#FF8936', '#FFA400', '#F0C239', '#FFF143', '#FAFF72', '#C9DD22', '#AFDD22',
-        '#9ED900', '#00E500', '#0EB83A', '#0AA344', '#0C8918', '#057748', '#177CB0']
+      color: [
+        '#BE002F',
+        '#F20C00',
+        '#F00056',
+        '#FF2D51',
+        '#FF2121',
+        '#FF4C00',
+        '#FF7500',
+        '#FF8936',
+        '#FFA400',
+        '#F0C239',
+        '#FFF143',
+        '#FAFF72',
+        '#C9DD22',
+        '#AFDD22',
+        '#9ED900',
+        '#00E500',
+        '#0EB83A',
+        '#0AA344',
+        '#0C8918',
+        '#057748',
+        '#177CB0',
+      ],
     },
     xAxis: [
       {
@@ -53,7 +73,7 @@ const DynamicUpdatingChart = () => {
             now = new Date(now.getTime() - 2000);
           }
           return res;
-        })()
+        })(),
       },
       {
         type: 'category',
@@ -65,8 +85,8 @@ const DynamicUpdatingChart = () => {
             res.push(50 - len + 1);
           }
           return res;
-        })()
-      }
+        })(),
+      },
     ],
     yAxis: [
       {
@@ -75,7 +95,7 @@ const DynamicUpdatingChart = () => {
         name: '价格',
         max: 20,
         min: 0,
-        boundaryGap: [0.2, 0.2]
+        boundaryGap: [0.2, 0.2],
       },
       {
         type: 'value',
@@ -83,8 +103,8 @@ const DynamicUpdatingChart = () => {
         name: '预购量',
         max: 1200,
         min: 0,
-        boundaryGap: [0.2, 0.2]
-      }
+        boundaryGap: [0.2, 0.2],
+      },
     ],
     series: [
       {
@@ -95,7 +115,7 @@ const DynamicUpdatingChart = () => {
         itemStyle: {
           normal: {
             barBorderRadius: 4,
-          }
+          },
         },
         animationEasing: 'elasticOut',
         animationDelay: function (idx: number) {
@@ -111,7 +131,7 @@ const DynamicUpdatingChart = () => {
             res.push(Math.round(Math.random() * 1000));
           }
           return res;
-        })()
+        })(),
       },
       {
         name: '最新成交价',
@@ -125,9 +145,9 @@ const DynamicUpdatingChart = () => {
             len++;
           }
           return res;
-        })()
-      }
-    ]
+        })(),
+      },
+    ],
   };
 
   let count: number;
@@ -135,7 +155,7 @@ const DynamicUpdatingChart = () => {
   const [option, setOption] = useState(DEFAULT_OPTION);
 
   function fetchNewData() {
-    const axisData = (new Date()).toLocaleTimeString().replace(/^\D*/, '');
+    const axisData = new Date().toLocaleTimeString().replace(/^\D*/, '');
     const newOption = cloneDeep(option); // immutable
     newOption.title.text = 'Hello Echarts-for-react.' + new Date().getSeconds();
     const data0 = newOption.series[0].data;
@@ -164,10 +184,7 @@ const DynamicUpdatingChart = () => {
     return () => clearInterval(timer);
   });
 
-  return <ReactECharts
-    option={option}
-    style={{height: 400}}
-  />;
+  return <ReactECharts option={option} style={{ height: 400 }} />;
 };
 
 export default DynamicUpdatingChart;

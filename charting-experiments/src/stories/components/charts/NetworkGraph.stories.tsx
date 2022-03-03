@@ -1,7 +1,6 @@
 import React from 'react';
-import {ComponentMeta, ComponentStory} from '@storybook/react';
-import NetworkGraph from "../../../components/charts/NetworkGraph";
-
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import NetworkGraph from '../../../components/charts/NetworkGraph';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -23,4 +22,3 @@ Default.args = {
   // primary: true,
   // label: 'Button',
 };
-

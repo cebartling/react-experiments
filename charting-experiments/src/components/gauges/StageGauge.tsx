@@ -11,35 +11,35 @@ const StageGauge = () => {
             color: [
               [0.3, '#67e0e3'],
               [0.7, '#37a2da'],
-              [1, '#fd666d']
-            ]
-          }
+              [1, '#fd666d'],
+            ],
+          },
         },
         pointer: {
           itemStyle: {
-            color: 'auto'
-          }
+            color: 'auto',
+          },
         },
         axisTick: {
           distance: -30,
           length: 8,
           lineStyle: {
             color: '#fff',
-            width: 2
-          }
+            width: 2,
+          },
         },
         splitLine: {
           distance: -30,
           length: 30,
           lineStyle: {
             color: '#fff',
-            width: 2
-          }
+            width: 2,
+          },
         },
         axisLabel: {
           color: 'auto',
           distance: 40,
-          fontSize: 10
+          fontSize: 10,
         },
         detail: {
           valueAnimation: true,
@@ -49,11 +49,11 @@ const StageGauge = () => {
         },
         data: [
           {
-            value: 70
-          }
-        ]
-      }
-    ]
+            value: 70,
+          },
+        ],
+      },
+    ],
   };
 
   // setInterval(function () {
@@ -70,7 +70,7 @@ const StageGauge = () => {
   //   });
   // }, 2000);
 
-  return (<ReactECharts option={options} />);
+  return <ReactECharts option={options} />;
 };
 
 export default StageGauge;

@@ -22,7 +22,7 @@ const SimpleChart = () => {
     },
   };
 
-  return (<ReactECharts option={options} />);
+  return <ReactECharts option={options} />;
 };
 
 export default SimpleChart;

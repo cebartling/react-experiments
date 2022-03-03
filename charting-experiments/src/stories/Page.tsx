@@ -7,7 +7,6 @@ type User = {
 };
 
 export const Page: React.VFC = () => {
-
   return (
     <article>
       <section>

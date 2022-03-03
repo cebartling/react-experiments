@@ -1,8 +1,7 @@
 import React from 'react';
-import {ComponentMeta, ComponentStory} from '@storybook/react';
-import SimpleChart from "../../../components/charts/SimpleChart";
-import PieChart from "../../../components/charts/PieChart";
-
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import SimpleChart from '../../../components/charts/SimpleChart';
+import PieChart from '../../../components/charts/PieChart';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -24,4 +23,3 @@ Default.args = {
   // primary: true,
   // label: 'Button',
 };
-

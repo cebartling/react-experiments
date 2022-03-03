@@ -1,7 +1,7 @@
 import React from 'react';
-import {ComponentMeta, ComponentStory} from '@storybook/react';
-import OpenHighLowCloseChart from "../../../components/charts/OpenHighLowCloseChart";
-import rawData from "../../data/stock-DJI";
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import OpenHighLowCloseChart from '../../../components/charts/OpenHighLowCloseChart';
+import rawData from '../../data/stock-DJI';
 
 function splitData(rawData: (string | number)[][]) {
   const categoryData = [];
@@ -13,10 +13,9 @@ function splitData(rawData: (string | number)[][]) {
   }
   return {
     categoryData: categoryData,
-    values: values
+    values: values,
   };
 }
-
 
 const data = splitData(rawData);
 
@@ -32,7 +31,9 @@ export default {
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 // @ts-ignore
-const Template: ComponentStory<typeof OpenHighLowCloseChart> = (args) => <OpenHighLowCloseChart {...args} />;
+const Template: ComponentStory<typeof OpenHighLowCloseChart> = (args) => (
+  <OpenHighLowCloseChart {...args} />
+);
 
 export const Default = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
@@ -40,4 +41,3 @@ Default.args = {
   categoryData: data.categoryData,
   values: data.values,
 };
-

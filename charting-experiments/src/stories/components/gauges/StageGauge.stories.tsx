@@ -1,6 +1,6 @@
 import React from 'react';
-import {ComponentMeta, ComponentStory} from '@storybook/react';
-import StageGauge from "../../../components/gauges/StageGauge";
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import StageGauge from '../../../components/gauges/StageGauge';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -22,4 +22,3 @@ Default.args = {
   // primary: true,
   // label: 'Button',
 };
-
