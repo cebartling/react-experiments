@@ -1,7 +1,8 @@
 import React, {useEffect} from 'react';
 import ReactECharts from 'echarts-for-react';
+import {ECharts} from "echarts";
 
-const RadarChart: React.FC = () => {
+const RadarChart = () => {
   const option = {
     title: {
       text: '基础雷达图'
@@ -38,7 +39,7 @@ const RadarChart: React.FC = () => {
     }]
   };
 
-  let timer;
+  let timer: any;
 
   useEffect(() => {
     return () => clearTimeout(timer);
@@ -52,7 +53,7 @@ const RadarChart: React.FC = () => {
     zlevel: 0
   };
 
-  function onChartReady(echarts) {
+  function onChartReady(echarts: ECharts) {
     timer = setTimeout(function () {
       echarts.hideLoading();
     }, 3000);
