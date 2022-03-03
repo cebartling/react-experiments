@@ -1,7 +1,7 @@
 import React from 'react';
 import {ComponentMeta, ComponentStory} from '@storybook/react';
-import OpenHighLowCloseChart from "../../components/OpenHighLowCloseChart";
-import rawData from "../data/stock-DJI";
+import OpenHighLowCloseChart from "../../../components/charts/OpenHighLowCloseChart";
+import rawData from "../../data/stock-DJI";
 
 function splitData(rawData: (string | number)[][]) {
   const categoryData = [];
