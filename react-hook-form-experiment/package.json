@@ -1,35 +1,36 @@
 {
-  "name": "react-hook-form-experiment",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "format": "npx prettier --write ./src/"
-  },
-  "dependencies": {
-    "bootstrap": "^5.1.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-hook-form": "^7.27.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.17.5",
-    "@storybook/addon-actions": "^6.4.19",
-    "@storybook/addon-essentials": "^6.4.19",
-    "@storybook/addon-interactions": "^6.4.19",
-    "@storybook/addon-links": "^6.4.19",
-    "@storybook/react": "^6.4.19",
-    "@storybook/testing-library": "^0.0.9",
-    "@types/react": "^17.0.39",
-    "@types/react-dom": "^17.0.13",
-    "@vitejs/plugin-react": "^1.2.0",
-    "babel-loader": "^8.2.3",
-    "prettier": "2.5.1",
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6"
-  }
+    "name": "react-hook-form-experiment",
+    "private": true,
+    "version": "0.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "storybook": "start-storybook -p 6006",
+        "build-storybook": "build-storybook",
+        "eslint": "npx eslint 'src/**/*.{js,jsx,ts,tsx,html,css,scss}' --quiet --fix",
+        "format": "npx prettier 'src/**/*.{js,jsx,ts,tsx,html,css,scss}' --write"
+    },
+    "dependencies": {
+        "bootstrap": "^5.1.3",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-hook-form": "^7.27.1"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.17.5",
+        "@storybook/addon-actions": "^6.4.19",
+        "@storybook/addon-essentials": "^6.4.19",
+        "@storybook/addon-interactions": "^6.4.19",
+        "@storybook/addon-links": "^6.4.19",
+        "@storybook/react": "^6.4.19",
+        "@storybook/testing-library": "^0.0.9",
+        "@types/react": "^17.0.39",
+        "@types/react-dom": "^17.0.13",
+        "@vitejs/plugin-react": "^1.2.0",
+        "babel-loader": "^8.2.3",
+        "prettier": "2.5.1",
+        "typescript": "^4.6.2",
+        "vite": "^2.8.6"
+    }
 }
