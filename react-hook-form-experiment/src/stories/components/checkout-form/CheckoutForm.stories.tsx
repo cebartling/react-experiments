@@ -1,11 +1,11 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import React from 'react';
 
-import ProfileForm from '../../../components/profile-form/ProfileForm';
+import CheckoutForm from '../../../components/checkout-form/CheckoutForm';
 
 export default {
-    title: 'Forms/Profile',
-    component: ProfileForm,
+    title: 'Forms/Checkout',
+    component: CheckoutForm,
     parameters: {
         // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout
         layout: 'fullscreen',
@@ -15,10 +15,10 @@ export default {
             },
         },
     },
-} as ComponentMeta<typeof ProfileForm>;
+} as ComponentMeta<typeof CheckoutForm>;
 
 // @ts-ignore
-const Template: ComponentStory<typeof ProfileForm> = (args) => <ProfileForm {...args} />;
+const Template: ComponentStory<typeof CheckoutForm> = (args) => <CheckoutForm {...args} />;
 
 // export const LoggedIn = Template.bind({});
 // LoggedIn.args = {
