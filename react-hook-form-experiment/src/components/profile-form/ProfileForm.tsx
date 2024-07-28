@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
+
+import cn from '../../util/cn';
 
 type ProfileFormData = {
   firstName: string;
@@ -37,7 +38,7 @@ export default function ProfileForm() {
       <form
         onSubmit={onSubmit}
         noValidate={true}
-        className={`bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ${classNames({
+        className={`bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ${cn({
           'needs-validation': true,
           'was-validated': isSubmitted,
         })}`}
@@ -48,7 +49,7 @@ export default function ProfileForm() {
           </label>
           <input
             {...register('firstName', { required: 'First name is required!' })}
-            className={classNames(
+            className={cn(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
                 'border-red-500': errors.firstName,
@@ -69,7 +70,7 @@ export default function ProfileForm() {
           </label>
           <input
             {...register('lastName', { required: 'Last name is required!' })}
-            className={classNames(
+            className={cn(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
                 'border-red-500': errors.lastName,
@@ -90,7 +91,7 @@ export default function ProfileForm() {
           </label>
           <input
             {...register('emailAddress', { required: 'Email address is required!' })}
-            className={classNames(
+            className={cn(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
                 'border-red-500': errors.emailAddress,
