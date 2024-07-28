@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
 
@@ -21,10 +22,13 @@ export default function ProfileForm() {
     handleSubmit,
     // watch,
     formState: { errors, isSubmitted },
-    // } = useForm<ProfileFormData>({ resolver: zodResolver(schema) });
-  } = useForm<ProfileFormData>({ reValidateMode: 'onChange', shouldFocusError: true });
+  } = useForm<ProfileFormData>({
+    // resolver: zodResolver(schema),
+    reValidateMode: 'onChange',
+    shouldFocusError: true,
+  });
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit((data: ProfileFormData) => {
     console.log(data);
   });
 
