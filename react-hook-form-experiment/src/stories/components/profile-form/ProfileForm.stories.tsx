@@ -4,17 +4,17 @@ import React from 'react';
 import ProfileForm from '../../../components/profile-form/ProfileForm';
 
 export default {
-    title: 'Forms/Profile',
-    component: ProfileForm,
-    parameters: {
-        // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout
-        layout: 'fullscreen',
-        docs: {
-            source: {
-                type: 'code',
-            },
-        },
+  title: 'Forms/Profile',
+  component: ProfileForm,
+  parameters: {
+    // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout
+    layout: 'fullscreen',
+    docs: {
+      source: {
+        type: 'code',
+      },
     },
+  },
 } as ComponentMeta<typeof ProfileForm>;
 
 // @ts-ignore
