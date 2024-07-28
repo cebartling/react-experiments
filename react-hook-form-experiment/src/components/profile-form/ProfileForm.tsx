@@ -7,13 +7,22 @@ type ProfileFormData = {
   emailAddress: string;
 };
 
+// const schema = z
+//   .object({
+//     firstName: z.string(),
+//     lastName: z.string(),
+//     emailAddress: z.string().email(),
+//   })
+//   .required();
+
 export default function ProfileForm() {
   const {
     register,
     handleSubmit,
     // watch,
     formState: { errors, isSubmitted },
-  } = useForm<ProfileFormData>();
+    // } = useForm<ProfileFormData>({ resolver: zodResolver(schema) });
+  } = useForm<ProfileFormData>({ reValidateMode: 'onChange', shouldFocusError: true });
 
   const onSubmit = handleSubmit((data) => {
     console.log(data);
