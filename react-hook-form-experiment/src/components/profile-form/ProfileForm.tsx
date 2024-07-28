@@ -1,100 +1,118 @@
-import classNames from "classnames";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import classNames from 'classnames';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 type ProfileFormData = {
-  firstName: string;
-  lastName: string;
-  emailAddress: string;
+    firstName: string;
+    lastName: string;
+    emailAddress: string;
 };
 
 export default function ProfileForm() {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors }
-  } = useForm<ProfileFormData>();
-  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+    const {
+        register,
+        handleSubmit,
+        // watch,
+        formState: { errors },
+    } = useForm<ProfileFormData>();
+    const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
 
-  const onSubmit = handleSubmit((data) => {
-    setFormSubmitted(true);
-    console.log(data);
-  });
+    const onSubmit = handleSubmit((data) => {
+        setFormSubmitted(true);
+        console.log(data);
+    });
 
-
-  console.log(watch("firstName"));
-  console.log(watch("lastName"));
-  console.log(watch("emailAddress"));
-
-  return (
-    <div className="p-2">
-      <form
-        onSubmit={onSubmit}
-        noValidate={true}
-        className={classNames({
-          row: true,
-          "needs-validation": true,
-          "was-validated": formSubmitted
-        })}
-      >
-        <div className="row">
-          <div className="form-floating mb-3 col-sm-6">
-            <input
-              {...register("firstName")}
-              id="firstName"
-              type="text"
-              className="form-control"
-              placeholder="John"
-              required={true}
-            />
-            <label htmlFor="firstName">Given name</label>
-          </div>
-          <div className="valid-feedback col-sm-6">Looks good!</div>
-          <div className="invalid-feedback col-sm-6">
-            {errors.firstName ? errors.firstName.message : null}
-          </div>
+    return (
+        <div className="w-full max-w-sm">
+            <form
+                onSubmit={onSubmit}
+                noValidate={true}
+                className={`bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ${classNames({
+                    'needs-validation': true,
+                    'was-validated': formSubmitted,
+                })}`}
+            >
+                <div className="mb-4">
+                    <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="firstName"
+                    >
+                        First name
+                    </label>
+                    <input
+                        {...register('firstName')}
+                        className={classNames(
+                            'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
+                            {
+                                'border-red-500': errors.firstName,
+                            },
+                        )}
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        required={true}
+                    />
+                    {errors.firstName && (
+                        <p className="text-red-500 text-xs italic">{errors.firstName.message}</p>
+                    )}
+                </div>
+                <div className="mb-4">
+                    <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="lastName"
+                    >
+                        Last name
+                    </label>
+                    <input
+                        {...register('lastName')}
+                        className={classNames(
+                            'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
+                            {
+                                'border-red-500': errors.lastName,
+                            },
+                        )}
+                        id="lastName"
+                        type="text"
+                        placeholder="Doe"
+                        required={true}
+                    />
+                    <p className="text-red-500 text-xs italic">
+                        {errors.lastName ? errors.lastName.message : null}
+                    </p>
+                </div>
+                <div className="mb-4">
+                    <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="emailAddress"
+                    >
+                        Email address
+                    </label>
+                    <input
+                        {...register('emailAddress')}
+                        className={classNames(
+                            'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
+                            {
+                                'border-red-500': errors.emailAddress,
+                            },
+                        )}
+                        id="emailAddress"
+                        type="text"
+                        placeholder="john.smith@mycompany.biz"
+                        required={true}
+                    />
+                    <p className="text-red-500 text-xs italic">
+                        {errors.emailAddress ? errors.emailAddress.message : null}
+                    </p>
+                </div>
+                <div className="flex items-center justify-between">
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white text-lg font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
         </div>
-        <div className="row">
-          <div className="form-floating mb-3 col-sm-6">
-            <input
-              {...register("lastName")}
-              id="lastName"
-              type="text"
-              className="form-control"
-              placeholder="Smith"
-              required={true}
-            />
-            <label htmlFor="lastName">Surname</label>
-          </div>
-          <div className="valid-feedback col-sm-6">Looks good!</div>
-          <div className="invalid-feedback col-sm-6">
-            {errors.lastName ? errors.lastName.message : null}
-          </div>
-        </div>
-        <div className="row">
-          <div className="form-floating mb-3 col-sm-6">
-            <input
-              {...register("emailAddress")}
-              id="emailAddress"
-              type="email"
-              className="form-control"
-              placeholder="john.smith@mycompany.biz"
-              required={true}
-            />
-            <label htmlFor="emailAddress">Email address</label>
-          </div>
-          <div className="valid-feedback col-sm-6">Looks good!</div>
-          <div className="invalid-feedback col-sm-6">
-            {errors.emailAddress ? errors.emailAddress.message : null}
-          </div>
-        </div>
-        <div className="mb-3">
-          <button className="btn btn-primary" type="submit">
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+    );
 }
