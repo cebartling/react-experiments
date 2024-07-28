@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 type ProfileFormData = {
@@ -13,12 +12,10 @@ export default function ProfileForm() {
     register,
     handleSubmit,
     // watch,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<ProfileFormData>();
-  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
 
   const onSubmit = handleSubmit((data) => {
-    setFormSubmitted(true);
     console.log(data);
   });
 
@@ -29,7 +26,7 @@ export default function ProfileForm() {
         noValidate={true}
         className={`bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ${classNames({
           'needs-validation': true,
-          'was-validated': formSubmitted,
+          'was-validated': isSubmitted,
         })}`}
       >
         <div className="mb-4">
@@ -37,7 +34,7 @@ export default function ProfileForm() {
             First name
           </label>
           <input
-            {...register('firstName', { required: true })}
+            {...register('firstName', { required: 'First name is required!' })}
             className={classNames(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
@@ -58,7 +55,7 @@ export default function ProfileForm() {
             Last name
           </label>
           <input
-            {...register('lastName', { required: true })}
+            {...register('lastName', { required: 'Last name is required!' })}
             className={classNames(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
@@ -70,16 +67,16 @@ export default function ProfileForm() {
             placeholder="Doe"
             required={true}
           />
-          <p className="text-red-500 text-xs italic">
-            {errors.lastName ? errors.lastName.message : null}
-          </p>
+          {errors.lastName && (
+            <p className="text-red-500 text-xs italic">{errors.lastName.message}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-1" htmlFor="emailAddress">
             Email address
           </label>
           <input
-            {...register('emailAddress', { required: true })}
+            {...register('emailAddress', { required: 'Email address is required!' })}
             className={classNames(
               'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
               {
@@ -91,11 +88,17 @@ export default function ProfileForm() {
             placeholder="john.smith@mycompany.biz"
             required={true}
           />
-          <p className="text-red-500 text-xs italic">
-            {errors.emailAddress ? errors.emailAddress.message : null}
-          </p>
+          {errors.emailAddress && (
+            <p className="text-red-500 text-xs italic">{errors.emailAddress.message}</p>
+          )}
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-row items-center justify-between">
+          <button
+            className="hover:bg-blue-700 hover:text-white text-lg font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="reset"
+          >
+            Reset
+          </button>
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white text-lg font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
