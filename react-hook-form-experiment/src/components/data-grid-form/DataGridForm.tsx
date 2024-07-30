@@ -16,8 +16,8 @@ export default function DataGridForm() {
     formState: { errors, isSubmitted },
   } = useForm<DataGridFormData>({
     // resolver: zodResolver(schema),
-    reValidateMode: 'onChange',
-    shouldFocusError: true,
+    // reValidateMode: 'onChange',
+    // shouldFocusError: true,
   });
 
   const onSubmit = handleSubmit((data: DataGridFormData) => {
