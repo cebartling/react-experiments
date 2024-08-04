@@ -1,5 +1,5 @@
-import { TextInput } from "../components";
-import { useForm } from "react-hook-form";
+import { TextInput } from '../components';
+import { useForm } from 'react-hook-form';
 
 export function DemographicsCard() {
   const { register, handleSubmit, reset, control, setValue } = useForm();
