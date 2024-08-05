@@ -3,13 +3,7 @@ import { DevTool } from '@hookform/devtools';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
 import { createGridColDefArray } from './createGridColDefArray.tsx';
-
-export type DemographicsFormData = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+import { DemographicsFormData } from '../types';
 
 const rows: DemographicsFormData[] = [
   {
