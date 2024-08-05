@@ -1,31 +1,47 @@
-import { Control, Controller, FieldValues } from 'react-hook-form';
+import { Control, Controller } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
+import { GridRenderEditCellParams } from '@mui/x-data-grid';
 
 export type TextInputProps = {
   name: string;
-  control: Control<FieldValues, any>;
+  fieldName: string;
+  control: Control;
   label: string;
+  params: GridRenderEditCellParams;
 };
 
-export function TextInput({ name, control, label }: TextInputProps) {
+export function TextInput({
+  name,
+  fieldName,
+  control,
+  label,
+  params,
+}: TextInputProps) {
   return (
     <Controller
       name={name}
       control={control}
       render={({
-        field: { onChange, value },
+        field: { onChange },
         fieldState: { error },
         // formState: UseFormStateReturn,
       }) => (
         <TextField
           helperText={error ? error.message : null}
-          size="small"
+          size="medium"
           error={!!error}
-          onChange={onChange}
-          value={value}
+          defaultValue={params.value}
           fullWidth
           label={label}
-          variant="outlined"
+          variant="standard"
+          onChange={(e) => {
+            onChange(e.target.value);
+            params.api.setEditCellValue({
+              id: params.id,
+              field: fieldName,
+              value: e.target.value,
+            });
+          }}
         />
       )}
     />

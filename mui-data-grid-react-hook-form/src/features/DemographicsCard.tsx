@@ -1,8 +1,8 @@
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { TextInput } from '../components';
 
 export type DemographicsFormData = {
   id: number;
@@ -48,38 +48,50 @@ export function DemographicsCard() {
       editable: true,
       renderEditCell: (params) => {
         return (
-          <Controller
+          <TextInput
             name={`form.${params.id}.firstName` as const}
+            fieldName={'firstName'}
             control={control}
-            render={({
-              field: { onChange },
-              fieldState: { error },
-              // formState: UseFormStateReturn,
-            }) => (
-              <TextField
-                helperText={error ? error.message : null}
-                size="medium"
-                error={!!error}
-                defaultValue={params.value}
-                fullWidth
-                label="First name"
-                variant="standard"
-                onChange={(e) => {
-                  onChange(e.target.value);
-                  params.api.setEditCellValue({
-                    id: params.id,
-                    field: 'firstName',
-                    value: e.target.value,
-                  });
-                }}
-              />
-            )}
+            label={'First name'}
+            params={params}
           />
         );
       },
     },
-    { field: 'lastName', headerName: 'Last name', width: 200, editable: true },
-    { field: 'email', headerName: 'Email address', width: 400, editable: true },
+    {
+      field: 'lastName',
+      headerName: 'Last name',
+      width: 200,
+      editable: true,
+      renderEditCell: (params) => {
+        return (
+          <TextInput
+            name={`form.${params.id}.lastName` as const}
+            fieldName={'lastName'}
+            control={control}
+            label={'Last name'}
+            params={params}
+          />
+        );
+      },
+    },
+    {
+      field: 'email',
+      headerName: 'Email address',
+      width: 400,
+      editable: true,
+      renderEditCell: (params) => {
+        return (
+          <TextInput
+            name={`form.${params.id}.email` as const}
+            fieldName={'email'}
+            control={control}
+            label={'Email address'}
+            params={params}
+          />
+        );
+      },
+    },
   ];
 
   return (
@@ -87,7 +99,7 @@ export function DemographicsCard() {
       <h2>Demographics</h2>
       <form onSubmit={handleSubmit((data) => console.log(data))}>
         <div className="w-full h-[500px]">
-          <DataGrid rows={rows} columns={columns} />
+          <DataGrid rows={rows} columns={columns} editMode="row" />
         </div>
         <div className="mt-4">
           <Button type="submit" variant="contained">
