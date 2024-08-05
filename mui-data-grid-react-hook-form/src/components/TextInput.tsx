@@ -1,13 +1,13 @@
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldValues } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 
 export type TextInputProps = {
   name: string;
-  control: any;
+  control: Control<FieldValues, any>;
   label: string;
 };
 
-export const TextInput = ({ name, control, label }: TextInputProps) => {
+export function TextInput({ name, control, label }: TextInputProps) {
   return (
     <Controller
       name={name}
@@ -30,4 +30,4 @@ export const TextInput = ({ name, control, label }: TextInputProps) => {
       )}
     />
   );
-};
+}
