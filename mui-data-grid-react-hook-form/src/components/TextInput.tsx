@@ -1,14 +1,6 @@
-import { Control, Controller } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
-import { GridRenderEditCellParams } from '@mui/x-data-grid';
-
-export type TextInputProps = {
-  name: string;
-  fieldName: string;
-  control: Control;
-  label: string;
-  params: GridRenderEditCellParams;
-};
+import { TextInputProps } from './TextInputProps.ts';
 
 export function TextInput({
   name,

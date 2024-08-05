@@ -2,7 +2,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
-import { TextInput } from '../components';
+import { createGridColDefArray } from './createGridColDefArray.tsx';
 
 export type DemographicsFormData = {
   id: number;
@@ -11,25 +11,25 @@ export type DemographicsFormData = {
   email: string;
 };
 
-const rows = [
+const rows: DemographicsFormData[] = [
   {
     id: 1,
     firstName: 'Kristoffer',
     lastName: 'Klaus',
     email: 'kris.klaus112@any-domain.com',
-  },
+  } as DemographicsFormData,
   {
     id: 2,
     firstName: 'Connie',
     lastName: 'Clausen',
     email: 'connie.clausen@any-domain.com',
-  },
+  } as DemographicsFormData,
   {
     id: 3,
     firstName: 'Catrina',
     lastName: 'Klasson',
     email: 'catrina.klasson@any-domain.com',
-  },
+  } as DemographicsFormData,
 ];
 
 export function DemographicsCard() {
@@ -38,61 +38,7 @@ export function DemographicsCard() {
     control,
     name: 'form',
   });
-
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'DB key', width: 75 },
-    {
-      field: 'firstName',
-      headerName: 'First name',
-      width: 200,
-      editable: true,
-      renderEditCell: (params) => {
-        return (
-          <TextInput
-            name={`form.${params.id}.firstName` as const}
-            fieldName={'firstName'}
-            control={control}
-            label={'First name'}
-            params={params}
-          />
-        );
-      },
-    },
-    {
-      field: 'lastName',
-      headerName: 'Last name',
-      width: 200,
-      editable: true,
-      renderEditCell: (params) => {
-        return (
-          <TextInput
-            name={`form.${params.id}.lastName` as const}
-            fieldName={'lastName'}
-            control={control}
-            label={'Last name'}
-            params={params}
-          />
-        );
-      },
-    },
-    {
-      field: 'email',
-      headerName: 'Email address',
-      width: 400,
-      editable: true,
-      renderEditCell: (params) => {
-        return (
-          <TextInput
-            name={`form.${params.id}.email` as const}
-            fieldName={'email'}
-            control={control}
-            label={'Email address'}
-            params={params}
-          />
-        );
-      },
-    },
-  ];
+  const columns: GridColDef[] = createGridColDefArray(control);
 
   return (
     <div className="p-5">
@@ -107,15 +53,7 @@ export function DemographicsCard() {
           </Button>
         </div>
       </form>
-      <DevTool
-        control={control}
-        placement={'bottom-right'}
-        styles={{
-          panel: {
-            width: '400px',
-          },
-        }}
-      />
+      <DevTool control={control} placement="top-right" />
     </div>
   );
 }
