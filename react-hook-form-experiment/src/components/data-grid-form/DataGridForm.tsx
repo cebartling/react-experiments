@@ -1,3 +1,4 @@
+import { createColumnHelper } from '@tanstack/react-table';
 import { useForm } from 'react-hook-form';
 
 import cn from '../../util/cn';
@@ -7,6 +8,34 @@ type DataGridFormData = {
   lastName: string;
   emailAddress: string;
 };
+
+const defaultData: DataGridFormData[] = [
+  {
+    firstName: 'Christopher',
+    lastName: 'Bartling',
+    emailAddress: 'chris@any-domain.com',
+  },
+];
+
+const columnHelper = createColumnHelper<DataGridFormData>();
+
+const columns = [
+  columnHelper.accessor('firstName', {
+    cell: (info) => info.getValue(),
+    footer: (info) => info.column.id,
+  }),
+  columnHelper.accessor((row) => row.lastName, {
+    id: 'lastName',
+    cell: (info) => <i>{info.getValue()}</i>,
+    header: () => <span>Last Name</span>,
+    footer: (info) => info.column.id,
+  }),
+  columnHelper.accessor('emailAddress', {
+    header: () => 'Email Address',
+    cell: (info) => info.renderValue(),
+    footer: (info) => info.column.id,
+  }),
+];
 
 export default function DataGridForm() {
   const {
