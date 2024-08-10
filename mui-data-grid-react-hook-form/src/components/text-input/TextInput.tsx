@@ -1,14 +1,17 @@
-import { Controller } from 'react-hook-form';
+import { Controller, FieldPath, FieldValues } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import { TextInputProps } from './TextInputProps.ts';
 
-export function TextInput({
+
+export function TextInput<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>>({
   name,
   fieldName,
   control,
   label,
   params,
-}: TextInputProps) {
+}: TextInputProps<TFieldValues, TName>) {
   return (
     <Controller
       name={name}

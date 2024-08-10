@@ -1,2 +1,2 @@
-export * from './TextInput';
-export * from './TextInputProps';
+export * from './hidden-input';
+export * from './text-input';

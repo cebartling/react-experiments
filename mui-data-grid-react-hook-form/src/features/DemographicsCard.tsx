@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -27,12 +28,14 @@ const rows: DemographicsFormData[] = [
 ];
 
 export function DemographicsCard() {
-  const { handleSubmit, control } = useForm();
+  const { handleSubmit, control, register } = useForm();
   useFieldArray({
     control,
     name: 'form',
   });
-  const columns: GridColDef[] = createGridColDefArray(control);
+
+
+  const columns: GridColDef[] = useMemo(() => createGridColDefArray(control, register), [control, register]);
 
   return (
     <div className="p-5">
