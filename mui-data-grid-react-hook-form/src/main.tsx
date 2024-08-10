@@ -11,11 +11,17 @@ async function enableMocking() {
 
   const { worker } = await import('./mocks/browser');
 
-  console.info('Starting Mock Service Worker!');
-
   // `worker.start()` returns a Promise that resolves
   // once the Service Worker is up and ready to intercept requests.
-  return worker.start();
+  return worker.start({
+    onUnhandledRequest(req, print) {
+      if (req.url.startsWith('chrome-extension://')) {
+        return;
+      }
+
+      print.warning();
+    },
+  });
 }
 
 enableMocking().then(() => {
