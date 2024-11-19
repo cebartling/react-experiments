@@ -52,6 +52,7 @@ export const handlers = [
   // Handle real image requests
   http.get('/images/*', async ({ request }) => {
     const url = new URL(request.url);
+    console.log(`Fetching real image: ${url.pathname}`);
 
     // Check if this is a real image
     if (REAL_IMAGES.has(url.pathname)) {
