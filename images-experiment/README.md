@@ -87,11 +87,14 @@ The project includes:
 │   ├── components/
 │   │   └── ResponsiveImage/
 │   │       ├── index.tsx
-│   │       ├── ResponsiveImage.test.tsx
+│   │       ├── index.spec.tsx
+│   │       ├── README.md
+│   │       ├── ResponsiveImage.mdx
 │   │       └── ResponsiveImage.stories.tsx
 │   └── mocks/
+│       ├── browser.ts
 │       ├── handlers.ts
-│       └── browser.ts
+│       └── storybook.ts
 ├── .storybook/
 └── public/
 ```
