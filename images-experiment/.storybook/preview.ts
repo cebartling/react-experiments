@@ -1,6 +1,16 @@
 import type { Preview } from '@storybook/react';
+import { initialize, mswLoader } from 'msw-storybook-addon';
+
+// Initialize MSW
+initialize({
+  serviceWorker: {
+    url: '/mockServiceWorker.js',
+  },
+});
 
 const preview: Preview = {
+  decorators: [(Story) => Story()],
+  loaders: [mswLoader],
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
@@ -8,6 +18,9 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
+    },
+    msw: {
+      handlers: [],
     },
     viewport: {
       viewports: {
@@ -35,7 +48,6 @@ const preview: Preview = {
       },
     },
   },
-  decorators: [(Story) => Story()],
 };
 
 export default preview;

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { handlers } from '../../mocks/handlers';
 import ResponsiveImage from './index';
 
 const meta = {
@@ -6,36 +7,24 @@ const meta = {
   component: ResponsiveImage,
   parameters: {
     layout: 'centered',
+    msw: {
+      handlers: handlers,
+    },
   },
   tags: ['autodocs'],
   argTypes: {
     aspectRatio: {
       control: 'number',
       description: 'Aspect ratio of the image container',
-      defaultValue: 16 / 9,
     },
     objectFit: {
       control: 'select',
       options: ['cover', 'contain', 'fill'],
       description: 'How the image should fit within its container',
-      defaultValue: 'cover',
     },
     className: {
       control: 'text',
       description: 'Additional CSS classes',
-    },
-    sources: {
-      control: 'object',
-      description: 'Array of image sources with their widths',
-    },
-    alt: {
-      control: 'text',
-      description: 'Alt text for the image',
-      required: true,
-    },
-    fallbackSrc: {
-      control: 'text',
-      description: 'Fallback image source if main image fails to load',
     },
   },
 } satisfies Meta<typeof ResponsiveImage>;
@@ -43,6 +32,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Example stories using MSW-handled images
 export const Default: Story = {
   args: {
     sources: [
@@ -50,14 +40,19 @@ export const Default: Story = {
       { src: '/api/placeholder/800/600', width: 800 },
       { src: '/api/placeholder/1200/900', width: 1200 },
     ],
-    alt: 'Example image',
+    alt: 'Responsive placeholder image',
     aspectRatio: 16 / 9,
   },
 };
 
 export const Square: Story = {
   args: {
-    ...Default.args,
+    sources: [
+      { src: '/api/placeholder/400/400', width: 400 },
+      { src: '/api/placeholder/800/800', width: 800 },
+      { src: '/api/placeholder/1200/1200', width: 1200 },
+    ],
+    alt: 'Square placeholder image',
     aspectRatio: 1,
   },
 };
@@ -77,17 +72,26 @@ export const ErrorState: Story = {
   },
 };
 
-export const CustomStyling: Story = {
+export const Portrait: Story = {
   args: {
-    ...Default.args,
-    className:
-      'border-4 border-blue-500 rounded-lg overflow-hidden max-w-md mx-auto',
+    sources: [
+      { src: '/api/placeholder/300/400', width: 300 },
+      { src: '/api/placeholder/600/800', width: 600 },
+      { src: '/api/placeholder/900/1200', width: 900 },
+    ],
+    alt: 'Portrait placeholder image',
+    aspectRatio: 3 / 4,
   },
 };
 
-export const Portrait: Story = {
+export const CustomSizes: Story = {
   args: {
-    ...Default.args,
-    aspectRatio: 3 / 4,
+    sources: [
+      { src: '/images/400x300.jpg', width: 400 },
+      { src: '/images/800x600.jpg', width: 800 },
+      { src: '/images/1200x900.jpg', width: 1200 },
+    ],
+    alt: 'Custom sized placeholder image',
+    aspectRatio: 4 / 3,
   },
 };
