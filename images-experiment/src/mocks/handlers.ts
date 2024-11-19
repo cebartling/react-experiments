@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse } from 'msw';
 
 const createSVGPlaceholder = (width: number, height: number) => {
   const svg = `
@@ -21,37 +21,56 @@ const createSVGPlaceholder = (width: number, height: number) => {
         ${width} × ${height}
       </text>
     </svg>
-  `.trim()
+  `.trim();
 
-  return new Blob([svg], { type: 'image/svg+xml' })
-}
+  return new Blob([svg], { type: 'image/svg+xml' });
+};
+
+// List of available real images
+const REAL_IMAGES = new Set([
+  '/images/small.jpg',
+  '/images/medium.jpg',
+  '/images/large.jpg',
+]);
 
 export const handlers = [
+  // Handle placeholder requests
   http.get('/api/placeholder/:width/:height', async ({ params }) => {
-    const width = parseInt(params.width as string)
-    const height = parseInt(params.height as string)
-    
-    const svgBlob = createSVGPlaceholder(width, height)
-    
+    const width = parseInt(params.width as string);
+    const height = parseInt(params.height as string);
+
+    const svgBlob = createSVGPlaceholder(width, height);
+
     return new HttpResponse(svgBlob, {
       headers: {
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=31536000',
       },
-    })
+    });
   }),
 
-  http.get('/images/:filename', async ({ params }) => {
-    const filename = params.filename as string
-    const [width, height] = filename.split('x').map(num => parseInt(num))
-    
-    const svgBlob = createSVGPlaceholder(width || 400, height || 300)
-    
-    return new HttpResponse(svgBlob, {
+  // Handle real image requests
+  http.get('/images/*', async ({ request }) => {
+    const url = new URL(request.url);
+
+    // Check if this is a real image
+    if (REAL_IMAGES.has(url.pathname)) {
+      // Pass through to the actual file in public directory
+      return fetch(request);
+    }
+
+    // If not a real image, generate a placeholder
+    const dimensions =
+      url.pathname.split('/').pop()?.split('.')[0] ?? '400x300';
+    const [width, height] = dimensions
+      .split('x')
+      .map((num) => parseInt(num) || 400);
+
+    return new HttpResponse(createSVGPlaceholder(width, height), {
       headers: {
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=31536000',
       },
-    })
-  })
-]
+    });
+  }),
+];
