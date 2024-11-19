@@ -36,9 +36,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     sources: [
-      { src: '/api/placeholder/400/300', width: 400 },
-      { src: '/api/placeholder/800/600', width: 800 },
-      { src: '/api/placeholder/1200/900', width: 1200 },
+      { src: '/images/small.jpg', width: 400 },
+      { src: '/images/medium.jpg', width: 800 },
+      { src: '/images/large.jpg', width: 1200 },
     ],
     alt: 'Responsive placeholder image',
     aspectRatio: 16 / 9,
