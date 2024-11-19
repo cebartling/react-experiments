@@ -20,7 +20,7 @@ A flexible, responsive image component that handles different source sets, loadi
 ## Usage
 
 ```tsx
-import { ResponsiveImage } from './ResponsiveImage';
+import ResponsiveImage  from '@/component/ResponsiveImage';
 
 const MyComponent = () => (
   <ResponsiveImage
@@ -42,18 +42,16 @@ const MyComponent = () => (
 
 ## Examples
 
-### Default Usage
+### With real images
 
-<Story of={ResponsiveImageStories.Default} />
+<Story of={ResponsiveImageStories.WithRealImages} />
 
-### Square Aspect Ratio
+### With SVG placeholders
 
-<Story of={ResponsiveImageStories.Square} />
+<Story of={ResponsiveImageStories.WithPlaceholders} />
 
-### With Contain Fit
+### Mix of placeholders and real images
 
-<Story of={ResponsiveImageStories.WithContainFit} />
+<Story of={ResponsiveImageStories.MixedImages} />
 
-### Error State
 
-<Story of={ResponsiveImageStories.ErrorState} />

@@ -12,6 +12,36 @@ const meta = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    aspectRatio: {
+      control: 'number',
+      description: 'Aspect ratio of the image container',
+      defaultValue: 16 / 9,
+    },
+    objectFit: {
+      control: 'select',
+      options: ['cover', 'contain', 'fill'],
+      description: 'How the image should fit within its container',
+      defaultValue: 'cover',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS classes',
+    },
+    sources: {
+      control: 'object',
+      description: 'Array of image sources with their widths',
+    },
+    alt: {
+      control: 'text',
+      description: 'Alt text for the image',
+      required: true,
+    },
+    fallbackSrc: {
+      control: 'text',
+      description: 'Fallback image source if main image fails to load',
+    },
+  },
 } satisfies Meta<typeof ResponsiveImage>;
 
 export default meta;

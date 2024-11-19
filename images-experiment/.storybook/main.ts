@@ -15,6 +15,7 @@ const config: StorybookConfig = {
   },
   docs: {
     autodocs: true,
+    defaultName: 'Documentation',
   },
   staticDirs: [
     { from: '../public', to: '/' }, // Serve public directory at root
