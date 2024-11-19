@@ -1,8 +1,7 @@
 import { http, HttpResponse } from 'msw';
-// Import your images
-import smallImage from '/public/images/small.jpg';
-import mediumImage from '/public/images/medium.jpg';
-import largeImage from '/public/images/large.jpg';
+import smallImage from '../assets/small.jpg';
+import mediumImage from '../assets/medium.jpg';
+import largeImage from '../assets/large.jpg';
 
 const createSVGPlaceholder = (width: number, height: number) => {
   const svg = `
