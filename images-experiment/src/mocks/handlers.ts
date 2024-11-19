@@ -1,4 +1,8 @@
 import { http, HttpResponse } from 'msw';
+// Import your images
+import smallImage from '/public/images/small.jpg';
+import mediumImage from '/public/images/medium.jpg';
+import largeImage from '/public/images/large.jpg';
 
 const createSVGPlaceholder = (width: number, height: number) => {
   const svg = `
@@ -26,11 +30,11 @@ const createSVGPlaceholder = (width: number, height: number) => {
   return new Blob([svg], { type: 'image/svg+xml' });
 };
 
-// List of available real images
-const REAL_IMAGES = new Set([
-  '/images/small.jpg',
-  '/images/medium.jpg',
-  '/images/large.jpg',
+// Map of real images to their imported paths
+const REAL_IMAGES = new Map([
+  ['/images/small.jpg', smallImage],
+  ['/images/medium.jpg', mediumImage],
+  ['/images/large.jpg', largeImage],
 ]);
 
 export const handlers = [
@@ -52,12 +56,18 @@ export const handlers = [
   // Handle real image requests
   http.get('/images/*', async ({ request }) => {
     const url = new URL(request.url);
-    console.log(`Fetching real image: ${url.pathname}`);
+    const imagePath = REAL_IMAGES.get(url.pathname);
 
-    // Check if this is a real image
-    if (REAL_IMAGES.has(url.pathname)) {
-      // Pass through to the actual file in public directory
-      return fetch(request);
+    if (imagePath) {
+      // Return the actual image
+      const response = await fetch(imagePath);
+      const blob = await response.blob();
+      return new HttpResponse(blob, {
+        headers: {
+          'Content-Type': response.headers.get('Content-Type') || 'image/jpeg',
+          'Cache-Control': 'public, max-age=31536000',
+        },
+      });
     }
 
     // If not a real image, generate a placeholder
