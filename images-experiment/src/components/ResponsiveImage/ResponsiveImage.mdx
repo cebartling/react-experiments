@@ -1,0 +1,59 @@
+import { Meta, Story, ArgTypes } from '@storybook/blocks';
+import * as ResponsiveImageStories from './ResponsiveImage.stories';
+
+<Meta of={ResponsiveImageStories} />
+
+# ResponsiveImage
+
+A flexible, responsive image component that handles different source sets, loading states, and fallbacks.
+
+## Features
+
+- Responsive image loading with srcset
+- Loading skeleton state
+- Error handling with fallback image
+- Configurable aspect ratio
+- Custom object-fit settings
+- Customizable styling
+- TypeScript support
+
+## Usage
+
+```tsx
+import { ResponsiveImage } from './ResponsiveImage';
+
+const MyComponent = () => (
+  <ResponsiveImage
+    sources={[
+      { src: '/images/small.jpg', width: 400 },
+      { src: '/images/large.jpg', width: 1200 },
+    ]}
+    alt="Description"
+    aspectRatio={16/9}
+    objectFit="cover"
+    className="max-w-lg mx-auto"
+  />
+);
+```
+
+## Props
+
+<ArgTypes of={ResponsiveImageStories} />
+
+## Examples
+
+### Default Usage
+
+<Story of={ResponsiveImageStories.Default} />
+
+### Square Aspect Ratio
+
+<Story of={ResponsiveImageStories.Square} />
+
+### With Contain Fit
+
+<Story of={ResponsiveImageStories.WithContainFit} />
+
+### Error State
+
+<Story of={ResponsiveImageStories.ErrorState} />
