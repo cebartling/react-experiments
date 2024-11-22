@@ -3,16 +3,16 @@ import styled from 'styled-components';
 
 // Styled Button
 const StyledButton = styled.button`
-    background-color: #007bff;
+    background-color: ${(props) => props.theme.colors.primary};
     color: white;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
-    padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
 
     &:hover {
-        background-color: #0056b3;
+        background-color: ${(props) => props.theme.colors.secondary};
     }
 `;
 
