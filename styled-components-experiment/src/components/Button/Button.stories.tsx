@@ -1,9 +1,9 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import {Button} from './index';
+import { Button } from './index';
 
 const meta: Meta<typeof Button> = {
-    component: Button,
+  component: Button,
 };
 
 export default meta;
@@ -11,8 +11,8 @@ export default meta;
 type Story = StoryObj<typeof Button>;
 
 export const Primary: Story = {
-    args: {
-        label: 'Save',
-        onClick: () => console.log('clicked'),
-    },
+  args: {
+    label: 'Save',
+    onClick: () => console.log('clicked'),
+  },
 };
