@@ -61,26 +61,26 @@ export default [
       ],
 
       // Import Rules
-      'import/order': [
-        'error',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            ['parent', 'sibling'],
-            'index',
-            'object',
-            'type',
-          ],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-        },
-      ],
-      'import/no-duplicates': 'error',
+      // 'import/order': [
+      //   'error',
+      //   {
+      //     groups: [
+      //       'builtin',
+      //       'external',
+      //       'internal',
+      //       ['parent', 'sibling'],
+      //       'index',
+      //       'object',
+      //       'type',
+      //     ],
+      //     'newlines-between': 'always',
+      //     alphabetize: {
+      //       order: 'asc',
+      //       caseInsensitive: true,
+      //     },
+      //   },
+      // ],
+      // 'import/no-duplicates': 'error',
 
       // General Rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],

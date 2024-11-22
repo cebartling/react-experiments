@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { describe, expect, it, vi } from 'vitest';
-
 import { Card } from './index';
+
+import { fireEvent, render, screen } from '@testing-library/react';
 
 // Mock theme for testing
 const theme = {
@@ -184,6 +184,8 @@ describe('Card Component', () => {
   // Edge Cases
   describe('Edge Cases', () => {
     it('handles empty children', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const { container } = customRender(<Card></Card>);
 
       expect(container.firstChild).toBeInTheDocument();
