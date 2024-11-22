@@ -1,28 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-
-interface PopupProps {
-  trigger: React.ReactNode;
-  children: React.ReactNode;
-  popupMode?: 'popup' | 'hint' | 'modal';
-  defaultOpen?: boolean;
-  onOpen?: () => void;
-  onClose?: () => void;
-  position?: {
-    x?: number;
-    y?: number;
-  };
-  dimensions?: {
-    width?: number;
-    height?: number;
-  };
-}
-
-interface StyledFallbackPopupProps {
-  $isOpen: boolean;
-  $position?: PopupProps['position'];
-  $dimensions?: PopupProps['dimensions'];
-}
+import { PopupProps, StyledFallbackPopupProps } from './types';
 
 const StyledFallbackPopup = styled.div<StyledFallbackPopupProps>`
   display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
