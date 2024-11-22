@@ -3,12 +3,14 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import {GlobalStyles} from "./GlobalStyles.ts";
+import {theme} from "./theme.ts";
+import {ThemeProvider} from "styled-components";
 
 function App() {
     const [count, setCount] = useState(0)
 
     return (
-        <>
+        <ThemeProvider theme={theme}>
             <GlobalStyles/>
             <div>
                 <a href="https://vite.dev" target="_blank">
@@ -30,7 +32,7 @@ function App() {
             <p className="read-the-docs">
                 Click on the Vite and React logos to learn more
             </p>
-        </>
+        </ThemeProvider>
     )
 }
 

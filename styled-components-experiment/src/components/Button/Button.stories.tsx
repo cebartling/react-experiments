@@ -13,5 +13,6 @@ type Story = StoryObj<typeof Button>;
 export const Primary: Story = {
     args: {
         label: 'Save',
+        onClick: () => console.log('clicked'),
     },
 };
