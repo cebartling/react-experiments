@@ -1,6 +1,7 @@
-import { ThemeProvider } from 'styled-components';
-import { theme } from '../src/theme';
 import { Preview, StoryFn } from '@storybook/react';
+import { ThemeProvider } from 'styled-components';
+
+import { theme } from '../src/theme';
 
 const withThemeProvider = (Story: StoryFn) => {
   return (
