@@ -1,50 +1,63 @@
-# React + TypeScript + Vite
+# React Styled Components Experiment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the **React Styled Components Project**! This project demonstrates how to build a modern React application
+styled using the `styled-components` library.
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Folder Structure](#folder-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## About the Project
 
-- Configure the top-level `parserOptions` property like this:
+This project leverages `styled-components` for styling React components. It allows for CSS-in-JS styling, making it
+easier to maintain styles and avoid class name conflicts.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
+- [styled-components homepage](https://styled-components.com/)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react';
+## Features
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-});
-```
+- Dynamic styling with `styled-components`
+- Component-based architecture
+- Theme support for dark and light modes
+- Responsive design
+- Modular and reusable code
+
+---
+
+## Technologies Used
+
+- **React**: JavaScript library for building user interfaces
+- **styled-components**: CSS-in-JS styling library
+- **ESLint/Prettier**: For code formatting and linting
+- **Storybook**: For developing UI components in isolation
+- **Vitest/React Testing Library**: For testing React components
+
+---
+
+## Getting Started
+
+Follow these steps to set up the project on your local machine:
+
+### Prerequisites
+
+Make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v16 or later)
+- npm or [yarn](https://yarnpkg.com/)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/react-styled-components.git
