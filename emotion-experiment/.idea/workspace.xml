@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="be3302c0-0b96-4bfd-984d-742ff6d61d0a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.nvmrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.prettierignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.prettierrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.storybook/main.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/.storybook/preview.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/eslint.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/pnpm-lock.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/public/vite.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/App.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/App.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/GlobalStyles.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/assets/react.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Button/Button.spec.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Button/Button.stories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Button/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Card/Card.spec.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Card/Card.stories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Card/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/FoobarMap/FoobarMap.stories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/FoobarMap/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Popup/Popup.spec.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Popup/Popup.stories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Popup/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/components/Popup/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/index.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/main.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/Configure.mdx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/accessibility.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/accessibility.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/addon-library.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/assets.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/avif-test-image.avif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/context.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/discord.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/docs.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/figma-plugin.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/github.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/share.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/styling.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/testing.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/theming.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/tutorials.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/stories/assets/youtube.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/test/setup.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/theme.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/types/theme.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/src/vite-env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/tsconfig.app.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/tsconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/tsconfig.node.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../leaflet-experiment/vite.config.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "cebartling"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:cebartling/react-experiments.git",
+    "accountId": "246abdb3-7a34-49a8-a7f3-d500c0be8395"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2pEiKJrRFtT6EnMu8hQ6eQsBasM" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23339.15" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="be3302c0-0b96-4bfd-984d-742ff6d61d0a" name="Changes" comment="" />
+      <created>1732337570396</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1732337570396</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
