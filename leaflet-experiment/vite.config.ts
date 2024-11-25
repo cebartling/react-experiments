@@ -7,9 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     visualizer({
-      filename: 'stats.html',
+      filename: './stats.html',
+      template: 'sunburst', // 'treemap' or 'sunburst', 'network'
       gzipSize: true,
       brotliSize: true,
+      open: false,
+      title: 'Bundle Analysis',
+      projectRoot: process.cwd(),
     }),
   ],
 });
