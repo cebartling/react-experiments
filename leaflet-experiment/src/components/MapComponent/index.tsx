@@ -15,7 +15,7 @@ const MapComponent = () => {
   const zoom = 13;
 
   return (
-    <div className="h-96 w-full">
+    <div className="h-[80vh] w-full">
       <MapContainer
         center={position}
         zoom={zoom}
