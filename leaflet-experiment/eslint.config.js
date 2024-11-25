@@ -5,6 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 
+// "plugin:storybook/recommended"
+
 export default tseslint.config(
   { ignores: ['dist'] },
   {
@@ -20,6 +22,7 @@ export default tseslint.config(
     },
     plugins: {
       react,
+
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
