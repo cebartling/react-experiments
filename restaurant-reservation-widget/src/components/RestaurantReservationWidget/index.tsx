@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Button from '../Button';
-
+import { useRef } from 'react';
+import Dialog from "../Dialog";
 
 const StyledRestaurantReservationDiv = styled.div`
   display: flex;
@@ -12,16 +13,20 @@ const StyledRestaurantReservationDiv = styled.div`
 `;
 
 const RestaurantReservationWidget = () => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const handleClick = () => {
-    console.log('Handling button click');
+    dialogRef?.current?.showModal();
   };
 
   return (
     <StyledRestaurantReservationDiv>
       <Button onClick={handleClick}>Reserve a table</Button>
+      <Dialog ref={dialogRef}>
+        <p>Would you like to reserve a table?</p>
+      </Dialog>
     </StyledRestaurantReservationDiv>
   );
-}
+};
 
 export default RestaurantReservationWidget;
