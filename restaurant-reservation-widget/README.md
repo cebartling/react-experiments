@@ -1,4 +1,10 @@
-# React + TypeScript + Vite
+# Restaurant Reservation Widget
+
+This is a ReactPractice exercise. You can find the original project [here](https://reactpractice.dev/exercise/build-a-restaurant-reservation-widget/).
+
+
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
