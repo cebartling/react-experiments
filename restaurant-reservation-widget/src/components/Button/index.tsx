@@ -17,12 +17,14 @@ const StyledButton = styled.button`
 
 const Button = ({
   children,
+    type,
   onClick,
 }: {
   children: ReactNode | string;
-  onClick: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
 }) => {
-  return <StyledButton onClick={onClick}>{children}</StyledButton>;
+  return <StyledButton type={type} onClick={onClick ? onClick : undefined}>{children}</StyledButton>;
 };
 
 export default Button;
