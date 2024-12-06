@@ -5,14 +5,16 @@ const StyledInput = styled.input`
   border-radius: 5px;
   padding: 10px;
   margin: 5px;
+  font-size: 1.2rem;
+  font-weight: 500;
 `;
 
 interface InputProps {
-  placeholder?: string;
   defaultValue?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
   type: string;
   value?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Input = ({ placeholder, type, value, onChange }: InputProps) => {
