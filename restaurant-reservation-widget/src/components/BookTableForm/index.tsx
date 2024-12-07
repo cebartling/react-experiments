@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import Input from '../Input';
-import Button from "../Button";
+import Button from '../Button';
 
 type Inputs = {
   people: number;
@@ -9,15 +9,17 @@ type Inputs = {
   time: string;
 };
 
-const FormContainer = styled.div`
+const FormGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 3fr 2fr;
   gap: 1rem;
   align-items: center;
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
 `;
+
+const FormGridCell = styled.div``;
 
 const FullWidthRow = styled.div`
   grid-column: 1 / -1;
@@ -35,47 +37,53 @@ const BookTableForm = () => {
     <div>
       <h3>Book a table</h3>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormContainer>
-          <div>
+        <FormGrid>
+          <FormGridCell>
             <label htmlFor="people">People</label>
-          </div>
-          <div>
+          </FormGridCell>
+          <FormGridCell>
             <Input
               type="text"
               defaultValue="1"
               {...register('people', { required: true })}
             />
+          </FormGridCell>
+          <FormGridCell>
             {errors.people && <span>This field is required</span>}
-          </div>
+          </FormGridCell>
 
-          <div>
+          <FormGridCell>
             <label htmlFor="date">Date</label>
-          </div>
-          <div>
+          </FormGridCell>
+          <FormGridCell>
             <Input
               type="text"
               defaultValue="12/08/2024"
               {...register('date', { required: true })}
             />
+          </FormGridCell>
+          <FormGridCell>
             {errors.date && <span>This field is required</span>}
-          </div>
+          </FormGridCell>
 
-          <div>
+          <FormGridCell>
             <label htmlFor="time">Time</label>
-          </div>
-          <div>
+          </FormGridCell>
+          <FormGridCell>
             <Input
               type="text"
               defaultValue="7:00 PM"
               {...register('time', { required: true })}
             />
+          </FormGridCell>
+          <FormGridCell>
             {errors.time && <span>This field is required</span>}
-          </div>
+          </FormGridCell>
 
           <FullWidthRow>
             <Button type="submit">Confirm reservation</Button>
           </FullWidthRow>
-        </FormContainer>
+        </FormGrid>
       </form>
     </div>
   );
