@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Input from '../Input';
-import Button from '../Button';
 import styled from 'styled-components';
+import Input from '../Input';
+import Button from "../Button";
 
 type Inputs = {
   people: number;
@@ -9,16 +9,18 @@ type Inputs = {
   time: string;
 };
 
-const FormRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 10px;
+const FormContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
 `;
 
-const FormContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+const FullWidthRow = styled.div`
+  grid-column: 1 / -1;
 `;
 
 const BookTableForm = () => {
@@ -34,39 +36,45 @@ const BookTableForm = () => {
       <h3>Book a table</h3>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormContainer>
-          <FormRow>
+          <div>
             <label htmlFor="people">People</label>
+          </div>
+          <div>
             <Input
               type="text"
               defaultValue="1"
               {...register('people', { required: true })}
             />
             {errors.people && <span>This field is required</span>}
-          </FormRow>
+          </div>
 
-          <FormRow>
-            <label htmlFor="people">Date</label>
+          <div>
+            <label htmlFor="date">Date</label>
+          </div>
+          <div>
             <Input
               type="text"
-              defaultValue="1"
+              defaultValue="12/08/2024"
               {...register('date', { required: true })}
             />
             {errors.date && <span>This field is required</span>}
-          </FormRow>
+          </div>
 
-          <FormRow>
-            <label htmlFor="people">Time</label>
+          <div>
+            <label htmlFor="time">Time</label>
+          </div>
+          <div>
             <Input
               type="text"
-              defaultValue="1"
+              defaultValue="7:00 PM"
               {...register('time', { required: true })}
             />
             {errors.time && <span>This field is required</span>}
-          </FormRow>
+          </div>
 
-          <FormRow>
+          <FullWidthRow>
             <Button type="submit">Confirm reservation</Button>
-          </FormRow>
+          </FullWidthRow>
         </FormContainer>
       </form>
     </div>
