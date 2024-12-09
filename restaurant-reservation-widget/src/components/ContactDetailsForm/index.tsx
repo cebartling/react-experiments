@@ -1,12 +1,11 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import styled from 'styled-components';
 import Input from '../Input';
 import Button from '../Button';
+import styled from 'styled-components';
 
 type Inputs = {
-  people: number;
-  date: string;
-  time: string;
+  name: string;
+  phoneNumber: string;
 };
 
 const FormGrid = styled.div`
@@ -25,7 +24,7 @@ const FullWidthRow = styled.div`
   grid-column: 1 / -1;
 `;
 
-const BookTableForm = ({ onClick }: { onClick: () => void }) => {
+const ContactDetailsForm = ({ onClick }: { onClick: () => void }) => {
   const {
     register,
     handleSubmit,
@@ -39,53 +38,35 @@ const BookTableForm = ({ onClick }: { onClick: () => void }) => {
 
   return (
     <div>
-      <h3>Book a table</h3>
+      <h3>Contact details</h3>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormGrid>
           <FormGridCell>
-            <label htmlFor="people">People</label>
+            <label htmlFor="name">Name</label>
           </FormGridCell>
           <FormGridCell>
-            <Input
-              type="text"
-              defaultValue="1"
-              {...register('people', { required: true })}
-            />
+            <Input type="text" {...register('name', { required: true })} />
           </FormGridCell>
           <FormGridCell>
-            {errors.people && <span>This field is required</span>}
+            {errors.name && <span>This field is required</span>}
           </FormGridCell>
 
           <FormGridCell>
-            <label htmlFor="date">Date</label>
-          </FormGridCell>
-          <FormGridCell>
-            <Input
-              type="text"
-              defaultValue="12/08/2024"
-              {...register('date', { required: true })}
-            />
-          </FormGridCell>
-          <FormGridCell>
-            {errors.date && <span>This field is required</span>}
-          </FormGridCell>
-
-          <FormGridCell>
-            <label htmlFor="time">Time</label>
+            <label htmlFor="phoneNumber">Phone number</label>
           </FormGridCell>
           <FormGridCell>
             <Input
               type="text"
               defaultValue="7:00 PM"
-              {...register('time', { required: true })}
+              {...register('phoneNumber', { required: true })}
             />
           </FormGridCell>
           <FormGridCell>
-            {errors.time && <span>This field is required</span>}
+            {errors.phoneNumber && <span>This field is required</span>}
           </FormGridCell>
 
           <FullWidthRow>
-            <Button type="submit">Book now</Button>
+            <Button type="submit">Confirm reservation</Button>
           </FullWidthRow>
         </FormGrid>
       </form>
@@ -93,4 +74,4 @@ const BookTableForm = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export default BookTableForm;
+export default ContactDetailsForm;
