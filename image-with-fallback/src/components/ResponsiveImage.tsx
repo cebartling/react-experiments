@@ -1,11 +1,15 @@
-const ResponsiveImage = ({ src }: { src: string }) => {
-  return (
-    <img
-      src={src}
-      alt="Responsive image"
-      srcSet={`${src} 1x, ${src} 2x, ${src} 3x`}
-    />
-  );
+const ResponsiveImage = ({
+  src,
+  srcSet,
+  sizes,
+  alt,
+}: {
+  src: string;
+  srcSet: string;
+  sizes: string;
+  alt: string;
+}) => {
+  return <img src={src} alt={alt} srcSet={srcSet} sizes={sizes}/>;
 };
 
 export default ResponsiveImage;
