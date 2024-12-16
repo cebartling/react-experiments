@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import AsyncImageLoader from './AsyncImageLoader.tsx';
-import SuspenseResponsiveImageFallback from './SuspenseResponsiveImageFallback.tsx';
+import SuspenseResponsiveImageFallback from './SuspenseResponsiveImageFallback';
+import LazyImageLoader from './LazyImageLoader';
 
 type SuspenseResponsiveImageProps = {
   srcSet: string;
@@ -15,17 +15,9 @@ const SuspenseResponsiveImage = ({
   sizes,
   alt,
 }: SuspenseResponsiveImageProps) => {
-
   return (
-    <Suspense
-      fallback={<SuspenseResponsiveImageFallback srcSet={srcSet} />}
-    >
-      <AsyncImageLoader
-        src={src}
-        srcSet={srcSet}
-        sizes={sizes}
-        alt={alt}
-      />
+    <Suspense fallback={<SuspenseResponsiveImageFallback srcSet={srcSet} />}>
+      <LazyImageLoader src={src} srcSet={srcSet} sizes={sizes} alt={alt} />
     </Suspense>
   );
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import FallbackSkeleton from './FallbackSkeleton.tsx';
+import FallbackSkeleton from './FallbackSkeleton';
 
 const getFallbackSize = (srcSet: string, viewportWidth: number): number => {
   const breakpoints = srcSet
