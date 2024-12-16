@@ -13,7 +13,7 @@ const WithSuspensePage = () => {
     images/2x/wind-turbines.png ${pageMetadata.mediaBreakpoints.medium}w, 
     images/3x/wind-turbines.png ${pageMetadata.mediaBreakpoints.large}w
   `;
-  const sizes = `
+  const imageSizes = `
     (max-width: 480px) ${pageMetadata.mediaBreakpoints.small}px, 
     (max-width: 1024px) ${pageMetadata.mediaBreakpoints.medium}px, 
     ${pageMetadata.mediaBreakpoints.large}px
@@ -30,9 +30,9 @@ const WithSuspensePage = () => {
       </PageContent>
       <ImageContainer>
         <SuspenseResponsiveImage
-          imageSrcSet={imageSrcSet}
+          srcSet={imageSrcSet}
           src={imageUrl}
-          sizes={sizes}
+          sizes={imageSizes}
           alt="Wind turbines on rolling hills under a blue sky"
         />
       </ImageContainer>

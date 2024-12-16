@@ -1,61 +1,31 @@
-import ResponsiveImage from './ResponsiveImage.tsx';
-import FallbackSkeleton from './FallbackSkeleton.tsx';
-import { Suspense, useEffect, useState } from 'react';
-
-const getFallbackSize = (srcSet: string, viewportWidth: number): number => {
-  const breakpoints = srcSet
-    .split(',')
-    .map((entry) => {
-      const [url, width] = entry.trim().split(' ');
-      return { url, width: parseInt(width.replace('w', ''), 10) };
-    })
-    .sort((a, b) => a.width - b.width);
-
-  // Find the closest width breakpoint, using the largest if none match
-  const appropriateBreakpoint =
-    breakpoints.find((bp) => bp.width >= viewportWidth) ||
-    breakpoints[breakpoints.length - 1];
-
-  return appropriateBreakpoint.width;
-};
+import { Suspense } from 'react';
+import AsyncImageLoader from './AsyncImageLoader.tsx';
+import SuspenseResponsiveImageFallback from './SuspenseResponsiveImageFallback.tsx';
 
 type SuspenseResponsiveImageProps = {
-  imageSrcSet: string;
+  srcSet: string;
   src: string;
   sizes: string;
   alt: string;
 };
 
 const SuspenseResponsiveImage = ({
-  imageSrcSet,
+  srcSet,
   src,
   sizes,
   alt,
 }: SuspenseResponsiveImageProps) => {
-  const [fallbackWidth, setFallbackWidth] = useState(300);
-  const [fallbackHeight, setFallbackHeight] = useState(200);
-
-  useEffect(() => {
-    const updateFallbackSize = () => {
-      const viewportWidth = window.innerWidth;
-      const width = getFallbackSize(imageSrcSet, viewportWidth);
-      setFallbackWidth(width);
-      setFallbackHeight((width * 9) / 16); // Assuming a 16:9 aspect ratio
-    };
-
-    updateFallbackSize();
-    window.addEventListener('resize', updateFallbackSize);
-
-    return () => window.removeEventListener('resize', updateFallbackSize);
-  }, [imageSrcSet]);
 
   return (
     <Suspense
-      fallback={
-        <FallbackSkeleton height={fallbackHeight} width={fallbackWidth} />
-      }
+      fallback={<SuspenseResponsiveImageFallback srcSet={srcSet} />}
     >
-      <ResponsiveImage src={src} srcSet={imageSrcSet} sizes={sizes} alt={alt} />
+      <AsyncImageLoader
+        src={src}
+        srcSet={srcSet}
+        sizes={sizes}
+        alt={alt}
+      />
     </Suspense>
   );
 };
