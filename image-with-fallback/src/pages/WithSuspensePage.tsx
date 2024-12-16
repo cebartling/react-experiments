@@ -1,28 +1,10 @@
-import ResponsiveImage from '../components/ResponsiveImage.tsx';
 import Page from '../components/Page.tsx';
 import PageHeading from '../components/PageHeading.tsx';
 import ImageContainer from '../components/ImageContainer.tsx';
 import PageContent from '../components/PageContent.tsx';
-import { Suspense, useEffect, useState } from 'react';
-import FallbackSkeleton from '../components/FallbackSkeleton.tsx';
 import { pageMetadata } from '../metadata/page-metadata.ts';
+import SuspenseResponsiveImage from '../components/SuspenseResponsiveImage.tsx';
 
-const getFallbackSize = (srcSet: string, viewportWidth:number): number => {
-  const breakpoints = srcSet
-    .split(',')
-    .map((entry) => {
-      const [url, width] = entry.trim().split(' ');
-      return { url, width: parseInt(width.replace('w', ''), 10) };
-    })
-    .sort((a, b) => a.width - b.width);
-
-  // Find the closest width breakpoint, using the largest if none match
-  const appropriateBreakpoint =
-    breakpoints.find((bp) => bp.width >= viewportWidth) ||
-    breakpoints[breakpoints.length - 1];
-
-  return appropriateBreakpoint.width;
-};
 
 const WithSuspensePage = () => {
   const imageUrl = 'images/1x/wind-turbines.png';
@@ -36,43 +18,23 @@ const WithSuspensePage = () => {
     (max-width: 1024px) ${pageMetadata.mediaBreakpoints.medium}px, 
     ${pageMetadata.mediaBreakpoints.large}px
   `;
-  const [fallbackWidth, setFallbackWidth] = useState(300);
-  const [fallbackHeight, setFallbackHeight] = useState(200);
-
-  useEffect(() => {
-    const updateFallbackSize = () => {
-      const viewportWidth = window.innerWidth;
-      const width = getFallbackSize(imageSrcSet, viewportWidth);
-      setFallbackWidth(width);
-      setFallbackHeight((width * 9) / 16); // Assuming a 16:9 aspect ratio
-    };
-
-    updateFallbackSize();
-    window.addEventListener('resize', updateFallbackSize);
-
-    return () => window.removeEventListener('resize', updateFallbackSize);
-  }, [imageSrcSet]);
 
   return (
     <Page>
-      <PageHeading>With Suspense</PageHeading>
+      <PageHeading>Responsive Image With Suspense</PageHeading>
       <PageContent>
-        This page does use Suspense. As a result, the loading state is rendered
-        immediately and then the image replaces it.
+        This page uses Suspense with a fallback. As a result, the loading state
+        is rendered immediately and then the image replaces it. This should lead
+        to a lower Cumulative Layout Shift (CLS) score. Use this as the improved
+        score.
       </PageContent>
       <ImageContainer>
-        <Suspense
-          fallback={
-            <FallbackSkeleton height={fallbackHeight} width={fallbackWidth} />
-          }
-        >
-          <ResponsiveImage
-            src={imageUrl}
-            srcSet={imageSrcSet}
-            sizes={sizes}
-            alt="Wind turbines on rolling hills under a blue sky"
-          />
-        </Suspense>
+        <SuspenseResponsiveImage
+          imageSrcSet={imageSrcSet}
+          src={imageUrl}
+          sizes={sizes}
+          alt="Wind turbines on rolling hills under a blue sky"
+        />
       </ImageContainer>
     </Page>
   );

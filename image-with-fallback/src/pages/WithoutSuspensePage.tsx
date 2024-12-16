@@ -6,20 +6,34 @@ import PageContent from '../components/PageContent.tsx';
 import { pageMetadata } from '../metadata/page-metadata.ts';
 
 const WithoutSuspensePage = () => {
+  const imageUrl = 'images/1x/wind-turbines.png';
+  const imageSrcSet = `
+    images/1x/wind-turbines.png ${pageMetadata.mediaBreakpoints.small}w, 
+    images/2x/wind-turbines.png ${pageMetadata.mediaBreakpoints.medium}w, 
+    images/3x/wind-turbines.png ${pageMetadata.mediaBreakpoints.large}w
+  `;
+  const sizes = `
+    (max-width: 480px) ${pageMetadata.mediaBreakpoints.small}px, 
+    (max-width: 1024px) ${pageMetadata.mediaBreakpoints.medium}px, 
+    ${pageMetadata.mediaBreakpoints.large}px
+  `;
+
   return (
     <Page>
-      <PageHeading>Without Suspense</PageHeading>
+      <PageHeading>Responsive Image Without Suspense</PageHeading>
       <PageContent>
-        This page does not use Suspense. As a result, the components are rendered
-        immediately without any loading state.
+        This page does not use Suspense. As a result, the components are
+        rendered immediately without any loading state. This should lead to a
+        higher Cumulative Layout Shift (CLS) score. Use this as the baseline
+        score.
       </PageContent>
       <ImageContainer>
         <ResponsiveImage
-            src={'images/1x/wind-turbines.png'}
-            srcSet={`images/1x/wind-turbines.png ${pageMetadata.mediaBreakpoints.small}w, images/2x/wind-turbines.png ${pageMetadata.mediaBreakpoints.medium}w, images/3x/wind-turbines.png ${pageMetadata.mediaBreakpoints.large}w`}
-            sizes={`(max-width: 480px) ${pageMetadata.mediaBreakpoints.small}px, (max-width: 1024px) ${pageMetadata.mediaBreakpoints.medium}px, ${pageMetadata.mediaBreakpoints.large}px`}
-            alt="Wind turbines on rolling hills under a blue sky"
-          />
+          src={imageUrl}
+          srcSet={imageSrcSet}
+          sizes={sizes}
+          alt="Wind turbines on rolling hills under a blue sky"
+        />
       </ImageContainer>
     </Page>
   );
