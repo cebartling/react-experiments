@@ -46,7 +46,7 @@ const LazyImageLoader = React.lazy(
         }, [src, srcSet, sizes]);
 
         if (!loadedImg) {
-          return null; // Tells Suspense to keep showing the fallback
+          return null;
         }
 
         return (
