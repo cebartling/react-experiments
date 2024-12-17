@@ -33,7 +33,6 @@ const loadImage = (
 ): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-
     // Set srcSet and sizes before src to ensure proper resource selection
     if (srcSet) {
       img.srcset = srcSet;
@@ -41,7 +40,6 @@ const loadImage = (
     if (sizes) {
       img.sizes = sizes;
     }
-
     img.src = src;
 
     img.onload = () => resolve(img);
@@ -68,6 +66,7 @@ const preloadImage = (src: string, srcSet?: string, sizes?: string) => {
   }
 
   if (imageCache[cacheKey].status === 'pending') {
+    // Trigger Suspense fallback
     throw imageCache[cacheKey].promise;
   } else if (imageCache[cacheKey].status === 'rejected') {
     throw imageCache[cacheKey].error;
