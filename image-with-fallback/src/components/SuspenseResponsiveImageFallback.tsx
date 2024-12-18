@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import FallbackSkeleton from './FallbackSkeleton';
+import styled from 'styled-components';
+
+const StyledDiv = styled.div<{ width: number; height: number }>`
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
+`;
 
 const getFallbackSize = (srcSet: string, viewportWidth: number): number => {
   const breakpoints = srcSet
@@ -42,7 +50,7 @@ const SuspenseResponsiveImageFallback = ({
     return () => window.removeEventListener('resize', updateFallbackSize);
   }, [srcSet]);
 
-  return <FallbackSkeleton height={fallbackHeight} width={fallbackWidth} />;
+  return <StyledDiv height={fallbackHeight} width={fallbackWidth} />;
 };
 
 export default SuspenseResponsiveImageFallback;

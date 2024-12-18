@@ -18,7 +18,7 @@ interface ImageCache {
 }
 
 // Generate a unique cache key for the image including srcSet
-const getCacheKey = (src: string, srcSet?: string): string => {
+const generateCacheKey = (src: string, srcSet?: string): string => {
   if (!srcSet) return src;
   return `${src}::${srcSet}`;
 };
@@ -48,7 +48,7 @@ const loadImage = (
 };
 
 const preloadImage = (src: string, srcSet?: string, sizes?: string) => {
-  const cacheKey = getCacheKey(src, srcSet);
+  const cacheKey = generateCacheKey(src, srcSet);
 
   if (!imageCache[cacheKey]) {
     imageCache[cacheKey] = {
@@ -97,7 +97,7 @@ const ImageLoaderComponent = ({
 };
 
 // Wrap with React.lazy for code splitting and Suspense support
-export const AsyncImageLoader = React.lazy(() =>
+const AsyncImageLoader = React.lazy(() =>
   Promise.resolve({ default: ImageLoaderComponent })
 );
 
