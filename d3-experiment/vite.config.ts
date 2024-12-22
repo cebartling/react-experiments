@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [react(), tsconfigPaths()],
     resolve: {
         alias: {
-            '~': '/app'
+            '~': '/src'
         }
     }
 });

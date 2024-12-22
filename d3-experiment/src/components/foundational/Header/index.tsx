@@ -1,5 +1,5 @@
-import logoDark from '/app/assets/react.svg';
-import logoLight from '/app/assets/react.svg';
+import logoDark from '~/assets/react.svg';
+import logoLight from '~/assets/react.svg';
 
 const alternativeText = 'Logo image';
 const Header = () => {
