@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import Heading2 from './index';
 import testAccessibility from '~/test/testAccessibility';
-import Figure from '~/components/foundational/Figure';
 
 describe('Heading2', () => {
     it('renders children correctly', () => {
