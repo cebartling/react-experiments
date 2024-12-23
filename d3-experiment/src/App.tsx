@@ -1,19 +1,14 @@
 import './App.css';
-import BarChart from './components/charts/BarChart';
-import Figure from './components/foundational/Figure';
-import Heading1 from './components/foundational/Heading1';
-import Section from './components/foundational/Section';
+import { Route, Routes } from 'react-router';
+import HomeRoute from '~/routes/HomeRoute.tsx';
+import BarChartRoute from '~/routes/BarChartRoute.tsx';
 
 function App() {
     return (
-        <>
-            <Section>
-                <Heading1>Example Bar Chart</Heading1>
-                <Figure caption="Example bar chart">
-                    <BarChart />
-                </Figure>
-            </Section>
-        </>
+        <Routes>
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/bar-chart" element={<BarChartRoute />} />
+        </Routes>
     );
 }
 
