@@ -1,11 +1,11 @@
-import React from 'react';
+import { Scene } from './components/Scene';
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <p>Start prompting (or editing) to see magic happen :)</p>
-    </div>
-  );
+    return (
+        <div className="w-full h-screen bg-gray-900">
+            <Scene />
+        </div>
+    );
 }
 
 export default App;
