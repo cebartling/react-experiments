@@ -16,6 +16,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@react-three/cannon": "^6.6.0",
     "@react-three/drei": "^9.120.6",
     "@react-three/fiber": "^8.17.12",
     "lucide-react": "^0.471.0",
