@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Box } from '../BoxScene/Box.tsx';
+import { Box } from './Box.tsx';
 import { Canvas } from '@react-three/fiber';
 
 describe('Box', () => {

@@ -1,10 +1,17 @@
 // import { BoxScene } from '@/components/BoxScene';
-import BouncingBallScene  from '@/components/BouncingBallScene';
+
+import { Route, Routes } from 'react-router';
+import { BoxScene } from '@/components/BoxScene';
+import BouncingBallScene from '@/components/BouncingBallScene';
 
 function App() {
     return (
         <div className="w-full h-screen bg-green-300">
-            <BouncingBallScene />
+            <Routes>
+                <Route index path="/" element={<BoxScene />} />
+                <Route path="/box" element={<BoxScene />} />
+                <Route path="/bouncingBall" element={<BouncingBallScene />} />
+            </Routes>
         </div>
     );
 }
