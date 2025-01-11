@@ -1,9 +1,9 @@
-import { Scene } from './components/Scene';
+import { BoxScene } from '@/components/BoxScene';
 
 function App() {
     return (
         <div className="w-full h-screen bg-gray-900">
-            <Scene />
+            <BoxScene />
         </div>
     );
 }
