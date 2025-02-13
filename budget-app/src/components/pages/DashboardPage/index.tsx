@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Transaction } from '@/types/transaction';
 import { MonthSelector } from '@/components/core/MonthSelector';
 import { AppTitle } from '@/components/core/AppTitle';
+import { TotalSpend } from '@/components/core/TotalSpend';
 
 type DashboardPageProps = {
   data: Transaction[];
@@ -14,7 +15,7 @@ export const DashboardPage: FC<DashboardPageProps> = () => {
         <AppTitle />
         <MonthSelector />
       </div>
-      <div className=""></div>
+      <TotalSpend />
       <div className=""></div>
     </div>
   );
