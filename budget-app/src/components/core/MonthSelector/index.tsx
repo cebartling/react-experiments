@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { State } from '@/types/state.ts';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 
 type MonthSelectorProps = {
   state: State;
@@ -13,18 +14,12 @@ export const MonthSelector: FC<MonthSelectorProps> = ({
 
   return (
     <div className="flex flex-row">
-      <button
-        type="button"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Back
+      <button type="button" className="">
+        <ChevronLeftIcon className="size-6 text-black" />
       </button>
-      <div className="">{date.toLocaleDateString()}</div>
-      <button
-        type="button"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Forward
+      <div className="p-6">{date.toLocaleDateString()}</div>
+      <button type="button" className="">
+        <ChevronRightIcon className="size-6 text-black" />
       </button>
     </div>
   );
