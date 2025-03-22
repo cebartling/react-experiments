@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { FoobarState } from './types';
 import { localforageStorage } from './localforageStorage';
 
-export const foobarStore = create<FoobarState>()(
+const foobarStore = create<FoobarState>()(
     persist(
         (set) => ({
             foo: 'hello',
