@@ -1,8 +1,8 @@
 import React from 'react';
-import {useFoobar} from "~hooks/Foobar";
+import { useFoobar } from '~hooks/Foobar';
 
 export const StateViewer: React.FC = () => {
-    const {foo, bar} = useFoobar();
+    const { foo, bar } = useFoobar();
 
     return (
         <div>
@@ -11,4 +11,3 @@ export const StateViewer: React.FC = () => {
         </div>
     );
 };
-

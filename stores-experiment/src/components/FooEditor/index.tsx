@@ -1,8 +1,8 @@
 import React from 'react';
-import {useFoobar} from "~hooks/Foobar";
+import { useFoobar } from '~hooks/Foobar';
 
 export const FooEditor: React.FC = () => {
-    const {setFoo} = useFoobar();
+    const { setFoo } = useFoobar();
 
     return (
         <div>
@@ -10,4 +10,3 @@ export const FooEditor: React.FC = () => {
         </div>
     );
 };
-

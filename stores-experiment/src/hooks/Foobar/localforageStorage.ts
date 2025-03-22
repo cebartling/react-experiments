@@ -1,5 +1,5 @@
 import localforage from 'localforage';
-import {StateStorage} from "zustand/middleware";
+import { StateStorage } from 'zustand/middleware';
 
 export const localforageStorage = (key: string): StateStorage => ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15,4 +15,3 @@ export const localforageStorage = (key: string): StateStorage => ({
         await localforage.removeItem(key);
     },
 });
-

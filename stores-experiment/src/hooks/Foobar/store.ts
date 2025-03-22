@@ -1,15 +1,15 @@
-import {create} from "zustand/index";
-import {persist} from "zustand/middleware";
-import type {FoobarState} from "./types";
-import {localforageStorage} from "./localforageStorage";
+import { create } from 'zustand/index';
+import { persist } from 'zustand/middleware';
+import type { FoobarState } from './types';
+import { localforageStorage } from './localforageStorage';
 
 export const foobarStore = create<FoobarState>()(
     persist(
         (set) => ({
             foo: 'hello',
             bar: 42,
-            setFoo: (value) => set({foo: value}),
-            setBar: (value) => set({bar: value}),
+            setFoo: (value) => set({ foo: value }),
+            setBar: (value) => set({ bar: value }),
         }),
         {
             name: 'foobar-indexeddb',
