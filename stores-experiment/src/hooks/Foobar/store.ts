@@ -15,7 +15,7 @@ export const foobarStore = create<FoobarState>()(
             name: 'foobar-indexeddb',
             // @ts-expect-error - localforageStorage is not a valid StateStorage
             storage: localforageStorage('foobar-indexeddb'),
-            // @ts-expect-error - partialize is not a valid option
+            // @ts-expect-error - override persistence to only persist foo and bar
             partialize: (state) => ({
                 foo: state.foo,
                 bar: state.bar,
