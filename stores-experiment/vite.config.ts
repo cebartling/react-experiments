@@ -12,4 +12,10 @@ export default defineConfig({
             '~hooks': path.resolve(__dirname, 'src/hooks'),
         },
     },
+    // @ts-expect-error - vite types are not up to date
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: './src/setupTests.ts', // optional, but useful for setup like jest-dom
+    },
 });
