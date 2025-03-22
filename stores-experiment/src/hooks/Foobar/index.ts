@@ -1,20 +1,19 @@
-import { useSyncExternalStore } from 'react';
-import create from 'zustand/vanilla';
+import {useSyncExternalStore} from 'react';
+import {create} from 'zustand';
 
 // Define the state shape
 interface FoobarState {
-  foo: string;
-  bar: number;
-  setFoo: (value: string) => void;
-  setBar: (value: number) => void;
+    foo: string;
+    bar: number;
+    setFoo: (value: string) => void;
+    setBar: (value: number) => void;
 }
 
-// Create a vanilla Zustand store (outside of React context)
-export const foobarStore = create<FoobarState>((set) => ({
-  foo: 'hello',
-  bar: 42,
-  setFoo: (value) => set({ foo: value }),
-  setBar: (value) => set({ bar: value }),
+const foobarStore = create<FoobarState>((set) => ({
+    foo: 'hello',
+    bar: 42,
+    setFoo: (value) => set({foo: value}),
+    setBar: (value) => set({bar: value}),
 }));
 
 // Create a snapshot getter
@@ -25,5 +24,5 @@ const subscribe = (callback: () => void) => foobarStore.subscribe(callback);
 
 // Custom hook that provides the full state
 export function useFoobar(): FoobarState {
-  return useSyncExternalStore(subscribe, getSnapshot);
+    return useSyncExternalStore(subscribe, getSnapshot);
 }
