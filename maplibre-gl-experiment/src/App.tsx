@@ -21,8 +21,8 @@ function About() {
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
+    <div className="h-screen flex flex-col bg-gray-50">
+      <nav className="bg-white shadow-sm border-b flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 h-16 items-center">
             <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">
@@ -37,13 +37,11 @@ function App() {
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/" element={<main className="max-w-7xl mx-auto flex-1 overflow-auto"><Home /></main>} />
+        <Route path="/map" element={<Map />} />
+        <Route path="/about" element={<main className="max-w-7xl mx-auto flex-1 overflow-auto"><About /></main>} />
+      </Routes>
     </div>
   )
 }
