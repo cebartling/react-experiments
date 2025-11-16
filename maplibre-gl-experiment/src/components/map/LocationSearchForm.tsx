@@ -4,6 +4,7 @@ import { useLocationStore } from '../../stores/locationStore';
 export function LocationSearchForm() {
    const { latInput, lonInput, setLatInput, setLonInput, setLocation } = useLocationStore();
    const [isExpanded, setIsExpanded] = useState(true);
+   const [isSubmitted, setIsSubmitted] = useState(false);
 
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -22,6 +23,12 @@ export function LocationSearchForm() {
 
       // Update location in Zustand store (will persist to IndexedDB)
       setLocation(lat, lon);
+
+      // Trigger green transition
+      setIsSubmitted(true);
+      setTimeout(() => {
+         setIsSubmitted(false);
+      }, 800);
    };
 
    return (
@@ -78,7 +85,11 @@ export function LocationSearchForm() {
                </div>
                <button
                   type="submit"
-                  className="w-full bg-white/30 text-white py-2 px-4 rounded-md hover:bg-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-sm transition-colors"
+                  className={`w-full py-2 px-4 rounded-md text-white focus:outline-none focus:ring-2 backdrop-blur-sm transition-all duration-300 ${
+                     isSubmitted
+                        ? 'bg-green-600 shadow-[0_0_20px_rgba(34,197,94,0.6)]'
+                        : 'bg-blue-600 hover:bg-blue-700 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:animate-pulse focus:ring-blue-400'
+                  }`}
                >
                   Search
                </button>
