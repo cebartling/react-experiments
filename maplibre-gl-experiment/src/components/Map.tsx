@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Map as MapGL, NavigationControl, Source, Layer } from '@vis.gl/react-maplibre';
 import type { MapRef } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useCellTowers, type CellTower } from '../services/cellTowerService';
+import { useLocationStore } from '../stores/locationStore';
 
 // Satellite style using free EOX Sentinel-2 cloudless imagery
 const satelliteStyle = {
@@ -46,13 +47,23 @@ function Map() {
    // Ref for the map instance
    const mapRef = useRef<MapRef>(null);
 
-   // State for coordinates (used for fetching cell towers)
-   const [latitude, setLatitude] = useState(44.7975); // Shakopee, MN
-   const [longitude, setLongitude] = useState(-93.5272);
+   // Get location state and actions from Zustand store
+   const {
+      latitude,
+      longitude,
+      latInput,
+      lonInput,
+      isHydrated,
+      setLatInput,
+      setLonInput,
+      setLocation,
+      hydrateFromStorage,
+   } = useLocationStore();
 
-   // Form input state (separate from actual search coordinates)
-   const [latInput, setLatInput] = useState('44.7975');
-   const [lonInput, setLonInput] = useState('-93.5272');
+   // Hydrate state from IndexedDB on mount
+   useEffect(() => {
+      hydrateFromStorage();
+   }, [hydrateFromStorage]);
 
    // Fetch cell towers using SWR hook
    // API limit: 4,000,000 sq.m (4 km²)
@@ -84,20 +95,20 @@ function Map() {
          return;
       }
 
-      setLatitude(lat);
-      setLongitude(lon);
+      // Update location in Zustand store (will persist to IndexedDB)
+      setLocation(lat, lon);
    };
 
-   // Fly to new coordinates when they change
+   // Fly to new coordinates when they change (only after hydration)
    useEffect(() => {
-      if (mapRef.current) {
+      if (mapRef.current && isHydrated) {
          mapRef.current.flyTo({
             center: [longitude, latitude],
             zoom: 12,
             duration: 2000,
          });
       }
-   }, [latitude, longitude]);
+   }, [latitude, longitude, isHydrated]);
 
    // Convert cell towers to GeoJSON
    const cellTowerGeoJSON = {
