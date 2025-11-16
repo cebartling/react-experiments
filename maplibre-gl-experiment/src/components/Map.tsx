@@ -1,68 +1,28 @@
 import { useRef, useEffect } from 'react';
-import { Map as MapGL, NavigationControl, Source, Layer } from '@vis.gl/react-maplibre';
+import { Map as MapGL, NavigationControl } from '@vis.gl/react-maplibre';
 import type { MapRef } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useCellTowers, type CellTower } from '../services/cellTowerService';
+import { useCellTowers } from '../services/cellTowerService';
 import { useLocationStore } from '../stores/locationStore';
-
-// Satellite style using free EOX Sentinel-2 cloudless imagery
-const satelliteStyle = {
-   version: 8 as const,
-   sources: {
-      satellite: {
-         type: 'raster' as const,
-         tiles: [
-            'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg',
-         ],
-         tileSize: 256,
-         attribution:
-            '© <a href="https://s2maps.eu" target="_blank">Sentinel-2 cloudless</a> by <a href="https://eox.at/" target="_blank">EOX IT Services GmbH</a>',
-      },
-   },
-   layers: [
-      {
-         id: 'satellite',
-         type: 'raster' as const,
-         source: 'satellite',
-         minzoom: 0,
-         maxzoom: 22,
-      },
-   ],
-};
-
-// Layer style for cell tower markers
-const cellTowerLayer = {
-   id: 'cell-towers',
-   type: 'circle' as const,
-   paint: {
-      'circle-radius': 6,
-      'circle-color': '#FF6B6B',
-      'circle-stroke-color': '#FFF',
-      'circle-stroke-width': 2,
-      'circle-opacity': 0.8,
-   },
-};
+import { useMapLocation } from '../hooks/useMapLocation';
+import { satelliteStyle } from '../config/mapStyles';
+import { LocationSearchForm } from './map/LocationSearchForm';
+import { MapStatusIndicators } from './map/MapStatusIndicators';
+import { CellTowerLayer } from './map/CellTowerLayer';
 
 function Map() {
    // Ref for the map instance
    const mapRef = useRef<MapRef>(null);
 
-   // Get location state and actions from Zustand store
-   const {
-      latitude,
-      longitude,
-      latInput,
-      lonInput,
-      isHydrated,
-      setLatInput,
-      setLonInput,
-      setLocation,
-      hydrateFromStorage,
-   } = useLocationStore();
+   // Get location state from Zustand store
+   const { latitude, longitude, hydrateFromStorage } = useLocationStore();
+
+   // Custom hook for map location interactions
+   const { handleMoveEnd } = useMapLocation(mapRef);
 
    // Hydrate state from IndexedDB on mount
    useEffect(() => {
-      hydrateFromStorage();
+      void hydrateFromStorage();
    }, [hydrateFromStorage]);
 
    // Fetch cell towers using SWR hook
@@ -79,78 +39,6 @@ function Map() {
       50 // limit
    );
 
-   // Handle map move/drag end - update location when user pans the map
-   const handleMoveEnd = () => {
-      if (mapRef.current) {
-         const center = mapRef.current.getCenter();
-         const newLat = center.lat;
-         const newLon = center.lng;
-
-         // Update location in store and persist to IndexedDB
-         setLocation(newLat, newLon);
-
-         // Also update the input fields to reflect the new center
-         setLatInput(newLat.toFixed(4));
-         setLonInput(newLon.toFixed(4));
-      }
-   };
-
-   // Handle form submission
-   const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const lat = parseFloat(latInput);
-      const lon = parseFloat(lonInput);
-
-      // Validate inputs
-      if (isNaN(lat) || lat < -90 || lat > 90) {
-         alert('Latitude must be between -90 and 90');
-         return;
-      }
-      if (isNaN(lon) || lon < -180 || lon > 180) {
-         alert('Longitude must be between -180 and 180');
-         return;
-      }
-
-      // Update location in Zustand store (will persist to IndexedDB)
-      setLocation(lat, lon);
-   };
-
-   // Fly to new coordinates when they change (only after hydration)
-   useEffect(() => {
-      if (mapRef.current && isHydrated) {
-         mapRef.current.flyTo({
-            center: [longitude, latitude],
-            zoom: 12,
-            duration: 2000,
-         });
-      }
-   }, [latitude, longitude, isHydrated]);
-
-   // Convert cell towers to GeoJSON
-   const cellTowerGeoJSON = {
-      type: 'FeatureCollection' as const,
-      features: (cellTowers || []).map((tower: CellTower) => ({
-         type: 'Feature' as const,
-         geometry: {
-            type: 'Point' as const,
-            coordinates: [tower.lon, tower.lat],
-         },
-         properties: {
-            cellid: tower.cellid,
-            radio: tower.radio,
-            mcc: tower.mcc,
-            mnc: tower.mnc,
-            range: tower.range,
-         },
-      })),
-   };
-
-   const errorMessage = error
-      ? error instanceof Error
-         ? error.message
-         : 'Failed to load cell towers'
-      : null;
-
    return (
       <div className="flex-1 w-full h-full relative">
          <MapGL
@@ -165,68 +53,11 @@ function Map() {
             onMoveEnd={handleMoveEnd}
          >
             <NavigationControl position="top-right" />
-
-            {/* Cell Tower Layer */}
-            <Source id="cell-towers" type="geojson" data={cellTowerGeoJSON}>
-               <Layer {...cellTowerLayer} />
-            </Source>
+            <CellTowerLayer cellTowers={cellTowers} />
          </MapGL>
 
-         {/* Coordinate Input Form */}
-         <div className="absolute top-4 left-4 bg-white p-4 rounded-lg shadow-lg max-w-sm">
-            <form onSubmit={handleSubmit} className="space-y-3">
-               <h3 className="font-semibold text-lg mb-2">Search Location</h3>
-               <div>
-                  <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
-                     Latitude
-                  </label>
-                  <input
-                     type="text"
-                     id="latitude"
-                     value={latInput}
-                     onChange={(e) => setLatInput(e.target.value)}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                     placeholder="44.7975"
-                  />
-               </div>
-               <div>
-                  <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
-                     Longitude
-                  </label>
-                  <input
-                     type="text"
-                     id="longitude"
-                     value={lonInput}
-                     onChange={(e) => setLonInput(e.target.value)}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                     placeholder="-93.5272"
-                  />
-               </div>
-               <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-               >
-                  Search
-               </button>
-            </form>
-         </div>
-
-         {/* Status indicators */}
-         <div className="absolute bottom-4 left-4 space-y-2">
-            {isLoading && (
-               <div className="bg-white px-4 py-2 rounded-lg shadow-lg">Loading cell towers...</div>
-            )}
-            {errorMessage && (
-               <div className="bg-red-100 text-red-800 px-4 py-2 rounded-lg shadow-lg">
-                  {errorMessage}
-               </div>
-            )}
-            {!isLoading && !errorMessage && cellTowers && cellTowers.length > 0 && (
-               <div className="bg-white px-4 py-2 rounded-lg shadow-lg">
-                  {cellTowers.length} cell towers
-               </div>
-            )}
-         </div>
+         <LocationSearchForm />
+         <MapStatusIndicators isLoading={isLoading} error={error} cellTowers={cellTowers} />
       </div>
    );
 }
