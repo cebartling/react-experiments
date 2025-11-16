@@ -13,17 +13,20 @@ This project uses **rolldown-vite** (version 7.2.2), not standard Vite. Rolldown
 ## Common Commands
 
 ### Development
+
 ```bash
 npm run dev          # Start development server with HMR
 npm run preview      # Preview production build locally
 ```
 
 ### Building
+
 ```bash
 npm run build        # Type-check with tsc and build for production
 ```
 
 ### Linting
+
 ```bash
 npm run lint         # Run ESLint on the codebase
 ```
@@ -41,10 +44,10 @@ The project uses TypeScript project references with three config files:
 
 - **tsconfig.json** - Root config that references app and node configs
 - **tsconfig.app.json** - Application code config (src/ directory)
-  - Target: ES2022
-  - Module resolution: bundler mode
-  - Strict mode enabled with strict linting rules
-  - JSX: react-jsx
+   - Target: ES2022
+   - Module resolution: bundler mode
+   - Strict mode enabled with strict linting rules
+   - JSX: react-jsx
 - **tsconfig.node.json** - Build tooling config (Vite configuration files)
 
 ## Testing
@@ -54,6 +57,7 @@ Based on git history mentioning "adding vitest", this project was set up to use 
 ## ESLint Configuration
 
 The project uses ESLint 9.x with the new flat config format (eslint.config.js). Configuration includes:
+
 - TypeScript ESLint
 - React Hooks plugin
 - React Refresh plugin
