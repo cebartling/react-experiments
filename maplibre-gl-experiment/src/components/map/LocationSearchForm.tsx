@@ -25,10 +25,10 @@ export function LocationSearchForm() {
    };
 
    return (
-      <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg max-w-sm">
+      <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md rounded-lg shadow-lg max-w-sm border border-white/30">
          <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 rounded-t-lg transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/10 rounded-t-lg transition-colors text-white"
             aria-expanded={isExpanded}
             aria-controls="location-form-content"
          >
@@ -51,7 +51,7 @@ export function LocationSearchForm() {
          >
             <form onSubmit={handleSubmit} className="space-y-3 px-4 pb-4">
                <div>
-                  <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="latitude" className="block text-sm font-medium text-white mb-1">
                      Latitude
                   </label>
                   <input
@@ -59,12 +59,12 @@ export function LocationSearchForm() {
                      id="latitude"
                      value={latInput}
                      onChange={(e) => setLatInput(e.target.value)}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30"
                      placeholder="44.7975"
                   />
                </div>
                <div>
-                  <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="longitude" className="block text-sm font-medium text-white mb-1">
                      Longitude
                   </label>
                   <input
@@ -72,13 +72,13 @@ export function LocationSearchForm() {
                      id="longitude"
                      value={lonInput}
                      onChange={(e) => setLonInput(e.target.value)}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30"
                      placeholder="-93.5272"
                   />
                </div>
                <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="w-full bg-white/30 text-white py-2 px-4 rounded-md hover:bg-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-sm transition-colors"
                >
                   Search
                </button>
