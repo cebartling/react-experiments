@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
 import { Map as MapGL, NavigationControl, Source, Layer } from '@vis.gl/react-maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { fetchCellTowersInArea, calculateBoundingBox, type CellTower } from '../services/cellTowerService'
+import { useCellTowers, type CellTower } from '../services/cellTowerService'
 
 // Satellite style using free EOX Sentinel-2 cloudless imagery
 const satelliteStyle = {
@@ -41,40 +40,20 @@ const cellTowerLayer = {
 }
 
 function Map() {
-  const [cellTowers, setCellTowers] = useState<CellTower[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // Fetch cell towers for the current view
-  const fetchTowers = useCallback(async (latitude: number, longitude: number) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      // API limit: 4,000,000 sq.m (4 km²)
-      // With radius of 0.9km, we get a ~1.8km × 1.8km box = 3.24 km² (under limit)
-      const bbox = calculateBoundingBox(latitude, longitude, 0.9)
-      const towers = await fetchCellTowersInArea(bbox, 50)
-      setCellTowers(towers)
-      console.log(`Loaded ${towers.length} cell towers`)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load cell towers'
-      setError(errorMessage)
-      console.error('Error fetching cell towers:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Load towers on initial mount
-  useEffect(() => {
-    fetchTowers(44.7975, -93.5272) // Shakopee, MN
-  }, [fetchTowers])
+  // Fetch cell towers using SWR hook
+  // API limit: 4,000,000 sq.m (4 km²)
+  // With radius of 0.9km, we get a ~1.8km × 1.8km box = 3.24 km² (under limit)
+  const { data: cellTowers, error, isLoading } = useCellTowers(
+    44.7975, // Shakopee, MN - latitude
+    -93.5272, // Shakopee, MN - longitude
+    0.9, // radius in km
+    50 // limit
+  )
 
   // Convert cell towers to GeoJSON
   const cellTowerGeoJSON = {
     type: 'FeatureCollection' as const,
-    features: cellTowers.map((tower) => ({
+    features: (cellTowers || []).map((tower: CellTower) => ({
       type: 'Feature' as const,
       geometry: {
         type: 'Point' as const,
@@ -89,6 +68,8 @@ function Map() {
       }
     }))
   }
+
+  const errorMessage = error ? (error instanceof Error ? error.message : 'Failed to load cell towers') : null
 
   return (
     <div className="flex-1 w-full h-full relative">
@@ -110,17 +91,17 @@ function Map() {
       </MapGL>
 
       {/* Status indicators */}
-      {loading && (
+      {isLoading && (
         <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-lg shadow-lg">
           Loading cell towers...
         </div>
       )}
-      {error && (
+      {errorMessage && (
         <div className="absolute top-4 left-4 bg-red-100 text-red-800 px-4 py-2 rounded-lg shadow-lg">
-          {error}
+          {errorMessage}
         </div>
       )}
-      {!loading && !error && cellTowers.length > 0 && (
+      {!isLoading && !errorMessage && cellTowers && cellTowers.length > 0 && (
         <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-lg shadow-lg">
           {cellTowers.length} cell towers
         </div>

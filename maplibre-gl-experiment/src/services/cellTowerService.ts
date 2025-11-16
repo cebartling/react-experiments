@@ -1,3 +1,5 @@
+import useSWR from 'swr'
+
 export interface CellTower {
   lat: number
   lon: number
@@ -99,4 +101,36 @@ export function calculateBoundingBox(
     latMax: lat + latDelta,
     lonMax: lon + lonDelta
   }
+}
+
+/**
+ * Custom SWR hook for fetching cell towers in an area
+ * @param latitude - Center latitude
+ * @param longitude - Center longitude
+ * @param radiusKm - Radius in kilometers (default: 0.9)
+ * @param limit - Maximum number of towers to return (default: 50)
+ * @returns SWR response with cell towers data
+ */
+export function useCellTowers(
+  latitude: number,
+  longitude: number,
+  radiusKm: number = 0.9,
+  limit: number = 50
+) {
+  const key = latitude && longitude
+    ? `cell-towers-${latitude.toFixed(4)}-${longitude.toFixed(4)}-${radiusKm}-${limit}`
+    : null
+
+  return useSWR(
+    key,
+    async () => {
+      const bbox = calculateBoundingBox(latitude, longitude, radiusKm)
+      return fetchCellTowersInArea(bbox, limit)
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000 // Dedupe requests within 60 seconds
+    }
+  )
 }
