@@ -36,7 +36,7 @@ describe('LocationSearchForm', () => {
       expect(screen.getByText('Search Location')).toBeInTheDocument();
       expect(screen.getByLabelText('Latitude')).toHaveValue('44.7975');
       expect(screen.getByLabelText('Longitude')).toHaveValue('-93.5272');
-      expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^search$/i })).toBeInTheDocument();
    });
 
    it('should call setLatInput when user types in latitude field', async () => {
@@ -80,7 +80,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(mockSetLocation).toHaveBeenCalledWith(40.7128, -74.006);
@@ -106,7 +106,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Latitude must be between -90 and 90');
@@ -135,7 +135,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Latitude must be between -90 and 90');
@@ -164,7 +164,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Longitude must be between -180 and 180');
@@ -193,7 +193,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Longitude must be between -180 and 180');
@@ -222,7 +222,7 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Latitude must be between -90 and 90');
@@ -251,12 +251,70 @@ describe('LocationSearchForm', () => {
 
       render(<LocationSearchForm />);
 
-      const submitButton = screen.getByRole('button', { name: /search/i });
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('Longitude must be between -180 and 180');
       expect(mockSetLocation).not.toHaveBeenCalled();
 
       alertSpy.mockRestore();
+   });
+
+   it('should start with the accordion expanded', () => {
+      render(<LocationSearchForm />);
+
+      const accordionButton = screen.getByRole('button', { name: /search location/i });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+
+      // Form fields should be visible
+      expect(screen.getByLabelText('Latitude')).toBeInTheDocument();
+      expect(screen.getByLabelText('Longitude')).toBeInTheDocument();
+   });
+
+   it('should collapse the accordion when header is clicked', async () => {
+      const user = userEvent.setup();
+      render(<LocationSearchForm />);
+
+      const accordionButton = screen.getByRole('button', { name: /search location/i });
+
+      // Click to collapse
+      await user.click(accordionButton);
+
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+   });
+
+   it('should expand the accordion when clicked while collapsed', async () => {
+      const user = userEvent.setup();
+      render(<LocationSearchForm />);
+
+      const accordionButton = screen.getByRole('button', { name: /search location/i });
+
+      // Collapse first
+      await user.click(accordionButton);
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+
+      // Expand again
+      await user.click(accordionButton);
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+   });
+
+   it('should toggle accordion multiple times', async () => {
+      const user = userEvent.setup();
+      render(<LocationSearchForm />);
+
+      const accordionButton = screen.getByRole('button', { name: /search location/i });
+
+      // Toggle multiple times
+      await user.click(accordionButton); // collapse
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(accordionButton); // expand
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+
+      await user.click(accordionButton); // collapse
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(accordionButton); // expand
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
    });
 });
