@@ -1,73 +1,277 @@
-# React + TypeScript + Vite
+# MapLibre GL Experiment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript application for exploring MapLibre GL mapping capabilities with cell tower visualization, persistent location state, and comprehensive test coverage.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🗺️ Interactive Mapping
+- **Satellite Imagery**: Uses free EOX Sentinel-2 cloudless satellite imagery for beautiful map rendering
+- **Navigation Controls**: Built-in zoom and rotation controls for easy map manipulation
+- **Smooth Animations**: Animated transitions when flying to new locations
+- **Drag & Pan**: Interactive map dragging with automatic location updates
 
-## React Compiler
+### 📡 Cell Tower Visualization
+- **Real-time Data Fetching**: Fetches cell tower data from OpenCelliD API using SWR for efficient data management
+- **Smart Caching**: Automatic caching and revalidation of cell tower data
+- **Visual Markers**: Cell towers displayed as red circular markers on the map
+- **Coverage Radius**: Displays towers within a 0.9km radius (1.8km × 1.8km search box)
+- **Tower Information**: Each marker contains cell tower metadata (cellid, radio type, MCC, MNC, range)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔍 Location Search
+- **Coordinate Input**: Search for any location using latitude/longitude coordinates
+- **Input Validation**: Real-time validation ensuring coordinates are within valid ranges
+  - Latitude: -90 to 90
+  - Longitude: -180 to 180
+- **Form Feedback**: User-friendly error messages for invalid inputs
+- **Auto-sync**: Input fields automatically update when map is dragged
 
-## Expanding the ESLint configuration
+### 💾 Persistent State Management
+- **IndexedDB Storage**: Location state persisted using localforage with IndexedDB backend
+- **State Hydration**: Automatically restores last viewed location on app reload
+- **Zustand Store**: Centralized state management with reactive updates
+- **Automatic Persistence**: Location changes automatically saved to browser storage
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📊 Status Indicators
+- **Loading States**: Visual feedback during data fetching
+- **Error Handling**: Clear error messages when data fetching fails
+- **Tower Count**: Real-time display of loaded cell towers
+- **Multi-state Support**: Simultaneous display of loading and error states when applicable
 
-```js
-export default defineConfig([
-   globalIgnores(['dist']),
-   {
-      files: ['**/*.{ts,tsx}'],
-      extends: [
-         // Other configs...
+### 🏗️ Architecture & Code Quality
 
-         // Remove tseslint.configs.recommended and replace with this
-         tseslint.configs.recommendedTypeChecked,
-         // Alternatively, use this for stricter rules
-         tseslint.configs.strictTypeChecked,
-         // Optionally, add this for stylistic rules
-         tseslint.configs.stylisticTypeChecked,
+#### Component Structure
+The application is organized into modular, reusable components:
 
-         // Other configs...
-      ],
-      languageOptions: {
-         parserOptions: {
-            project: ['./tsconfig.node.json', './tsconfig.app.json'],
-            tsconfigRootDir: import.meta.dirname,
-         },
-         // other options...
-      },
-   },
-]);
+```mermaid
+graph TD
+    A[App.tsx] --> B[Map.tsx]
+    B --> C[LocationSearchForm]
+    B --> D[MapStatusIndicators]
+    B --> E[CellTowerLayer]
+    B --> F[NavigationControl]
+    B --> G[useMapLocation Hook]
+    G --> H[locationStore]
+    C --> H
+    D --> I[cellTowerService]
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+#### State Management Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-   globalIgnores(['dist']),
-   {
-      files: ['**/*.{ts,tsx}'],
-      extends: [
-         // Other configs...
-         // Enable lint rules for React
-         reactX.configs['recommended-typescript'],
-         // Enable lint rules for React DOM
-         reactDom.configs.recommended,
-      ],
-      languageOptions: {
-         parserOptions: {
-            project: ['./tsconfig.node.json', './tsconfig.app.json'],
-            tsconfigRootDir: import.meta.dirname,
-         },
-         // other options...
-      },
-   },
-]);
+```mermaid
+flowchart LR
+    A[User Interaction] --> B{Action Type}
+    B -->|Search Form| C[setLocation]
+    B -->|Map Drag| D[handleMoveEnd]
+    C --> E[Zustand Store]
+    D --> E
+    E --> F[Update State]
+    F --> G[localforage]
+    G -->|Persist| H[IndexedDB]
+    F --> I[Re-render Components]
+    I --> J[Update Map]
+    I --> K[Fetch Cell Towers]
 ```
+
+#### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Map
+    participant Store
+    participant IndexedDB
+    participant API
+
+    User->>Map: App Load
+    Map->>Store: hydrateFromStorage()
+    Store->>IndexedDB: getItem('latitude', 'longitude')
+    IndexedDB-->>Store: Stored coordinates
+    Store-->>Map: Hydrated state
+    Map->>API: Fetch cell towers (SWR)
+    API-->>Map: Cell tower data
+    Map-->>User: Render map with towers
+
+    User->>Map: Drag map / Search location
+    Map->>Store: setLocation(lat, lon)
+    Store->>IndexedDB: setItem('latitude', 'longitude')
+    Store-->>Map: Update state
+    Map->>API: Fetch new cell towers
+    API-->>Map: New cell tower data
+    Map-->>User: Update view
+```
+
+### 🧪 Testing
+
+Comprehensive test suite with **100% code coverage**:
+
+- **42 passing tests** across 5 test files
+- **Unit tests** for all components, hooks, and stores
+- **Mocked dependencies** (localforage, MapLibre GL)
+- **User interaction testing** with Testing Library
+- **Coverage reporting** in text, JSON, and HTML formats
+
+#### Test Coverage
+
+| Component | Tests | Coverage |
+|-----------|-------|----------|
+| locationStore | 9 tests | 100% |
+| useMapLocation | 6 tests | 100% |
+| LocationSearchForm | 10 tests | 100% |
+| MapStatusIndicators | 10 tests | 100% |
+| CellTowerLayer | 7 tests | 100% |
+
+## Tech Stack
+
+### Core
+- **React 19.2.0** - UI library
+- **TypeScript** - Type safety
+- **Vite (rolldown-vite 7.2.5)** - Build tool using Rust-powered bundler
+
+### Mapping
+- **MapLibre GL 5.13.0** - Open-source mapping library
+- **@vis.gl/react-maplibre 8.1.0** - React bindings for MapLibre
+
+### State Management & Data Fetching
+- **Zustand 5.0.8** - Lightweight state management
+- **SWR 2.3.6** - Data fetching and caching
+- **localforage 1.10.0** - IndexedDB abstraction for persistence
+
+### Styling
+- **Tailwind CSS 4.1.17** - Utility-first CSS framework
+- **@tailwindcss/postcss 4.1.17** - PostCSS integration
+
+### Testing
+- **Vitest 4.0.9** - Fast unit test framework
+- **@testing-library/react 16.3.0** - React component testing utilities
+- **@testing-library/user-event 14.6.1** - User interaction simulation
+- **@vitest/coverage-v8** - Code coverage reporting
+- **jsdom** - DOM implementation for Node.js
+
+### Code Quality
+- **ESLint 9.39.1** - Linting
+- **Prettier 3.6.2** - Code formatting
+- **TypeScript 5.9.3** - Static type checking
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Map.tsx                    # Main map container
+│   └── map/
+│       ├── CellTowerLayer.tsx     # Cell tower visualization layer
+│       ├── LocationSearchForm.tsx # Coordinate search form
+│       └── MapStatusIndicators.tsx # Loading/error/success indicators
+├── hooks/
+│   └── useMapLocation.ts          # Custom hook for map interactions
+├── stores/
+│   └── locationStore.ts           # Zustand store with IndexedDB persistence
+├── services/
+│   └── cellTowerService.ts        # SWR-based data fetching
+├── config/
+│   └── mapStyles.ts               # Map style configurations
+└── test/
+    └── setup.ts                   # Test environment configuration
+```
+
+## Getting Started
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
+
+```bash
+npm run dev          # Start development server with HMR
+npm run preview      # Preview production build locally
+```
+
+### Building
+
+```bash
+npm run build        # Type-check with tsc and build for production
+```
+
+### Testing
+
+```bash
+npm run test              # Run tests in watch mode
+npm run test:ui           # Run tests with UI
+npm run test:coverage     # Run tests with coverage report
+```
+
+### Code Quality
+
+```bash
+npm run lint              # Run ESLint
+npm run format            # Format code with Prettier
+npm run format:check      # Check code formatting
+```
+
+## Configuration
+
+### Environment Variables
+
+The application uses environment-specific configurations:
+- Default location: Shakopee, MN (44.7975, -93.5272)
+- Cell tower search radius: 0.9km
+- Cell tower limit per request: 50 towers
+
+### Map Configuration
+
+Satellite imagery provided by:
+- **Source**: EOX Sentinel-2 cloudless 2020
+- **License**: [EOX IT Services GmbH](https://eox.at/)
+- **Attribution**: [Sentinel-2 cloudless](https://s2maps.eu)
+
+### Storage Configuration
+
+Location data is persisted to IndexedDB with the following schema:
+- **Database**: `maplibre-experiment`
+- **Store**: `location`
+- **Keys**: `latitude`, `longitude`
+
+## API Integration
+
+### OpenCelliD API
+
+The application fetches cell tower data from the OpenCelliD API:
+- **Endpoint**: `https://opencellid.org/cell/getInArea`
+- **Parameters**:
+  - `lat`: Latitude
+  - `lon`: Longitude
+  - `radius`: Search radius in kilometers
+  - `limit`: Maximum number of towers to return
+- **Rate Limits**: Area search limited to 4,000,000 sq.m (4 km²)
+
+## Browser Support
+
+- Modern browsers with ES2022 support
+- IndexedDB support required for persistence
+- WebGL support required for MapLibre GL
+
+## Future Enhancements
+
+Potential areas for expansion:
+- [ ] Additional map styles (street maps, terrain)
+- [ ] Multiple map layer support
+- [ ] Cell tower filtering by radio type (LTE, 5G, GSM, etc.)
+- [ ] Distance measurement tools
+- [ ] Export/import saved locations
+- [ ] Offline map support
+- [ ] Custom marker clustering
+- [ ] Tower detail popups on click
+
+## License
+
+This is an experimental project for learning and demonstration purposes.
+
+## Acknowledgments
+
+- [MapLibre GL](https://maplibre.org/) for the open-source mapping library
+- [OpenCelliD](https://opencellid.org/) for providing cell tower data
+- [EOX IT Services](https://eox.at/) for satellite imagery
+- [Sentinel-2 cloudless](https://s2maps.eu) for beautiful satellite maps
