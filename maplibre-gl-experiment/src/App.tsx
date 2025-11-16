@@ -1,4 +1,5 @@
 import { Routes, Route, Link } from 'react-router-dom'
+import Map from './components/Map'
 
 function Home() {
   return (
@@ -27,6 +28,9 @@ function App() {
             <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">
               Home
             </Link>
+            <Link to="/map" className="text-blue-600 hover:text-blue-800 font-medium">
+              Map
+            </Link>
             <Link to="/about" className="text-blue-600 hover:text-blue-800 font-medium">
               About
             </Link>
@@ -36,6 +40,7 @@ function App() {
       <main className="max-w-7xl mx-auto">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/map" element={<Map />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </main>
