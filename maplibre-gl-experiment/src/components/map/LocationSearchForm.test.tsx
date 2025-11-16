@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LocationSearchForm } from './LocationSearchForm';
 import { useLocationStore } from '../../stores/locationStore';
@@ -14,6 +14,7 @@ describe('LocationSearchForm', () => {
 
    beforeEach(() => {
       vi.clearAllMocks();
+      vi.useRealTimers(); // Ensure we're using real timers for each test
 
       vi.mocked(useLocationStore).mockReturnValue({
          latitude: 44.7975,
@@ -316,5 +317,110 @@ describe('LocationSearchForm', () => {
 
       await user.click(accordionButton); // expand
       expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+   });
+
+   it('should show green background when form is submitted successfully', async () => {
+      const user = userEvent.setup();
+
+      vi.mocked(useLocationStore).mockReturnValue({
+         latitude: 44.7975,
+         longitude: -93.5272,
+         latInput: '40.7128',
+         lonInput: '-74.006',
+         isHydrated: true,
+         setLatitude: vi.fn(),
+         setLongitude: vi.fn(),
+         setLatInput: mockSetLatInput,
+         setLonInput: mockSetLonInput,
+         setLocation: mockSetLocation,
+         hydrateFromStorage: vi.fn(),
+      });
+
+      render(<LocationSearchForm />);
+
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
+
+      // Button should have blue background initially
+      expect(submitButton).toHaveClass('bg-blue-600');
+      expect(submitButton).not.toHaveClass('bg-green-600');
+
+      await user.click(submitButton);
+
+      // Button should have green background immediately after submission
+      expect(submitButton).toHaveClass('bg-green-600');
+      expect(submitButton).not.toHaveClass('bg-blue-600');
+   });
+
+   it('should return to blue background after 800ms', async () => {
+      vi.useFakeTimers();
+
+      vi.mocked(useLocationStore).mockReturnValue({
+         latitude: 44.7975,
+         longitude: -93.5272,
+         latInput: '40.7128',
+         lonInput: '-74.006',
+         isHydrated: true,
+         setLatitude: vi.fn(),
+         setLongitude: vi.fn(),
+         setLatInput: mockSetLatInput,
+         setLonInput: mockSetLonInput,
+         setLocation: mockSetLocation,
+         hydrateFromStorage: vi.fn(),
+      });
+
+      render(<LocationSearchForm />);
+
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
+
+      // Click to submit
+      act(() => {
+         submitButton.click();
+      });
+
+      // Should be green immediately
+      expect(submitButton).toHaveClass('bg-green-600');
+
+      // Fast-forward time by 800ms and wait for state update
+      await act(async () => {
+         vi.advanceTimersByTime(800);
+      });
+
+      // Should return to blue after 800ms
+      expect(submitButton).toHaveClass('bg-blue-600');
+      expect(submitButton).not.toHaveClass('bg-green-600');
+
+      vi.useRealTimers();
+   });
+
+   it('should not show green background for invalid submissions', async () => {
+      const user = userEvent.setup();
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+      vi.mocked(useLocationStore).mockReturnValue({
+         latitude: 44.7975,
+         longitude: -93.5272,
+         latInput: '95',
+         lonInput: '-93.5272',
+         isHydrated: true,
+         setLatitude: vi.fn(),
+         setLongitude: vi.fn(),
+         setLatInput: mockSetLatInput,
+         setLonInput: mockSetLonInput,
+         setLocation: mockSetLocation,
+         hydrateFromStorage: vi.fn(),
+      });
+
+      render(<LocationSearchForm />);
+
+      const submitButton = screen.getByRole('button', { name: /^search$/i });
+
+      await user.click(submitButton);
+
+      // Button should remain blue (not turn green) for invalid input
+      expect(submitButton).toHaveClass('bg-blue-600');
+      expect(submitButton).not.toHaveClass('bg-green-600');
+      expect(mockSetLocation).not.toHaveBeenCalled();
+
+      alertSpy.mockRestore();
    });
 });
