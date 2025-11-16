@@ -5,16 +5,20 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 function Map() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
+  const initialized = useRef(false)
 
   useEffect(() => {
-    if (map.current) return // Initialize map only once
+    // Prevent double initialization in React StrictMode
+    if (initialized.current) return
 
     if (mapContainer.current) {
+      initialized.current = true
+
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: 'https://demotiles.maplibre.org/style.json',
-        center: [-74.5, 40],
-        zoom: 9
+        center: [-93.5272, 44.7975], // Zip code 55379 - Shakopee, MN
+        zoom: 12
       })
 
       // Add navigation controls
@@ -22,7 +26,10 @@ function Map() {
     }
 
     return () => {
-      map.current?.remove()
+      if (map.current) {
+        map.current.remove()
+        map.current = null
+      }
     }
   }, [])
 
@@ -31,7 +38,8 @@ function Map() {
       <h1 className="text-4xl font-bold mb-4">MapLibre GL Map</h1>
       <div
         ref={mapContainer}
-        className="w-full h-[600px] rounded-lg shadow-lg"
+        style={{ width: '100%', height: '600px' }}
+        className="rounded-lg shadow-lg"
       />
     </div>
   )
