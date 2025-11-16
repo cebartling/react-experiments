@@ -95,7 +95,12 @@ src/
 
 - **Map.tsx** - Main container. Keep this minimal - it should only orchestrate child components. Logic should be extracted to hooks or child components.
 - **CellTowerLayer.tsx** - Converts cell tower data to GeoJSON and renders MapLibre Source/Layer components
-- **LocationSearchForm.tsx** - Self-contained form with validation. Connected directly to Zustand store.
+- **LocationSearchForm.tsx** - Self-contained form with validation and glass morphism UI. Features:
+   - Translucent frosted glass background using Tailwind's backdrop-blur
+   - Blue button with pulsating glow on hover
+   - Green success feedback (800ms timeout) on valid submission
+   - Collapsible accordion interface
+   - Connected directly to Zustand store
 - **MapStatusIndicators.tsx** - Pure presentational component for displaying loading/error/success states
 
 ### State & Data
@@ -154,6 +159,8 @@ When adding new components or features:
 3. Test user interactions, not implementation details
 4. Aim for 100% coverage
 5. Test error states and edge cases
+6. Use fake timers (`vi.useFakeTimers()`) for testing timeouts and animations
+7. Always reset to real timers in `beforeEach` to prevent test interference
 
 Example test structure:
 
@@ -161,6 +168,7 @@ Example test structure:
 describe('ComponentName', () => {
    beforeEach(() => {
       vi.clearAllMocks();
+      vi.useRealTimers(); // Ensure clean slate for each test
    });
 
    it('should render correctly', () => {
@@ -174,6 +182,19 @@ describe('ComponentName', () => {
 
    it('should handle errors gracefully', () => {
       // Test error scenarios
+   });
+
+   it('should handle timed transitions', async () => {
+      vi.useFakeTimers();
+      // Test with fake timers
+      act(() => {
+         // Trigger state change
+      });
+      await act(async () => {
+         vi.advanceTimersByTime(800);
+      });
+      // Assert final state
+      vi.useRealTimers();
    });
 });
 ```
@@ -252,6 +273,9 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 - Use TypeScript strictly - no `any` types without good reason
 - Prefer functional components and hooks
 - Use Tailwind for styling (no CSS modules or styled-components)
+- **Glass Morphism Pattern**: Use `bg-white/[opacity] backdrop-blur-[size]` for translucent UI elements
+- **Interactive Feedback**: Use Tailwind's `hover:` modifiers, `transition-all`, and `animate-pulse` for user feedback
+- **Timed State Changes**: Use `setTimeout` with state updates for temporary UI feedback (e.g., success indicators)
 - Follow existing patterns for consistency
 - Format code with Prettier before committing
 
@@ -264,6 +288,8 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 5. **Don't skip validation** - LocationSearchForm validates coordinates (-90 to 90, -180 to 180)
 6. **Check for null refs** - Always verify mapRef.current exists before use
 7. **Import order** - Mock setup must be before imports in tests
+8. **Fake timers in tests** - Always call `vi.useRealTimers()` in `beforeEach` to prevent timer pollution between tests
+9. **Act warnings** - Wrap state updates and timer advances in `act()` when testing React components
 
 ## Future Considerations
 
@@ -283,7 +309,10 @@ When extending this project, consider:
 - Check mock setup in `src/test/setup.ts`
 - Ensure mocks are created before imports
 - Verify IndexedDB mock is properly configured
-- Check for act() warnings - wrap state updates
+- Check for act() warnings - wrap state updates in `act()`
+- If tests timeout: Ensure `vi.useRealTimers()` is called in `beforeEach`
+- For timer-based tests: Use `vi.useFakeTimers()` at test start, `vi.useRealTimers()` at end
+- Wrap timer advances with `await act(async () => { vi.advanceTimersByTime(ms) })`
 
 ### Map Not Rendering
 

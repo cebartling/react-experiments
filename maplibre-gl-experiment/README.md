@@ -25,8 +25,14 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 - **Input Validation**: Real-time validation ensuring coordinates are within valid ranges
    - Latitude: -90 to 90
    - Longitude: -180 to 180
+- **Glass Morphism UI**: Translucent frosted glass background with backdrop blur for modern aesthetics
+- **Interactive Button Feedback**:
+   - Blue pulsating glow effect on hover
+   - Green success transition (800ms) when search is submitted
+   - Visual feedback only triggers on valid submissions
 - **Form Feedback**: User-friendly error messages for invalid inputs
 - **Auto-sync**: Input fields automatically update when map is dragged
+- **Collapsible Accordion**: Expandable/collapsible form to maximize map viewing area
 
 ### 💾 Persistent State Management
 
@@ -110,10 +116,11 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **42 passing tests** across 5 test files
+- **49 passing tests** across 5 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
+- **Fake timer testing** for animated UI state transitions
 - **Coverage reporting** in text, JSON, and HTML formats
 
 #### Test Coverage
@@ -122,7 +129,7 @@ Comprehensive test suite with **100% code coverage**:
 | ------------------- | -------- | -------- |
 | locationStore       | 9 tests  | 100%     |
 | useMapLocation      | 6 tests  | 100%     |
-| LocationSearchForm  | 10 tests | 100%     |
+| LocationSearchForm  | 17 tests | 100%     |
 | MapStatusIndicators | 10 tests | 100%     |
 | CellTowerLayer      | 7 tests  | 100%     |
 
