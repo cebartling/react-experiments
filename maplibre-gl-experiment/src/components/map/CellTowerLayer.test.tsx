@@ -23,7 +23,7 @@ describe('CellTowerLayer', () => {
          lat: 44.7975,
          lon: -93.5272,
          range: 1000,
-      },
+      } as unknown as CellTower,
       {
          cellid: 456,
          radio: 'GSM',
@@ -32,7 +32,7 @@ describe('CellTowerLayer', () => {
          lat: 44.8,
          lon: -93.53,
          range: 1500,
-      },
+      } as unknown as CellTower,
    ];
 
    it('should render Source and Layer components', () => {

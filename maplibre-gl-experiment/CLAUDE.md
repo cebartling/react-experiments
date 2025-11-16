@@ -70,16 +70,16 @@ src/
 ### State Management
 
 - **Zustand Store** (`locationStore.ts`): Centralized location state with IndexedDB persistence
-  - Uses `localforage` for IndexedDB abstraction
-  - Automatically persists location changes
-  - Hydrates from storage on app load
-  - Manages both actual location (lat/lon) and form input state (latInput/lonInput)
+   - Uses `localforage` for IndexedDB abstraction
+   - Automatically persists location changes
+   - Hydrates from storage on app load
+   - Manages both actual location (lat/lon) and form input state (latInput/lonInput)
 
 - **SWR** (`cellTowerService.ts`): Data fetching with automatic caching
-  - Fetches cell towers from OpenCelliD API
-  - Automatic revalidation on focus/reconnect
-  - Exponential backoff on errors
-  - Deduplicates requests
+   - Fetches cell towers from OpenCelliD API
+   - Automatic revalidation on focus/reconnect
+   - Exponential backoff on errors
+   - Deduplicates requests
 
 ### Key Patterns
 
@@ -113,10 +113,10 @@ The project uses TypeScript project references with three config files:
 
 - **tsconfig.json** - Root config that references app and node configs
 - **tsconfig.app.json** - Application code config (src/ directory)
-  - Target: ES2022
-  - Module resolution: bundler mode
-  - Strict mode enabled with strict linting rules
-  - JSX: react-jsx
+   - Target: ES2022
+   - Module resolution: bundler mode
+   - Strict mode enabled with strict linting rules
+   - JSX: react-jsx
 - **tsconfig.node.json** - Build tooling config (Vite configuration files)
 
 ## Testing
@@ -156,24 +156,25 @@ When adding new components or features:
 5. Test error states and edge cases
 
 Example test structure:
+
 ```typescript
 describe('ComponentName', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+   beforeEach(() => {
+      vi.clearAllMocks();
+   });
 
-  it('should render correctly', () => {
-    // Arrange, Act, Assert
-  });
+   it('should render correctly', () => {
+      // Arrange, Act, Assert
+   });
 
-  it('should handle user interaction', async () => {
-    const user = userEvent.setup();
-    // Test interaction
-  });
+   it('should handle user interaction', async () => {
+      const user = userEvent.setup();
+      // Test interaction
+   });
 
-  it('should handle errors gracefully', () => {
-    // Test error scenarios
-  });
+   it('should handle errors gracefully', () => {
+      // Test error scenarios
+   });
 });
 ```
 
@@ -189,16 +190,19 @@ The project uses ESLint 9.x with the new flat config format (eslint.config.js). 
 ## Important Dependencies
 
 ### Core
+
 - **React 19.2.0** - Latest React with new features
 - **MapLibre GL 5.13.0** - Open-source mapping library
 - **@vis.gl/react-maplibre 8.1.0** - React bindings for MapLibre
 
 ### State & Data
+
 - **Zustand 5.0.8** - Lightweight state management (prefer over Context API for global state)
 - **SWR 2.3.6** - Data fetching and caching (use for all API calls)
 - **localforage 1.10.0** - IndexedDB wrapper (easier than raw IndexedDB API)
 
 ### Styling
+
 - **Tailwind CSS 4.1.17** - Utility-first CSS (use for all styling)
 
 ## API Integration
@@ -213,6 +217,7 @@ The project uses ESLint 9.x with the new flat config format (eslint.config.js). 
 ### Cell Tower Service
 
 The `cellTowerService.ts` uses SWR with the following configuration:
+
 - Revalidate on focus: true
 - Dedupe interval: 2000ms
 - Error retry with exponential backoff

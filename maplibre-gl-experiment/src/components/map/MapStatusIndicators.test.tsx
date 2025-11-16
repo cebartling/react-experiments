@@ -57,19 +57,25 @@ describe('MapStatusIndicators', () => {
    });
 
    it('should display singular count for one cell tower', () => {
-      render(<MapStatusIndicators isLoading={false} error={null} cellTowers={[mockCellTowers[0]]} />);
+      render(
+         <MapStatusIndicators isLoading={false} error={null} cellTowers={[mockCellTowers[0]]} />
+      );
 
       expect(screen.getByText('1 cell towers')).toBeInTheDocument();
    });
 
    it('should not display anything when no data and no error', () => {
-      const { container } = render(<MapStatusIndicators isLoading={false} error={null} cellTowers={undefined} />);
+      const { container } = render(
+         <MapStatusIndicators isLoading={false} error={null} cellTowers={undefined} />
+      );
 
       expect(container.querySelector('.bg-white')).not.toBeInTheDocument();
    });
 
    it('should not display anything when cell towers array is empty', () => {
-      const { container } = render(<MapStatusIndicators isLoading={false} error={null} cellTowers={[]} />);
+      const { container } = render(
+         <MapStatusIndicators isLoading={false} error={null} cellTowers={[]} />
+      );
 
       expect(container.querySelector('.bg-white')).not.toBeInTheDocument();
    });

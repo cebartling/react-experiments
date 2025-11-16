@@ -7,7 +7,8 @@ import { useLocationStore } from '../stores/locationStore';
  * Handles flying to new coordinates and updating location on map drag
  */
 export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
-   const { latitude, longitude, isHydrated, setLocation, setLatInput, setLonInput } = useLocationStore();
+   const { latitude, longitude, isHydrated, setLocation, setLatInput, setLonInput } =
+      useLocationStore();
 
    // Fly to new coordinates when they change (only after hydration)
    useEffect(() => {

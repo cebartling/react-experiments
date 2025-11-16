@@ -5,12 +5,14 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 ## Features
 
 ### 🗺️ Interactive Mapping
+
 - **Satellite Imagery**: Uses free EOX Sentinel-2 cloudless satellite imagery for beautiful map rendering
 - **Navigation Controls**: Built-in zoom and rotation controls for easy map manipulation
 - **Smooth Animations**: Animated transitions when flying to new locations
 - **Drag & Pan**: Interactive map dragging with automatic location updates
 
 ### 📡 Cell Tower Visualization
+
 - **Real-time Data Fetching**: Fetches cell tower data from OpenCelliD API using SWR for efficient data management
 - **Smart Caching**: Automatic caching and revalidation of cell tower data
 - **Visual Markers**: Cell towers displayed as red circular markers on the map
@@ -18,20 +20,23 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 - **Tower Information**: Each marker contains cell tower metadata (cellid, radio type, MCC, MNC, range)
 
 ### 🔍 Location Search
+
 - **Coordinate Input**: Search for any location using latitude/longitude coordinates
 - **Input Validation**: Real-time validation ensuring coordinates are within valid ranges
-  - Latitude: -90 to 90
-  - Longitude: -180 to 180
+   - Latitude: -90 to 90
+   - Longitude: -180 to 180
 - **Form Feedback**: User-friendly error messages for invalid inputs
 - **Auto-sync**: Input fields automatically update when map is dragged
 
 ### 💾 Persistent State Management
+
 - **IndexedDB Storage**: Location state persisted using localforage with IndexedDB backend
 - **State Hydration**: Automatically restores last viewed location on app reload
 - **Zustand Store**: Centralized state management with reactive updates
 - **Automatic Persistence**: Location changes automatically saved to browser storage
 
 ### 📊 Status Indicators
+
 - **Loading States**: Visual feedback during data fetching
 - **Error Handling**: Clear error messages when data fetching fails
 - **Tower Count**: Real-time display of loaded cell towers
@@ -40,6 +45,7 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 ### 🏗️ Architecture & Code Quality
 
 #### Component Structure
+
 The application is organized into modular, reusable components:
 
 ```mermaid
@@ -112,35 +118,40 @@ Comprehensive test suite with **100% code coverage**:
 
 #### Test Coverage
 
-| Component | Tests | Coverage |
-|-----------|-------|----------|
-| locationStore | 9 tests | 100% |
-| useMapLocation | 6 tests | 100% |
-| LocationSearchForm | 10 tests | 100% |
-| MapStatusIndicators | 10 tests | 100% |
-| CellTowerLayer | 7 tests | 100% |
+| Component           | Tests    | Coverage |
+| ------------------- | -------- | -------- |
+| locationStore       | 9 tests  | 100%     |
+| useMapLocation      | 6 tests  | 100%     |
+| LocationSearchForm  | 10 tests | 100%     |
+| MapStatusIndicators | 10 tests | 100%     |
+| CellTowerLayer      | 7 tests  | 100%     |
 
 ## Tech Stack
 
 ### Core
+
 - **React 19.2.0** - UI library
 - **TypeScript** - Type safety
 - **Vite (rolldown-vite 7.2.5)** - Build tool using Rust-powered bundler
 
 ### Mapping
+
 - **MapLibre GL 5.13.0** - Open-source mapping library
 - **@vis.gl/react-maplibre 8.1.0** - React bindings for MapLibre
 
 ### State Management & Data Fetching
+
 - **Zustand 5.0.8** - Lightweight state management
 - **SWR 2.3.6** - Data fetching and caching
 - **localforage 1.10.0** - IndexedDB abstraction for persistence
 
 ### Styling
+
 - **Tailwind CSS 4.1.17** - Utility-first CSS framework
 - **@tailwindcss/postcss 4.1.17** - PostCSS integration
 
 ### Testing
+
 - **Vitest 4.0.9** - Fast unit test framework
 - **@testing-library/react 16.3.0** - React component testing utilities
 - **@testing-library/user-event 14.6.1** - User interaction simulation
@@ -148,6 +159,7 @@ Comprehensive test suite with **100% code coverage**:
 - **jsdom** - DOM implementation for Node.js
 
 ### Code Quality
+
 - **ESLint 9.39.1** - Linting
 - **Prettier 3.6.2** - Code formatting
 - **TypeScript 5.9.3** - Static type checking
@@ -216,6 +228,7 @@ npm run format:check      # Check code formatting
 ### Environment Variables
 
 The application uses environment-specific configurations:
+
 - Default location: Shakopee, MN (44.7975, -93.5272)
 - Cell tower search radius: 0.9km
 - Cell tower limit per request: 50 towers
@@ -223,6 +236,7 @@ The application uses environment-specific configurations:
 ### Map Configuration
 
 Satellite imagery provided by:
+
 - **Source**: EOX Sentinel-2 cloudless 2020
 - **License**: [EOX IT Services GmbH](https://eox.at/)
 - **Attribution**: [Sentinel-2 cloudless](https://s2maps.eu)
@@ -230,6 +244,7 @@ Satellite imagery provided by:
 ### Storage Configuration
 
 Location data is persisted to IndexedDB with the following schema:
+
 - **Database**: `maplibre-experiment`
 - **Store**: `location`
 - **Keys**: `latitude`, `longitude`
@@ -239,12 +254,13 @@ Location data is persisted to IndexedDB with the following schema:
 ### OpenCelliD API
 
 The application fetches cell tower data from the OpenCelliD API:
+
 - **Endpoint**: `https://opencellid.org/cell/getInArea`
 - **Parameters**:
-  - `lat`: Latitude
-  - `lon`: Longitude
-  - `radius`: Search radius in kilometers
-  - `limit`: Maximum number of towers to return
+   - `lat`: Latitude
+   - `lon`: Longitude
+   - `radius`: Search radius in kilometers
+   - `limit`: Maximum number of towers to return
 - **Rate Limits**: Area search limited to 4,000,000 sq.m (4 km²)
 
 ## Browser Support
@@ -256,6 +272,7 @@ The application fetches cell tower data from the OpenCelliD API:
 ## Future Enhancements
 
 Potential areas for expansion:
+
 - [ ] Additional map styles (street maps, terrain)
 - [ ] Multiple map layer support
 - [ ] Cell tower filtering by radio type (LTE, 5G, GSM, etc.)
