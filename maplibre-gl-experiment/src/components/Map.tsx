@@ -79,6 +79,22 @@ function Map() {
       50 // limit
    );
 
+   // Handle map move/drag end - update location when user pans the map
+   const handleMoveEnd = () => {
+      if (mapRef.current) {
+         const center = mapRef.current.getCenter();
+         const newLat = center.lat;
+         const newLon = center.lng;
+
+         // Update location in store and persist to IndexedDB
+         setLocation(newLat, newLon);
+
+         // Also update the input fields to reflect the new center
+         setLatInput(newLat.toFixed(4));
+         setLonInput(newLon.toFixed(4));
+      }
+   };
+
    // Handle form submission
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -146,6 +162,7 @@ function Map() {
             }}
             mapStyle={satelliteStyle}
             style={{ width: '100%', height: '100%' }}
+            onMoveEnd={handleMoveEnd}
          >
             <NavigationControl position="top-right" />
 
