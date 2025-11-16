@@ -5,17 +5,18 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useCellTowers } from '../services/cellTowerService';
 import { useLocationStore } from '../stores/locationStore';
 import { useMapLocation } from '../hooks/useMapLocation';
-import { satelliteStyle } from '../config/mapStyles';
+import { getStyleByType } from '../config/mapStyles';
 import { LocationSearchForm } from './map/LocationSearchForm';
 import { MapStatusIndicators } from './map/MapStatusIndicators';
 import { CellTowerLayer } from './map/CellTowerLayer';
+import { BaseLayerControl } from './map/BaseLayerControl';
 
 function Map() {
    // Ref for the map instance
    const mapRef = useRef<MapRef>(null);
 
    // Get location state from Zustand store
-   const { latitude, longitude, hydrateFromStorage } = useLocationStore();
+   const { latitude, longitude, baseLayer, hydrateFromStorage } = useLocationStore();
 
    // Custom hook for map location interactions
    const { handleMoveEnd } = useMapLocation(mapRef);
@@ -48,7 +49,7 @@ function Map() {
                latitude,
                zoom: 12,
             }}
-            mapStyle={satelliteStyle}
+            mapStyle={getStyleByType(baseLayer)}
             style={{ width: '100%', height: '100%' }}
             onMoveEnd={handleMoveEnd}
          >
@@ -57,6 +58,7 @@ function Map() {
          </MapGL>
 
          <LocationSearchForm />
+         <BaseLayerControl />
          <MapStatusIndicators isLoading={isLoading} error={error} cellTowers={cellTowers} />
       </div>
    );

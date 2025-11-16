@@ -52,6 +52,7 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main orchestrator component (keep minimal)
 │   └── map/
+│       ├── BaseLayerControl.tsx   # Layer switcher (street/satellite/hybrid)
 │       ├── CellTowerLayer.tsx     # Cell tower visualization (MapLibre Source/Layer)
 │       ├── LocationSearchForm.tsx # Coordinate input form with validation
 │       └── MapStatusIndicators.tsx # Loading/error/success UI states
@@ -62,18 +63,19 @@ src/
 ├── services/
 │   └── cellTowerService.ts        # SWR-based data fetching from OpenCelliD API
 ├── config/
-│   └── mapStyles.ts               # MapLibre style configurations
+│   └── mapStyles.ts               # MapLibre style configurations (street/satellite/hybrid)
 └── test/
     └── setup.ts                   # Vitest test environment setup
 ```
 
 ### State Management
 
-- **Zustand Store** (`locationStore.ts`): Centralized location state with IndexedDB persistence
+- **Zustand Store** (`locationStore.ts`): Centralized location and map preferences state with IndexedDB persistence
    - Uses `localforage` for IndexedDB abstraction
-   - Automatically persists location changes
+   - Automatically persists location and base layer changes
    - Hydrates from storage on app load
    - Manages both actual location (lat/lon) and form input state (latInput/lonInput)
+   - Manages selected base layer (street/satellite/hybrid)
 
 - **SWR** (`cellTowerService.ts`): Data fetching with automatic caching
    - Fetches cell towers from OpenCelliD API
@@ -94,6 +96,11 @@ src/
 ### Components
 
 - **Map.tsx** - Main container. Keep this minimal - it should only orchestrate child components. Logic should be extracted to hooks or child components.
+- **BaseLayerControl.tsx** - Layer switcher with glass morphism UI. Features:
+   - Three base layer options: Street, Satellite, Hybrid
+   - Active layer highlighted with blue glow
+   - Persists selection to IndexedDB via store
+   - Icon and label for each layer type
 - **CellTowerLayer.tsx** - Converts cell tower data to GeoJSON and renders MapLibre Source/Layer components
 - **LocationSearchForm.tsx** - Self-contained form with validation and glass morphism UI. Features:
    - Translucent frosted glass background using Tailwind's backdrop-blur
@@ -263,10 +270,12 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 
 ### When Working with MapLibre
 
-- Map styles are in `config/mapStyles.ts`
+- Map styles are in `config/mapStyles.ts` - three styles available: street, satellite, hybrid
+- Use `getStyleByType()` helper function to get style object from base layer type
 - Use MapRef for imperative map operations (flyTo, getCenter, etc.)
 - Layer-specific logic goes in dedicated layer components (e.g., CellTowerLayer)
 - Always check if mapRef.current exists before calling methods
+- Base layer changes trigger automatic map re-render with new style
 
 ### Code Style
 
@@ -295,12 +304,13 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 
 When extending this project, consider:
 
-- Additional map styles (street, terrain) - add to `config/mapStyles.ts`
+- Additional map styles (terrain, topographic) - add to `config/mapStyles.ts` and update `BaseLayerType`
 - Cell tower filtering - extend CellTowerLayer with filter props
 - Multiple locations/bookmarks - extend locationStore schema
 - Offline support - consider service worker and map tile caching
 - Popup details on click - add MapLibre popup component
 - Route planning - new component + service layer
+- Custom layer opacity controls - extend BaseLayerControl with sliders
 
 ## Troubleshooting
 

@@ -38,6 +38,7 @@ describe('locationStore', () => {
          longitude: -93.5272,
          latInput: '44.7975',
          lonInput: '-93.5272',
+         baseLayer: 'satellite',
          isHydrated: false,
       });
    });
@@ -50,6 +51,7 @@ describe('locationStore', () => {
          expect(result.current.longitude).toBe(-93.5272);
          expect(result.current.latInput).toBe('44.7975');
          expect(result.current.lonInput).toBe('-93.5272');
+         expect(result.current.baseLayer).toBe('satellite');
          expect(result.current.isHydrated).toBe(false);
       });
    });
@@ -121,6 +123,38 @@ describe('locationStore', () => {
       });
    });
 
+   describe('setBaseLayer', () => {
+      it('should update base layer and persist to storage', () => {
+         const { result } = renderHook(() => useLocationStore());
+
+         act(() => {
+            result.current.setBaseLayer('street');
+         });
+
+         expect(result.current.baseLayer).toBe('street');
+         expect(mockSetItem).toHaveBeenCalledWith('baseLayer', 'street');
+      });
+
+      it('should support all base layer types', () => {
+         const { result } = renderHook(() => useLocationStore());
+
+         act(() => {
+            result.current.setBaseLayer('hybrid');
+         });
+         expect(result.current.baseLayer).toBe('hybrid');
+
+         act(() => {
+            result.current.setBaseLayer('satellite');
+         });
+         expect(result.current.baseLayer).toBe('satellite');
+
+         act(() => {
+            result.current.setBaseLayer('street');
+         });
+         expect(result.current.baseLayer).toBe('street');
+      });
+   });
+
    describe('hydrateFromStorage', () => {
       it('should load stored coordinates on hydration', async () => {
          mockGetItem.mockImplementation((key: string) => {
@@ -142,6 +176,41 @@ describe('locationStore', () => {
          expect(result.current.isHydrated).toBe(true);
       });
 
+      it('should load stored base layer on hydration', async () => {
+         mockGetItem.mockImplementation((key: string) => {
+            if (key === 'latitude') return Promise.resolve(40.7128);
+            if (key === 'longitude') return Promise.resolve(-74.006);
+            if (key === 'baseLayer') return Promise.resolve('street');
+            return Promise.resolve(null);
+         });
+
+         const { result } = renderHook(() => useLocationStore());
+
+         await act(async () => {
+            await result.current.hydrateFromStorage();
+         });
+
+         expect(result.current.baseLayer).toBe('street');
+         expect(result.current.isHydrated).toBe(true);
+      });
+
+      it('should use default base layer when not stored', async () => {
+         mockGetItem.mockImplementation((key: string) => {
+            if (key === 'latitude') return Promise.resolve(40.7128);
+            if (key === 'longitude') return Promise.resolve(-74.006);
+            return Promise.resolve(null);
+         });
+
+         const { result } = renderHook(() => useLocationStore());
+
+         await act(async () => {
+            await result.current.hydrateFromStorage();
+         });
+
+         expect(result.current.baseLayer).toBe('satellite');
+         expect(result.current.isHydrated).toBe(true);
+      });
+
       it('should use default values when storage is empty', async () => {
          mockGetItem.mockResolvedValue(null);
 
@@ -153,6 +222,7 @@ describe('locationStore', () => {
 
          expect(result.current.latitude).toBe(44.7975);
          expect(result.current.longitude).toBe(-93.5272);
+         expect(result.current.baseLayer).toBe('satellite');
          expect(result.current.isHydrated).toBe(true);
       });
 

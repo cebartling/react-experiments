@@ -6,7 +6,12 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 
 ### 🗺️ Interactive Mapping
 
-- **Satellite Imagery**: Uses free EOX Sentinel-2 cloudless satellite imagery for beautiful map rendering
+- **Multiple Base Layers**: Switch between Street, Satellite, and Hybrid map views
+   - Street: OpenStreetMap tiles with detailed street information
+   - Satellite: EOX Sentinel-2 cloudless satellite imagery
+   - Hybrid: Satellite imagery with street overlay
+- **Layer Control Panel**: Glass morphism UI control panel for seamless layer switching
+- **Persistent Layer Selection**: Selected base layer persists across sessions via IndexedDB
 - **Navigation Controls**: Built-in zoom and rotation controls for easy map manipulation
 - **Smooth Animations**: Animated transitions when flying to new locations
 - **Drag & Pan**: Interactive map dragging with automatic location updates
@@ -36,10 +41,10 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 
 ### 💾 Persistent State Management
 
-- **IndexedDB Storage**: Location state persisted using localforage with IndexedDB backend
-- **State Hydration**: Automatically restores last viewed location on app reload
+- **IndexedDB Storage**: Location and map style preferences persisted using localforage with IndexedDB backend
+- **State Hydration**: Automatically restores last viewed location and selected base layer on app reload
 - **Zustand Store**: Centralized state management with reactive updates
-- **Automatic Persistence**: Location changes automatically saved to browser storage
+- **Automatic Persistence**: Location and layer selection changes automatically saved to browser storage
 
 ### 📊 Status Indicators
 
@@ -116,7 +121,7 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **49 passing tests** across 5 test files
+- **64 passing tests** across 6 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
@@ -127,9 +132,10 @@ Comprehensive test suite with **100% code coverage**:
 
 | Component           | Tests    | Coverage |
 | ------------------- | -------- | -------- |
-| locationStore       | 9 tests  | 100%     |
+| locationStore       | 13 tests | 100%     |
 | useMapLocation      | 6 tests  | 100%     |
 | LocationSearchForm  | 17 tests | 100%     |
+| BaseLayerControl    | 11 tests | 100%     |
 | MapStatusIndicators | 10 tests | 100%     |
 | CellTowerLayer      | 7 tests  | 100%     |
 
@@ -178,6 +184,7 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main map container
 │   └── map/
+│       ├── BaseLayerControl.tsx   # Base layer switcher control panel
 │       ├── CellTowerLayer.tsx     # Cell tower visualization layer
 │       ├── LocationSearchForm.tsx # Coordinate search form
 │       └── MapStatusIndicators.tsx # Loading/error/success indicators
@@ -188,7 +195,7 @@ src/
 ├── services/
 │   └── cellTowerService.ts        # SWR-based data fetching
 ├── config/
-│   └── mapStyles.ts               # Map style configurations
+│   └── mapStyles.ts               # Map style configurations (street, satellite, hybrid)
 └── test/
     └── setup.ts                   # Test environment configuration
 ```
@@ -250,11 +257,11 @@ Satellite imagery provided by:
 
 ### Storage Configuration
 
-Location data is persisted to IndexedDB with the following schema:
+Location and map preferences are persisted to IndexedDB with the following schema:
 
 - **Database**: `maplibre-experiment`
 - **Store**: `location`
-- **Keys**: `latitude`, `longitude`
+- **Keys**: `latitude`, `longitude`, `baseLayer`
 
 ## API Integration
 
@@ -280,14 +287,15 @@ The application fetches cell tower data from the OpenCelliD API:
 
 Potential areas for expansion:
 
-- [ ] Additional map styles (street maps, terrain)
-- [ ] Multiple map layer support
+- [x] Multiple map layer support (street, satellite, hybrid) ✅
+- [ ] Additional map styles (terrain, topographic)
 - [ ] Cell tower filtering by radio type (LTE, 5G, GSM, etc.)
 - [ ] Distance measurement tools
 - [ ] Export/import saved locations
 - [ ] Offline map support
 - [ ] Custom marker clustering
 - [ ] Tower detail popups on click
+- [ ] Drawing tools for custom areas
 
 ## License
 
