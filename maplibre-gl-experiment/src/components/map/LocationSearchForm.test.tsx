@@ -11,6 +11,7 @@ describe('LocationSearchForm', () => {
    const mockSetLatInput = vi.fn();
    const mockSetLonInput = vi.fn();
    const mockSetLocation = vi.fn();
+   const mockSetBaseLayer = vi.fn();
 
    beforeEach(() => {
       vi.clearAllMocks();
@@ -21,12 +22,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '44.7975',
          lonInput: '-93.5272',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
    });
@@ -70,12 +73,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '40.7128',
          lonInput: '-74.006',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -96,12 +101,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '95',
          lonInput: '-93.5272',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -125,12 +132,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '-95',
          lonInput: '-93.5272',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -154,12 +163,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '44.7975',
          lonInput: '185',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -183,12 +194,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '44.7975',
          lonInput: '-185',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -212,12 +225,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: 'invalid',
          lonInput: '-93.5272',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -241,12 +256,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '44.7975',
          lonInput: 'invalid',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -264,8 +281,8 @@ describe('LocationSearchForm', () => {
    it('should start with the accordion expanded', () => {
       render(<LocationSearchForm />);
 
-      const accordionButton = screen.getByRole('button', { name: /search location/i });
-      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+      const accordionContent = screen.getByText('Search Location').closest('#location-form-content');
+      expect(accordionContent).toBeInTheDocument();
 
       // Form fields should be visible
       expect(screen.getByLabelText('Latitude')).toBeInTheDocument();
@@ -276,7 +293,8 @@ describe('LocationSearchForm', () => {
       const user = userEvent.setup();
       render(<LocationSearchForm />);
 
-      const accordionButton = screen.getByRole('button', { name: /search location/i });
+      // Find the accordion toggle button (the chevron button)
+      const accordionButton = screen.getByRole('button', { expanded: true });
 
       // Click to collapse
       await user.click(accordionButton);
@@ -288,7 +306,8 @@ describe('LocationSearchForm', () => {
       const user = userEvent.setup();
       render(<LocationSearchForm />);
 
-      const accordionButton = screen.getByRole('button', { name: /search location/i });
+      // Find the accordion toggle button (the chevron button)
+      const accordionButton = screen.getByRole('button', { expanded: true });
 
       // Collapse first
       await user.click(accordionButton);
@@ -303,7 +322,8 @@ describe('LocationSearchForm', () => {
       const user = userEvent.setup();
       render(<LocationSearchForm />);
 
-      const accordionButton = screen.getByRole('button', { name: /search location/i });
+      // Find the accordion toggle button (the chevron button)
+      const accordionButton = screen.getByRole('button', { expanded: true });
 
       // Toggle multiple times
       await user.click(accordionButton); // collapse
@@ -327,12 +347,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '40.7128',
          lonInput: '-74.006',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -359,12 +381,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '40.7128',
          lonInput: '-74.006',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -401,12 +425,14 @@ describe('LocationSearchForm', () => {
          longitude: -93.5272,
          latInput: '95',
          lonInput: '-93.5272',
+         baseLayer: 'street',
          isHydrated: true,
          setLatitude: vi.fn(),
          setLongitude: vi.fn(),
          setLatInput: mockSetLatInput,
          setLonInput: mockSetLonInput,
          setLocation: mockSetLocation,
+         setBaseLayer: mockSetBaseLayer,
          hydrateFromStorage: vi.fn(),
       });
 
@@ -422,5 +448,134 @@ describe('LocationSearchForm', () => {
       expect(mockSetLocation).not.toHaveBeenCalled();
 
       alertSpy.mockRestore();
+   });
+
+   describe('Base Layer Control', () => {
+      it('should render all three base layer options', () => {
+         render(<LocationSearchForm />);
+
+         expect(screen.getByText('Map Layer')).toBeInTheDocument();
+         expect(screen.getByRole('button', { name: /switch to street view/i })).toBeInTheDocument();
+         expect(screen.getByRole('button', { name: /switch to satellite view/i })).toBeInTheDocument();
+         expect(screen.getByRole('button', { name: /switch to hybrid view/i })).toBeInTheDocument();
+      });
+
+      it('should highlight the current base layer', () => {
+         render(<LocationSearchForm />);
+
+         const streetButton = screen.getByRole('button', { name: /switch to street view/i });
+         expect(streetButton).toHaveAttribute('aria-pressed', 'true');
+         expect(streetButton).toHaveClass('bg-blue-600');
+      });
+
+      it('should call setBaseLayer when street button is clicked', async () => {
+         const user = userEvent.setup();
+
+         vi.mocked(useLocationStore).mockReturnValue({
+            latitude: 44.7975,
+            longitude: -93.5272,
+            latInput: '44.7975',
+            lonInput: '-93.5272',
+            baseLayer: 'satellite',
+            isHydrated: true,
+            setLatitude: vi.fn(),
+            setLongitude: vi.fn(),
+            setLatInput: mockSetLatInput,
+            setLonInput: mockSetLonInput,
+            setLocation: mockSetLocation,
+            setBaseLayer: mockSetBaseLayer,
+            hydrateFromStorage: vi.fn(),
+         });
+
+         render(<LocationSearchForm />);
+
+         const streetButton = screen.getByRole('button', { name: /switch to street view/i });
+         await user.click(streetButton);
+
+         expect(mockSetBaseLayer).toHaveBeenCalledWith('street');
+      });
+
+      it('should call setBaseLayer when satellite button is clicked', async () => {
+         const user = userEvent.setup();
+         render(<LocationSearchForm />);
+
+         const satelliteButton = screen.getByRole('button', { name: /switch to satellite view/i });
+         await user.click(satelliteButton);
+
+         expect(mockSetBaseLayer).toHaveBeenCalledWith('satellite');
+      });
+
+      it('should call setBaseLayer when hybrid button is clicked', async () => {
+         const user = userEvent.setup();
+         render(<LocationSearchForm />);
+
+         const hybridButton = screen.getByRole('button', { name: /switch to hybrid view/i });
+         await user.click(hybridButton);
+
+         expect(mockSetBaseLayer).toHaveBeenCalledWith('hybrid');
+      });
+
+      it('should highlight satellite layer when it is active', () => {
+         vi.mocked(useLocationStore).mockReturnValue({
+            latitude: 44.7975,
+            longitude: -93.5272,
+            latInput: '44.7975',
+            lonInput: '-93.5272',
+            baseLayer: 'satellite',
+            isHydrated: true,
+            setLatitude: vi.fn(),
+            setLongitude: vi.fn(),
+            setLatInput: mockSetLatInput,
+            setLonInput: mockSetLonInput,
+            setLocation: mockSetLocation,
+            setBaseLayer: mockSetBaseLayer,
+            hydrateFromStorage: vi.fn(),
+         });
+
+         render(<LocationSearchForm />);
+
+         const satelliteButton = screen.getByRole('button', { name: /switch to satellite view/i });
+         expect(satelliteButton).toHaveAttribute('aria-pressed', 'true');
+         expect(satelliteButton).toHaveClass('bg-blue-600');
+      });
+
+      it('should highlight hybrid layer when it is active', () => {
+         vi.mocked(useLocationStore).mockReturnValue({
+            latitude: 44.7975,
+            longitude: -93.5272,
+            latInput: '44.7975',
+            lonInput: '-93.5272',
+            baseLayer: 'hybrid',
+            isHydrated: true,
+            setLatitude: vi.fn(),
+            setLongitude: vi.fn(),
+            setLatInput: mockSetLatInput,
+            setLonInput: mockSetLonInput,
+            setLocation: mockSetLocation,
+            setBaseLayer: mockSetBaseLayer,
+            hydrateFromStorage: vi.fn(),
+         });
+
+         render(<LocationSearchForm />);
+
+         const hybridButton = screen.getByRole('button', { name: /switch to hybrid view/i });
+         expect(hybridButton).toHaveAttribute('aria-pressed', 'true');
+         expect(hybridButton).toHaveClass('bg-blue-600');
+      });
+
+      it('should show inactive styling for non-selected layers', () => {
+         render(<LocationSearchForm />);
+
+         const satelliteButton = screen.getByRole('button', { name: /switch to satellite view/i });
+         const hybridButton = screen.getByRole('button', { name: /switch to hybrid view/i });
+
+         expect(satelliteButton).toHaveAttribute('aria-pressed', 'false');
+         expect(satelliteButton).toHaveClass('bg-white/20');
+         expect(satelliteButton).not.toHaveClass('bg-blue-600');
+
+         expect(hybridButton).toHaveAttribute('aria-pressed', 'false');
+         expect(hybridButton).toHaveClass('bg-white/20');
+         expect(hybridButton).not.toHaveClass('bg-blue-600');
+      });
    });
 });
