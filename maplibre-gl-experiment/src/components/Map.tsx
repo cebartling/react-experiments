@@ -9,7 +9,6 @@ import { getStyleByType } from '../config/mapStyles';
 import { LocationSearchForm } from './map/LocationSearchForm';
 import { MapStatusIndicators } from './map/MapStatusIndicators';
 import { CellTowerLayer } from './map/CellTowerLayer';
-import { BaseLayerControl } from './map/BaseLayerControl';
 
 function Map() {
    // Ref for the map instance
@@ -58,7 +57,6 @@ function Map() {
          </MapGL>
 
          <LocationSearchForm />
-         <BaseLayerControl />
          <MapStatusIndicators isLoading={isLoading} error={error} cellTowers={cellTowers} />
       </div>
    );
