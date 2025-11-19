@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Canvas } from '@react-three/fiber';
-import { Box } from '../Box';
+import { Box } from '../BoxScene/Box.tsx';
 
 const meta = {
     title: 'Components/Box',
