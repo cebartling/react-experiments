@@ -27,10 +27,20 @@ npm run build        # Type-check with tsc and build for production
 
 ### Testing
 
+#### Unit Tests
+
 ```bash
 npm run test              # Run Vitest in watch mode
 npm run test:ui           # Run Vitest with interactive UI
 npm run test:coverage     # Run tests with coverage report (100% coverage expected)
+```
+
+#### E2E Tests
+
+```bash
+npm run playwright:install   # Install Playwright browsers (first time only)
+npm run test:e2e             # Run E2E acceptance tests (headless)
+npm run test:e2e:headed      # Run E2E tests with browser UI (for debugging)
 ```
 
 ### Code Quality
@@ -151,13 +161,29 @@ The project uses TypeScript project references with three config files:
 
 ## Testing
 
-### Test Framework
+### Unit Testing (Vitest)
 
 - **Vitest 4.0.9** with jsdom environment
 - **@testing-library/react** for component testing
 - **@testing-library/user-event** for user interaction simulation
 - **100% code coverage** across all components, hooks, and stores
-- **90 passing tests** across 7 test files
+- **91 passing tests** across 7 test files
+
+### E2E Testing (Playwright + Cucumber)
+
+- **Playwright 1.56.1** for browser automation
+- **Cucumber.js 12.2.0** for BDD-style acceptance tests
+- **Gherkin syntax** for readable test scenarios
+- **Cross-browser testing**: Chromium, Firefox, WebKit
+- **Test features**:
+  - Map navigation and interactions
+  - Location search with coordinates
+  - Drag and zoom functionality
+  - Layer switching (Street/Satellite/Hybrid)
+  - Cell tower visualization
+  - Real-time coordinate display
+- **Automatic screenshots** on test failure
+- **Located in**: `e2e/` directory
 
 ### Testing Patterns
 

@@ -142,6 +142,18 @@ Comprehensive test suite with **100% code coverage**:
 | CellTowerLayer      | 7 tests  | 100%     |
 | Crosshair           | 6 tests  | 100%     |
 
+### 🎭 End-to-End Testing
+
+Comprehensive acceptance testing with Playwright and Cucumber.js:
+
+- **BDD-style scenarios** using Gherkin syntax
+- **Cross-browser testing** (Chromium, Firefox, WebKit)
+- **User journey coverage**: Map navigation, location search, drag interactions, cell tower visualization
+- **Automatic screenshots** on test failure
+- **Feature files**:
+  - `map-navigation.feature`: Map interactions, coordinates, zoom, layer switching
+  - `cell-towers.feature`: Cell tower markers and data loading
+
 ## Tech Stack
 
 ### Core
@@ -168,11 +180,19 @@ Comprehensive test suite with **100% code coverage**:
 
 ### Testing
 
+#### Unit Testing
+
 - **Vitest 4.0.9** - Fast unit test framework
 - **@testing-library/react 16.3.0** - React component testing utilities
 - **@testing-library/user-event 14.6.1** - User interaction simulation
 - **@vitest/coverage-v8** - Code coverage reporting
 - **jsdom** - DOM implementation for Node.js
+
+#### E2E Testing
+
+- **Playwright 1.56.1** - Browser automation and testing
+- **Cucumber.js 12.2.0** - BDD test framework with Gherkin syntax
+- **ts-node 10.9.2** - TypeScript execution for test files
 
 ### Code Quality
 
@@ -227,10 +247,20 @@ npm run build        # Type-check with tsc and build for production
 
 ### Testing
 
+#### Unit Tests (Vitest)
+
 ```bash
-npm run test              # Run tests in watch mode
-npm run test:ui           # Run tests with UI
-npm run test:coverage     # Run tests with coverage report
+npm run test              # Run unit tests in watch mode
+npm run test:ui           # Run unit tests with UI
+npm run test:coverage     # Run unit tests with coverage report
+```
+
+#### E2E Tests (Playwright + Cucumber)
+
+```bash
+npm run playwright:install   # Install Playwright browsers (first time only)
+npm run test:e2e             # Run E2E tests in headless mode
+npm run test:e2e:headed      # Run E2E tests with browser UI
 ```
 
 ### Code Quality
