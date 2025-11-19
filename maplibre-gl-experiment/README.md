@@ -146,13 +146,45 @@ Comprehensive test suite with **100% code coverage**:
 
 Comprehensive acceptance testing with Playwright and Cucumber.js:
 
-- **BDD-style scenarios** using Gherkin syntax
-- **Cross-browser testing** (Chromium, Firefox, WebKit)
-- **User journey coverage**: Map navigation, location search, drag interactions, cell tower visualization
-- **Automatic screenshots** on test failure
-- **Feature files**:
-  - `map-navigation.feature`: Map interactions, coordinates, zoom, layer switching
-  - `cell-towers.feature`: Cell tower markers and data loading
+- **BDD-style scenarios** using Gherkin syntax for readable test specifications
+- **Cross-browser testing** (Chromium, Firefox, WebKit) ensuring compatibility across all major browsers
+- **User journey coverage**: Complete testing of map navigation, location search, drag interactions, and cell tower visualization
+- **Automatic screenshots** on test failure for debugging
+- **Dev server automation**: Automatically starts and stops dev server for each test run
+- **Located in**: `e2e/` directory with organized structure:
+  - `features/`: Gherkin feature files defining test scenarios
+  - `steps/`: Step definitions implementing test logic
+  - `support/`: Test hooks, world configuration, and dev server management
+
+#### Test Scenarios
+
+**Map Navigation** (`e2e/features/map-navigation.feature`):
+- View default map location (Shakopee, MN)
+- Search for locations using latitude/longitude coordinates
+- Drag map with pulsating crosshair and real-time coordinate display
+- Zoom in/out while maintaining stable map center
+- Switch between base layers (Street, Satellite, Hybrid) with visual confirmation
+
+**Cell Tower Visualization** (`e2e/features/cell-towers.feature`):
+- View cell tower markers on initial load
+- Update cell towers when location changes
+- Display loading states and tower count indicators
+- Verify cell tower data persistence across location changes
+
+#### Running E2E Tests
+
+```bash
+# First time setup - install browsers
+npm run playwright:install
+
+# Run tests in headless mode (CI/CD)
+npm run test:e2e
+
+# Run tests with browser UI for debugging
+npm run test:e2e:headed
+
+# Test reports and screenshots saved to e2e/reports/
+```
 
 ## Tech Stack
 

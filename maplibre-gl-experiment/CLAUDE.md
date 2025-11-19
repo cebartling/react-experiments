@@ -171,19 +171,140 @@ The project uses TypeScript project references with three config files:
 
 ### E2E Testing (Playwright + Cucumber)
 
-- **Playwright 1.56.1** for browser automation
-- **Cucumber.js 12.2.0** for BDD-style acceptance tests
-- **Gherkin syntax** for readable test scenarios
+The project includes comprehensive end-to-end acceptance tests using Playwright for browser automation and Cucumber.js for BDD-style testing.
+
+#### Technology Stack
+
+- **Playwright 1.56.1** - Browser automation library
+- **Cucumber.js 12.2.0** - BDD test framework
+- **Gherkin syntax** - Human-readable test specifications
 - **Cross-browser testing**: Chromium, Firefox, WebKit
-- **Test features**:
-  - Map navigation and interactions
-  - Location search with coordinates
-  - Drag and zoom functionality
-  - Layer switching (Street/Satellite/Hybrid)
-  - Cell tower visualization
-  - Real-time coordinate display
-- **Automatic screenshots** on test failure
-- **Located in**: `e2e/` directory
+- **ts-node 10.9.2** - TypeScript execution for test files
+
+#### Test Structure
+
+```
+e2e/
+├── features/
+│   ├── map-navigation.feature    # Map interaction scenarios
+│   └── cell-towers.feature       # Cell tower visualization scenarios
+├── steps/
+│   ├── common.steps.ts           # Shared step definitions
+│   ├── map-navigation.steps.ts  # Map-specific steps
+│   └── cell-towers.steps.ts     # Cell tower-specific steps
+└── support/
+    ├── hooks.ts                  # Before/After hooks, screenshots
+    ├── world.ts                  # Custom World with Playwright context
+    └── server.ts                 # Dev server lifecycle management
+```
+
+#### Test Coverage
+
+**Map Navigation** (`e2e/features/map-navigation.feature`):
+- **Default location**: Verifies map centers on Shakopee, MN on initial load
+- **Location search**: Tests coordinate input (lat/lon) with form submission and map flyTo animation
+- **Drag interactions**:
+  - Pulsating crosshair appears during drag
+  - Real-time coordinate popup displays current lat/lon
+  - Crosshair disappears on drag release
+  - Location persists to IndexedDB after drag
+- **Zoom controls**: Zoom in/out while maintaining stable map center
+- **Layer switching**: Switch between Street, Satellite, and Hybrid layers with visual feedback
+
+**Cell Tower Visualization** (`e2e/features/cell-towers.feature`):
+- **Initial render**: Cell tower markers display on map load
+- **Tower count**: Display and update tower count in UI
+- **Location updates**: Towers refresh when user searches new location
+- **Loading states**: "Loading cell towers..." message during fetch
+- **Data persistence**: Tower data updates correctly across location changes
+
+#### Test Execution
+
+The E2E test suite runs with the following features:
+
+1. **Dev Server Automation** (`e2e/support/server.ts`):
+   - Automatically finds available port using `portfinder`
+   - Starts Vite dev server before tests
+   - Waits for server readiness (checks `http://localhost:PORT`)
+   - Gracefully shuts down after all tests complete
+   - Handles cleanup on process exit
+
+2. **Screenshot Capture** (`e2e/support/hooks.ts`):
+   - Automatic screenshot on test failure
+   - Saved to `e2e/reports/screenshots/`
+   - Named with timestamp and scenario name
+   - Useful for debugging failing tests
+
+3. **Browser Context** (`e2e/support/world.ts`):
+   - Custom Cucumber World extends `IWorld`
+   - Manages Playwright browser, context, and page instances
+   - Provides typed access to page object for step definitions
+   - Ensures proper cleanup between scenarios
+
+4. **Cross-browser Testing**:
+   - Configured to run on Chromium, Firefox, and WebKit
+   - Parallel execution for faster test runs
+   - Configurable via `cucumber.js` configuration
+
+#### Running E2E Tests
+
+```bash
+# First time setup - install browsers
+npm run playwright:install
+
+# Run all E2E tests (headless mode)
+npm run test:e2e
+
+# Run with browser UI visible (debugging)
+npm run test:e2e:headed
+
+# Test reports and screenshots
+# - Reports: e2e/reports/
+# - Screenshots: e2e/reports/screenshots/
+```
+
+#### Writing New E2E Tests
+
+When adding new acceptance tests:
+
+1. **Create feature file** in `e2e/features/` using Gherkin syntax:
+   ```gherkin
+   Feature: Feature Name
+     As a user
+     I want to perform an action
+     So that I can achieve a goal
+
+     Scenario: Scenario description
+       Given precondition
+       When action
+       Then expected outcome
+   ```
+
+2. **Implement step definitions** in `e2e/steps/`:
+   - Use `this.page` to access Playwright page object
+   - Follow existing patterns for element selection
+   - Add assertions using Playwright's `expect`
+   - Reuse common steps from `common.steps.ts`
+
+3. **Test best practices**:
+   - Use data-testid attributes for reliable element selection
+   - Wait for elements with `waitForSelector` before interaction
+   - Test user journeys, not implementation details
+   - Keep scenarios focused and independent
+   - Use Background for common preconditions
+   - Add meaningful error messages to assertions
+
+Example step definition:
+```typescript
+When('I click the {string} button', async function (buttonText: string) {
+  await this.page.waitForSelector(`button:has-text("${buttonText}")`);
+  await this.page.click(`button:has-text("${buttonText}")`);
+});
+
+Then('I should see {string}', async function (text: string) {
+  await expect(this.page.locator(`text=${text}`)).toBeVisible();
+});
+```
 
 ### Testing Patterns
 
