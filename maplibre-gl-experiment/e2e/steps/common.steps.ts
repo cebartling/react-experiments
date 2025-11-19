@@ -1,5 +1,6 @@
 import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 import { CustomWorld } from '../support/world.js';
+import { devServerPort } from '../support/server.js';
 
 // Set default timeout to 30 seconds
 setDefaultTimeout(30000);
@@ -9,7 +10,10 @@ Given('I am on the map application', async function (this: CustomWorld) {
       throw new Error('Page is not initialized');
    }
 
-   await this.page.goto('http://localhost:5173/map', {
+   const url = `http://localhost:${devServerPort}/map`;
+   console.log(`Navigating to: ${url}`);
+
+   await this.page.goto(url, {
       waitUntil: 'networkidle',
       timeout: 30000,
    });
