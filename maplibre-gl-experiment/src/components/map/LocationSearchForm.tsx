@@ -138,7 +138,7 @@ export function LocationSearchForm() {
                </div>
 
                <div className="border-t border-white/30 pt-4">
-                  <h3 className="font-semibold text-lg text-white mb-2">Cell Tower Status</h3>
+                  <h3 className="font-semibold text-lg text-white mb-2">Cell Towers</h3>
                   {isLoading ? (
                      <div className="bg-blue-500/20 border border-blue-500/50 text-blue-100 px-4 py-2 rounded-md text-sm">
                         Loading cell towers...
@@ -148,7 +148,7 @@ export function LocationSearchForm() {
                         {errorMessage}
                      </div>
                   ) : (
-                     <div className="bg-green-500/20 border border-green-500/50 text-green-100 px-4 py-2 rounded-md text-sm">
+                     <div className="text-white text-sm">
                         <span className="font-bold">{cellTowerCount}</span> cell tower{cellTowerCount !== 1 ? 's' : ''} found
                      </div>
                   )}
