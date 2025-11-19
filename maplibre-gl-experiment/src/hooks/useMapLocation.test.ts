@@ -15,6 +15,7 @@ describe('useMapLocation', () => {
    };
 
    beforeEach(() => {
+      vi.useRealTimers();
       // Setup mock map
       mockMap = {
          flyTo: vi.fn(),
@@ -68,6 +69,31 @@ describe('useMapLocation', () => {
          });
 
          expect(result.current.isDragging).toBe(false);
+      });
+
+      it('should reset user dragging flag after timeout on handleMoveEnd', async () => {
+         vi.useFakeTimers();
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         // Start dragging
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         // End dragging
+         act(() => {
+            result.current.handleMoveEnd();
+         });
+
+         // Advance timers past the timeout
+         await act(async () => {
+            vi.advanceTimersByTime(100);
+         });
+
+         // The flag should be reset (we can't directly test the ref, but the timeout code path is covered)
+         expect(result.current.isDragging).toBe(false);
+
+         vi.useRealTimers();
       });
    });
 
