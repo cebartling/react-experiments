@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { MapRef } from '@vis.gl/react-maplibre';
 import { useLocationStore } from '../stores/locationStore';
 
@@ -9,6 +9,7 @@ import { useLocationStore } from '../stores/locationStore';
 export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
    const { latitude, longitude, isHydrated, setLocation, setLatInput, setLonInput } =
       useLocationStore();
+   const [isDragging, setIsDragging] = useState(false);
 
    // Fly to new coordinates when they change (only after hydration)
    useEffect(() => {
@@ -20,6 +21,11 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
          });
       }
    }, [latitude, longitude, isHydrated, mapRef]);
+
+   // Handle drag start - show crosshair
+   const handleDragStart = () => {
+      setIsDragging(true);
+   };
 
    // Handle map move/drag end - update location when user pans the map
    const handleMoveEnd = () => {
@@ -35,9 +41,14 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
          setLatInput(newLat.toFixed(4));
          setLonInput(newLon.toFixed(4));
       }
+
+      // Hide crosshair after drag ends
+      setIsDragging(false);
    };
 
    return {
+      handleDragStart,
       handleMoveEnd,
+      isDragging,
    };
 }

@@ -8,6 +8,7 @@ import { useMapLocation } from '../hooks/useMapLocation';
 import { getStyleByType } from '../config/mapStyles';
 import { LocationSearchForm } from './map/LocationSearchForm';
 import { CellTowerLayer } from './map/CellTowerLayer';
+import { Crosshair } from './map/Crosshair';
 
 function Map() {
    // Ref for the map instance
@@ -17,7 +18,7 @@ function Map() {
    const { latitude, longitude, baseLayer, hydrateFromStorage } = useLocationStore();
 
    // Custom hook for map location interactions
-   const { handleMoveEnd } = useMapLocation(mapRef);
+   const { handleDragStart, handleMoveEnd, isDragging } = useMapLocation(mapRef);
 
    // Hydrate state from IndexedDB on mount
    useEffect(() => {
@@ -45,12 +46,14 @@ function Map() {
             }}
             mapStyle={getStyleByType(baseLayer)}
             style={{ width: '100%', height: '100%' }}
+            onDragStart={handleDragStart}
             onMoveEnd={handleMoveEnd}
          >
             <NavigationControl position="top-right" />
             <CellTowerLayer cellTowers={cellTowers} />
          </MapGL>
 
+         <Crosshair visible={isDragging} />
          <LocationSearchForm />
       </div>
    );

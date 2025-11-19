@@ -39,6 +39,38 @@ describe('useMapLocation', () => {
       });
    });
 
+   describe('dragging state', () => {
+      it('should set isDragging to true when handleDragStart is called', () => {
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         expect(result.current.isDragging).toBe(false);
+
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         expect(result.current.isDragging).toBe(true);
+      });
+
+      it('should set isDragging to false when handleMoveEnd is called', () => {
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         // Start dragging
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         expect(result.current.isDragging).toBe(true);
+
+         // End dragging
+         act(() => {
+            result.current.handleMoveEnd();
+         });
+
+         expect(result.current.isDragging).toBe(false);
+      });
+   });
+
    describe('handleMoveEnd', () => {
       it('should update location when map is moved', () => {
          const mockSetLocation = vi.fn();

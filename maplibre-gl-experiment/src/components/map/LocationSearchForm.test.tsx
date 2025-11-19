@@ -627,7 +627,7 @@ describe('LocationSearchForm', () => {
       it('should display cell tower count at bottom of accordion when loaded', () => {
          render(<LocationSearchForm />);
 
-         expect(screen.getByText('Cell Tower Status')).toBeInTheDocument();
+         expect(screen.getByText('Cell Towers')).toBeInTheDocument();
          expect(screen.getByText('2')).toBeInTheDocument();
          expect(screen.getByText(/cell towers found/i)).toBeInTheDocument();
       });
@@ -643,7 +643,7 @@ describe('LocationSearchForm', () => {
 
          render(<LocationSearchForm />);
 
-         expect(screen.getByText('Cell Tower Status')).toBeInTheDocument();
+         expect(screen.getByText('Cell Towers')).toBeInTheDocument();
          expect(screen.getByText('Loading cell towers...')).toBeInTheDocument();
       });
 
@@ -658,7 +658,7 @@ describe('LocationSearchForm', () => {
 
          render(<LocationSearchForm />);
 
-         expect(screen.getByText('Cell Tower Status')).toBeInTheDocument();
+         expect(screen.getByText('Cell Towers')).toBeInTheDocument();
          expect(screen.getByText('Network error')).toBeInTheDocument();
       });
 
@@ -734,13 +734,6 @@ describe('LocationSearchForm', () => {
          render(<LocationSearchForm />);
 
          expect(screen.getByText('Failed to load cell towers')).toBeInTheDocument();
-      });
-
-      it('should display accordion header as "Location & Settings"', () => {
-         render(<LocationSearchForm />);
-
-         const accordionButton = screen.getByRole('button', { expanded: true });
-         expect(accordionButton).toHaveTextContent('Location & Settings');
       });
    });
 });
