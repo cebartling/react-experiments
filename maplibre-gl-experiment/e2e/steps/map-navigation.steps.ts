@@ -28,13 +28,23 @@ When(
    async function (this: CustomWorld, lat: string, lon: string) {
       if (!this.page) throw new Error('Page not initialized');
 
-      // Find and fill the latitude input
-      const latInput = this.page.locator('input[type="number"]').first();
+      // Ensure the form is expanded first
+      const formContent = this.page.locator('#location-form-content');
+      const isExpanded = await formContent.isVisible();
+
+      if (!isExpanded) {
+         const expandButton = this.page.locator('button[aria-expanded]');
+         await expandButton.click();
+         await this.page.waitForTimeout(500); // Wait for accordion animation
+      }
+
+      // Find and fill the latitude input (using id selector)
+      const latInput = this.page.locator('#latitude');
       await latInput.clear();
       await latInput.fill(lat);
 
-      // Find and fill the longitude input
-      const lonInput = this.page.locator('input[type="number"]').last();
+      // Find and fill the longitude input (using id selector)
+      const lonInput = this.page.locator('#longitude');
       await lonInput.clear();
       await lonInput.fill(lon);
    }
@@ -61,8 +71,8 @@ Then(
       if (!this.page) throw new Error('Page not initialized');
 
       // Check that inputs have been updated (they should show the submitted values)
-      const latInput = this.page.locator('input[type="number"]').first();
-      const lonInput = this.page.locator('input[type="number"]').last();
+      const latInput = this.page.locator('#latitude');
+      const lonInput = this.page.locator('#longitude');
 
       const latValue = await latInput.inputValue();
       const lonValue = await lonInput.inputValue();

@@ -47,9 +47,30 @@ Then('the cell tower count should update', async function (this: CustomWorld) {
 When('cell towers are loading', async function (this: CustomWorld) {
    if (!this.page) throw new Error('Page not initialized');
 
+   // Ensure the form is expanded
+   const formContent = this.page.locator('#location-form-content');
+   const isExpanded = await formContent.isVisible();
+
+   if (!isExpanded) {
+      const expandButton = this.page.locator('button[aria-expanded]');
+      await expandButton.click();
+      await this.page.waitForTimeout(500); // Wait for accordion animation
+   }
+
+   // Enter a new location to trigger loading (use a remote location)
+   const latInput = this.page.locator('#latitude');
+   const lonInput = this.page.locator('#longitude');
+   await latInput.clear();
+   await latInput.fill('40.7128'); // New York
+   await lonInput.clear();
+   await lonInput.fill('-74.0060'); // New York
+
    // Trigger a location change to cause loading
    const searchButton = this.page.getByRole('button', { name: /search/i });
    await searchButton.click();
+
+   // Wait a small amount for loading state to appear
+   await this.page.waitForTimeout(100);
 });
 
 Then('I should see a {string} message', async function (this: CustomWorld, message: string) {
