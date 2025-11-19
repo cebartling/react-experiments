@@ -122,7 +122,7 @@ describe('useMapLocation', () => {
    });
 
    describe('handleMoveEnd', () => {
-      it('should update location when map is moved', () => {
+      it('should update location when map is dragged', () => {
          const mockSetLocation = vi.fn();
          const mockSetLatInput = vi.fn();
          const mockSetLonInput = vi.fn();
@@ -143,6 +143,12 @@ describe('useMapLocation', () => {
 
          const { result } = renderHook(() => useMapLocation(mockMapRef));
 
+         // Simulate drag start
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         // Simulate drag end
          act(() => {
             result.current.handleMoveEnd();
          });
@@ -180,7 +186,7 @@ describe('useMapLocation', () => {
          expect(mockSetLocation).not.toHaveBeenCalled();
       });
 
-      it('should round coordinates to 4 decimal places', () => {
+      it('should round coordinates to 4 decimal places when dragged', () => {
          const mockSetLatInput = vi.fn();
          const mockSetLonInput = vi.fn();
 
@@ -202,12 +208,46 @@ describe('useMapLocation', () => {
 
          const { result } = renderHook(() => useMapLocation(mockMapRef));
 
+         // Simulate drag start
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         // Simulate drag end
          act(() => {
             result.current.handleMoveEnd();
          });
 
          expect(mockSetLatInput).toHaveBeenCalledWith('40.7128');
          expect(mockSetLonInput).toHaveBeenCalledWith('-74.0060');
+      });
+
+      it('should not update location on moveEnd if not dragging (e.g., zoom)', () => {
+         const mockSetLocation = vi.fn();
+
+         vi.mocked(useLocationStore).mockReturnValue({
+            latitude: 44.7975,
+            longitude: -93.5272,
+            latInput: '44.7975',
+            lonInput: '-93.5272',
+            isHydrated: true,
+            setLatitude: vi.fn(),
+            setLongitude: vi.fn(),
+            setLatInput: vi.fn(),
+            setLonInput: vi.fn(),
+            setLocation: mockSetLocation,
+            hydrateFromStorage: vi.fn(),
+         });
+
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         // Call moveEnd without dragStart (like during zoom)
+         act(() => {
+            result.current.handleMoveEnd();
+         });
+
+         // Should not update location
+         expect(mockSetLocation).not.toHaveBeenCalled();
       });
    });
 

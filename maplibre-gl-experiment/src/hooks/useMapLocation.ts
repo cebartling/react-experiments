@@ -40,7 +40,8 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
 
    // Handle map move/drag end - update location when user pans the map
    const handleMoveEnd = () => {
-      if (mapRef.current) {
+      // Only update location if the user was actually dragging
+      if (mapRef.current && isUserDragging.current) {
          const center = mapRef.current.getCenter();
          const newLat = center.lat;
          const newLon = center.lng;
