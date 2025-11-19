@@ -15,6 +15,7 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 - **Navigation Controls**: Built-in zoom and rotation controls for easy map manipulation
 - **Smooth Animations**: Animated transitions when flying to new locations
 - **Drag & Pan**: Interactive map dragging with automatic location updates
+- **Crosshair Marker**: Visual center indicator appears during map dragging to show precise map center positioning
 
 ### 📡 Cell Tower Visualization
 
@@ -50,7 +51,7 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 
 - **Loading States**: Visual feedback during data fetching
 - **Error Handling**: Clear error messages when data fetching fails
-- **Tower Count**: Real-time display of loaded cell towers
+- **Tower Count**: Real-time display of loaded cell towers in the location search panel
 - **Multi-state Support**: Simultaneous display of loading and error states when applicable
 
 ### 🏗️ Architecture & Code Quality
@@ -63,13 +64,13 @@ The application is organized into modular, reusable components:
 graph TD
     A[App.tsx] --> B[Map.tsx]
     B --> C[LocationSearchForm]
-    B --> D[MapStatusIndicators]
+    B --> D[Crosshair]
     B --> E[CellTowerLayer]
     B --> F[NavigationControl]
     B --> G[useMapLocation Hook]
     G --> H[locationStore]
     C --> H
-    D --> I[cellTowerService]
+    C --> I[cellTowerService]
 ```
 
 #### State Management Architecture
@@ -121,7 +122,7 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **64 passing tests** across 6 test files
+- **85 passing tests** across 7 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
@@ -133,11 +134,12 @@ Comprehensive test suite with **100% code coverage**:
 | Component           | Tests    | Coverage |
 | ------------------- | -------- | -------- |
 | locationStore       | 13 tests | 100%     |
-| useMapLocation      | 6 tests  | 100%     |
-| LocationSearchForm  | 17 tests | 100%     |
+| useMapLocation      | 9 tests  | 100%     |
+| LocationSearchForm  | 32 tests | 100%     |
 | BaseLayerControl    | 11 tests | 100%     |
 | MapStatusIndicators | 10 tests | 100%     |
 | CellTowerLayer      | 7 tests  | 100%     |
+| Crosshair           | 3 tests  | 100%     |
 
 ## Tech Stack
 
@@ -186,10 +188,11 @@ src/
 │   └── map/
 │       ├── BaseLayerControl.tsx   # Base layer switcher control panel
 │       ├── CellTowerLayer.tsx     # Cell tower visualization layer
+│       ├── Crosshair.tsx          # Crosshair marker for drag positioning
 │       ├── LocationSearchForm.tsx # Coordinate search form
 │       └── MapStatusIndicators.tsx # Loading/error/success indicators
 ├── hooks/
-│   └── useMapLocation.ts          # Custom hook for map interactions
+│   └── useMapLocation.ts          # Custom hook for map interactions & drag state
 ├── stores/
 │   └── locationStore.ts           # Zustand store with IndexedDB persistence
 ├── services/

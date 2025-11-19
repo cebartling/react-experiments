@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MapLibre GL experiment - A React + TypeScript + Vite application for interactive mapping with cell tower visualization, persistent location state using IndexedDB, and comprehensive test coverage. This project demonstrates best practices for building modern React applications with state management, data fetching, and testing.
+MapLibre GL experiment - A React + TypeScript + Vite application for interactive mapping with cell tower visualization, persistent location state using IndexedDB, drag-to-reposition with visual crosshair feedback, and comprehensive test coverage. This project demonstrates best practices for building modern React applications with state management, data fetching, and testing.
 
 ## Build Tool
 
@@ -54,10 +54,11 @@ src/
 │   └── map/
 │       ├── BaseLayerControl.tsx   # Layer switcher (street/satellite/hybrid)
 │       ├── CellTowerLayer.tsx     # Cell tower visualization (MapLibre Source/Layer)
+│       ├── Crosshair.tsx          # Crosshair marker showing map center during drag
 │       ├── LocationSearchForm.tsx # Coordinate input form with validation
 │       └── MapStatusIndicators.tsx # Loading/error/success UI states
 ├── hooks/
-│   └── useMapLocation.ts          # Map interaction logic (drag, fly-to)
+│   └── useMapLocation.ts          # Map interaction logic (drag, fly-to, drag state)
 ├── stores/
 │   └── locationStore.ts           # Zustand store with IndexedDB persistence
 ├── services/
@@ -102,13 +103,19 @@ src/
    - Persists selection to IndexedDB via store
    - Icon and label for each layer type
 - **CellTowerLayer.tsx** - Converts cell tower data to GeoJSON and renders MapLibre Source/Layer components
+- **Crosshair.tsx** - Visual feedback component for map center during drag operations. Features:
+   - Red crosshair with center circle
+   - Only visible during map dragging (controlled by `visible` prop)
+   - Absolutely positioned at map center with pointer-events-none
+   - Simple, pure presentational component
 - **LocationSearchForm.tsx** - Self-contained form with validation and glass morphism UI. Features:
    - Translucent frosted glass background using Tailwind's backdrop-blur
    - Blue button with pulsating glow on hover
    - Green success feedback (800ms timeout) on valid submission
    - Collapsible accordion interface
    - Connected directly to Zustand store
-- **MapStatusIndicators.tsx** - Pure presentational component for displaying loading/error/success states
+   - Displays cell tower count inline (no special background/border)
+- **MapStatusIndicators.tsx** - Pure presentational component for displaying loading/error/success states (deprecated in favor of inline display in LocationSearchForm)
 
 ### State & Data
 
@@ -117,7 +124,12 @@ src/
 
 ### Hooks
 
-- **useMapLocation.ts** - Handles map ref interactions, flying to coordinates, and map drag events
+- **useMapLocation.ts** - Handles map ref interactions, flying to coordinates, and map drag events. Features:
+   - `handleDragStart`: Sets dragging state to show crosshair
+   - `handleMoveEnd`: Updates location on drag end, hides crosshair
+   - `isDragging`: Boolean state indicating if user is currently dragging
+   - `isUserDragging` ref: Prevents `flyTo` animation during user drag (avoids conflicts)
+   - Uses timeout to reset drag flag after moveEnd to allow programmatic location changes
 
 ## TypeScript Configuration
 
@@ -139,6 +151,7 @@ The project uses TypeScript project references with three config files:
 - **@testing-library/react** for component testing
 - **@testing-library/user-event** for user interaction simulation
 - **100% code coverage** across all components, hooks, and stores
+- **85 passing tests** across 7 test files
 
 ### Testing Patterns
 
@@ -299,6 +312,7 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 7. **Import order** - Mock setup must be before imports in tests
 8. **Fake timers in tests** - Always call `vi.useRealTimers()` in `beforeEach` to prevent timer pollution between tests
 9. **Act warnings** - Wrap state updates and timer advances in `act()` when testing React components
+10. **User drag vs programmatic flyTo** - Use the `isUserDragging` ref flag to prevent `flyTo` conflicts during user drag operations
 
 ## Future Considerations
 
