@@ -49,11 +49,10 @@ export function LocationSearchForm() {
       <div className="absolute top-20 left-4 bg-black/60 backdrop-blur-md rounded-lg shadow-lg max-w-sm border border-white/30">
          <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/10 rounded-t-lg transition-colors text-white"
+            className="w-full px-4 py-3 flex items-center justify-center hover:bg-white/10 rounded-t-lg transition-colors text-white"
             aria-expanded={isExpanded}
             aria-controls="location-form-content"
          >
-            <span className="text-sm font-medium">Location & Settings</span>
             <svg
                className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                fill="none"
