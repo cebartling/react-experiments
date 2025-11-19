@@ -11,7 +11,6 @@ Given('I am on the map application', async function (this: CustomWorld) {
    }
 
    const url = `http://localhost:${devServerPort}/map`;
-   console.log(`Navigating to: ${url}`);
 
    await this.page.goto(url, {
       waitUntil: 'networkidle',
