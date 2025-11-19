@@ -16,6 +16,7 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 - **Smooth Animations**: Animated transitions when flying to new locations
 - **Drag & Pan**: Interactive map dragging with automatic location updates
 - **Crosshair Marker**: Pulsating visual center indicator appears during map dragging to show precise map center positioning
+- **Real-time Coordinate Display**: Popup showing live latitude/longitude updates as you drag the map, positioned at the bottom-right of the crosshair
 
 ### 📡 Cell Tower Visualization
 
@@ -122,7 +123,7 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **85 passing tests** across 7 test files
+- **90 passing tests** across 7 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
@@ -134,12 +135,12 @@ Comprehensive test suite with **100% code coverage**:
 | Component           | Tests    | Coverage |
 | ------------------- | -------- | -------- |
 | locationStore       | 13 tests | 100%     |
-| useMapLocation      | 9 tests  | 100%     |
+| useMapLocation      | 11 tests | 100%     |
 | LocationSearchForm  | 32 tests | 100%     |
 | BaseLayerControl    | 11 tests | 100%     |
 | MapStatusIndicators | 10 tests | 100%     |
 | CellTowerLayer      | 7 tests  | 100%     |
-| Crosshair           | 3 tests  | 100%     |
+| Crosshair           | 6 tests  | 100%     |
 
 ## Tech Stack
 

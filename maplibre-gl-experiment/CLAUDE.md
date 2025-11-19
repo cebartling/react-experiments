@@ -106,6 +106,9 @@ src/
 - **Crosshair.tsx** - Visual feedback component for map center during drag operations. Features:
    - Red crosshair with center circle
    - Pulsating animation using Tailwind's `animate-pulse` for visual prominence
+   - Real-time coordinate popup displaying latitude/longitude (formatted to 4 decimal places)
+   - Popup positioned at bottom-right of crosshair with dark semi-transparent background
+   - Receives `latitude` and `longitude` props that update in real-time during drag
    - Only visible during map dragging (controlled by `visible` prop)
    - Absolutely positioned at map center with pointer-events-none
    - Simple, pure presentational component
@@ -127,8 +130,10 @@ src/
 
 - **useMapLocation.ts** - Handles map ref interactions, flying to coordinates, and map drag events. Features:
    - `handleDragStart`: Sets dragging state to show crosshair
+   - `handleMove`: Updates `currentCenter` state in real-time during drag for live coordinate display
    - `handleMoveEnd`: Updates location on drag end, hides crosshair
    - `isDragging`: Boolean state indicating if user is currently dragging
+   - `currentCenter`: Object with `lat` and `lng` properties tracking real-time map center during drag
    - `isUserDragging` ref: Prevents `flyTo` animation during user drag (avoids conflicts)
    - Uses timeout to reset drag flag after moveEnd to allow programmatic location changes
 
@@ -152,7 +157,7 @@ The project uses TypeScript project references with three config files:
 - **@testing-library/react** for component testing
 - **@testing-library/user-event** for user interaction simulation
 - **100% code coverage** across all components, hooks, and stores
-- **85 passing tests** across 7 test files
+- **90 passing tests** across 7 test files
 
 ### Testing Patterns
 

@@ -1,8 +1,10 @@
 interface CrosshairProps {
    visible: boolean;
+   latitude: number;
+   longitude: number;
 }
 
-export function Crosshair({ visible }: CrosshairProps) {
+export function Crosshair({ visible, latitude, longitude }: CrosshairProps) {
    if (!visible) return null;
 
    return (
@@ -14,6 +16,13 @@ export function Crosshair({ visible }: CrosshairProps) {
             <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-red-500 -translate-x-1/2" />
             {/* Center circle */}
             <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 border-2 border-red-500 rounded-full bg-white" />
+            {/* Coordinate popup - bottom right of crosshair */}
+            <div className="absolute top-full left-full ml-2 mt-2 bg-black/80 backdrop-blur-sm text-white px-3 py-2 rounded-md text-xs whitespace-nowrap shadow-lg">
+               <div className="font-mono">
+                  <div>Lat: {latitude.toFixed(4)}</div>
+                  <div>Lon: {longitude.toFixed(4)}</div>
+               </div>
+            </div>
          </div>
       </div>
    );

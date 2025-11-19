@@ -95,6 +95,30 @@ describe('useMapLocation', () => {
 
          vi.useRealTimers();
       });
+
+      it('should update currentCenter when handleMove is called during drag', () => {
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         // Start dragging
+         act(() => {
+            result.current.handleDragStart();
+         });
+
+         // Update map center during drag
+         mockMap.getCenter.mockReturnValue({ lat: 45.5, lng: -94.5 });
+
+         act(() => {
+            result.current.handleMove();
+         });
+
+         expect(result.current.currentCenter).toEqual({ lat: 45.5, lng: -94.5 });
+      });
+
+      it('should initialize currentCenter with store latitude and longitude', () => {
+         const { result } = renderHook(() => useMapLocation(mockMapRef));
+
+         expect(result.current.currentCenter).toEqual({ lat: 44.7975, lng: -93.5272 });
+      });
    });
 
    describe('handleMoveEnd', () => {

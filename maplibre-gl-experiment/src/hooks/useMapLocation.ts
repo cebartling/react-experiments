@@ -10,6 +10,7 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
    const { latitude, longitude, isHydrated, setLocation, setLatInput, setLonInput } =
       useLocationStore();
    const [isDragging, setIsDragging] = useState(false);
+   const [currentCenter, setCurrentCenter] = useState({ lat: latitude, lng: longitude });
    const isUserDragging = useRef(false);
 
    // Fly to new coordinates when they change (only after hydration and not from user drag)
@@ -27,6 +28,14 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
    const handleDragStart = () => {
       isUserDragging.current = true;
       setIsDragging(true);
+   };
+
+   // Handle map move - update current center position during drag
+   const handleMove = () => {
+      if (mapRef.current && isDragging) {
+         const center = mapRef.current.getCenter();
+         setCurrentCenter({ lat: center.lat, lng: center.lng });
+      }
    };
 
    // Handle map move/drag end - update location when user pans the map
@@ -54,7 +63,9 @@ export function useMapLocation(mapRef: React.RefObject<MapRef | null>) {
 
    return {
       handleDragStart,
+      handleMove,
       handleMoveEnd,
       isDragging,
+      currentCenter,
    };
 }
