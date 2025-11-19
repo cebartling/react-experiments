@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { useLocationStore } from '../../stores/locationStore';
 import type { BaseLayerType } from '../../config/mapStyles';
+import { useCellTowers } from '../../services/cellTowerService';
 
 export function LocationSearchForm() {
-   const { latInput, lonInput, setLatInput, setLonInput, setLocation, baseLayer, setBaseLayer } = useLocationStore();
+   const { latInput, lonInput, setLatInput, setLonInput, setLocation, baseLayer, setBaseLayer, latitude, longitude } = useLocationStore();
+
+   // Fetch cell towers for count display (SWR will dedupe with Map.tsx call)
+   const { data: cellTowers, error, isLoading } = useCellTowers(latitude, longitude, 0.9, 50);
    const [isExpanded, setIsExpanded] = useState(true);
    const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -38,14 +42,18 @@ export function LocationSearchForm() {
       }, 800);
    };
 
+   const cellTowerCount = cellTowers?.length ?? 0;
+   const errorMessage = error ? (error instanceof Error ? error.message : 'Failed to load cell towers') : null;
+
    return (
       <div className="absolute top-20 left-4 bg-black/60 backdrop-blur-md rounded-lg shadow-lg max-w-sm border border-white/30">
          <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full px-4 py-3 flex items-center justify-center hover:bg-white/10 rounded-t-lg transition-colors text-white"
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/10 rounded-t-lg transition-colors text-white"
             aria-expanded={isExpanded}
             aria-controls="location-form-content"
          >
+            <span className="text-sm font-medium">Location & Settings</span>
             <svg
                className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                fill="none"
@@ -128,6 +136,23 @@ export function LocationSearchForm() {
                         </button>
                      ))}
                   </div>
+               </div>
+
+               <div className="border-t border-white/30 pt-4">
+                  <h3 className="font-semibold text-lg text-white mb-2">Cell Tower Status</h3>
+                  {isLoading ? (
+                     <div className="bg-blue-500/20 border border-blue-500/50 text-blue-100 px-4 py-2 rounded-md text-sm">
+                        Loading cell towers...
+                     </div>
+                  ) : errorMessage ? (
+                     <div className="bg-red-500/20 border border-red-500/50 text-red-100 px-4 py-2 rounded-md text-sm">
+                        {errorMessage}
+                     </div>
+                  ) : (
+                     <div className="bg-green-500/20 border border-green-500/50 text-green-100 px-4 py-2 rounded-md text-sm">
+                        <span className="font-bold">{cellTowerCount}</span> cell tower{cellTowerCount !== 1 ? 's' : ''} found
+                     </div>
+                  )}
                </div>
             </div>
          </div>

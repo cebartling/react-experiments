@@ -13,6 +13,12 @@ describe('MapStatusIndicators', () => {
          lat: 44.7975,
          lon: -93.5272,
          range: 1000,
+         lac: 1,
+         samples: 100,
+         changeable: 1,
+         created: 1234567890,
+         updated: 1234567890,
+         averageSignal: -75,
       },
       {
          cellid: 456,
@@ -22,6 +28,12 @@ describe('MapStatusIndicators', () => {
          lat: 44.8,
          lon: -93.53,
          range: 1500,
+         lac: 1,
+         samples: 150,
+         changeable: 1,
+         created: 1234567890,
+         updated: 1234567890,
+         averageSignal: -80,
       },
    ];
 

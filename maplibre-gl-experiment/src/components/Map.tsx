@@ -7,7 +7,6 @@ import { useLocationStore } from '../stores/locationStore';
 import { useMapLocation } from '../hooks/useMapLocation';
 import { getStyleByType } from '../config/mapStyles';
 import { LocationSearchForm } from './map/LocationSearchForm';
-import { MapStatusIndicators } from './map/MapStatusIndicators';
 import { CellTowerLayer } from './map/CellTowerLayer';
 
 function Map() {
@@ -28,11 +27,7 @@ function Map() {
    // Fetch cell towers using SWR hook
    // API limit: 4,000,000 sq.m (4 km²)
    // With radius of 0.9km, we get a ~1.8km × 1.8km box = 3.24 km² (under limit)
-   const {
-      data: cellTowers,
-      error,
-      isLoading,
-   } = useCellTowers(
+   const { data: cellTowers } = useCellTowers(
       latitude,
       longitude,
       0.9, // radius in km
@@ -57,7 +52,6 @@ function Map() {
          </MapGL>
 
          <LocationSearchForm />
-         <MapStatusIndicators isLoading={isLoading} error={error} cellTowers={cellTowers} />
       </div>
    );
 }
