@@ -105,6 +105,7 @@ src/
 - **CellTowerLayer.tsx** - Converts cell tower data to GeoJSON and renders MapLibre Source/Layer components
 - **Crosshair.tsx** - Visual feedback component for map center during drag operations. Features:
    - Red crosshair with center circle
+   - Pulsating animation using Tailwind's `animate-pulse` for visual prominence
    - Only visible during map dragging (controlled by `visible` prop)
    - Absolutely positioned at map center with pointer-events-none
    - Simple, pure presentational component

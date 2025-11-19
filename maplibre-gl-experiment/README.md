@@ -15,7 +15,7 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 - **Navigation Controls**: Built-in zoom and rotation controls for easy map manipulation
 - **Smooth Animations**: Animated transitions when flying to new locations
 - **Drag & Pan**: Interactive map dragging with automatic location updates
-- **Crosshair Marker**: Visual center indicator appears during map dragging to show precise map center positioning
+- **Crosshair Marker**: Pulsating visual center indicator appears during map dragging to show precise map center positioning
 
 ### 📡 Cell Tower Visualization
 

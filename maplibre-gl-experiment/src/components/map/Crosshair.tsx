@@ -7,7 +7,7 @@ export function Crosshair({ visible }: CrosshairProps) {
 
    return (
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-         <div className="relative w-8 h-8">
+         <div className="relative w-8 h-8 animate-pulse">
             {/* Horizontal line */}
             <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 -translate-y-1/2" />
             {/* Vertical line */}
