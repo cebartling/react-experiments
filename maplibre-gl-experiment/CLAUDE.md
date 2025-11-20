@@ -62,14 +62,12 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main orchestrator component (keep minimal)
 │   └── map/
-│       ├── BaseLayerControl.tsx   # Layer switcher (street/satellite/hybrid) [deprecated]
 │       ├── BaseLayerSelector.tsx  # Layer switcher component (modular)
 │       ├── CellTowerInfo.tsx      # Cell tower count display with loading/error states
 │       ├── CellTowerLayer.tsx     # Cell tower visualization with clustering
 │       ├── ControlsContainer.tsx  # Accordion container for all map controls
 │       ├── Crosshair.tsx          # Crosshair marker showing map center during drag
-│       ├── LocationSearchForm.tsx # Coordinate input form with validation
-│       └── MapStatusIndicators.tsx # Loading/error/success UI states [deprecated]
+│       └── LocationSearchForm.tsx # Coordinate input form with validation
 ├── hooks/
 │   └── useMapLocation.ts          # Map interaction logic (drag, fly-to, drag state)
 ├── stores/
@@ -151,7 +149,6 @@ src/
      - Individual markers: Red (#FF6B6B) circles with white borders
    - **Zoom Behavior**: Automatically groups nearby towers when zooming out, expands on zoom in
    - Converts cell tower data to GeoJSON format with properties (cellid, radio, mcc, mnc, range)
-- **BaseLayerControl.tsx** - [DEPRECATED] Original monolithic layer switcher (replaced by BaseLayerSelector)
 - **Crosshair.tsx** - Visual feedback component for map center during drag operations. Features:
    - Red crosshair with center circle
    - Pulsating animation using Tailwind's `animate-pulse` for visual prominence
@@ -161,7 +158,6 @@ src/
    - Only visible during map dragging (controlled by `visible` prop)
    - Absolutely positioned at map center with pointer-events-none
    - Simple, pure presentational component
-- **MapStatusIndicators.tsx** - [DEPRECATED] Pure presentational component for displaying loading/error/success states (replaced by inline display in CellTowerInfo)
 
 ### State & Data
 
@@ -199,7 +195,7 @@ The project uses TypeScript project references with three config files:
 - **@testing-library/react** for component testing
 - **@testing-library/user-event** for user interaction simulation
 - **100% code coverage** across all components, hooks, and stores
-- **100 passing tests** across 10 test files
+- **79 passing tests** across 8 test files
 
 ### E2E Testing (Playwright + Cucumber)
 

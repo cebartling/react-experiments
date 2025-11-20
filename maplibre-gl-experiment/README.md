@@ -136,7 +136,7 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **100 passing tests** across 10 test files
+- **79 passing tests** across 8 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
@@ -146,18 +146,16 @@ Comprehensive test suite with **100% code coverage**:
 
 #### Test Coverage
 
-| Component           | Tests    | Coverage |
-| ------------------- | -------- | -------- |
-| locationStore       | 13 tests | 100%     |
-| useMapLocation      | 12 tests | 100%     |
-| LocationSearchForm  | 13 tests | 100%     |
-| BaseLayerControl    | 11 tests | 100%     |
-| BaseLayerSelector   | 10 tests | 100%     |
-| ControlsContainer   | 8 tests  | 100%     |
-| CellTowerInfo       | 9 tests  | 100%     |
-| CellTowerLayer      | 8 tests  | 100%     |
-| MapStatusIndicators | 10 tests | 100%     |
-| Crosshair           | 6 tests  | 100%     |
+| Component          | Tests    | Coverage |
+| ------------------ | -------- | -------- |
+| locationStore      | 13 tests | 100%     |
+| useMapLocation     | 12 tests | 100%     |
+| LocationSearchForm | 13 tests | 100%     |
+| BaseLayerSelector  | 10 tests | 100%     |
+| ControlsContainer  | 8 tests  | 100%     |
+| CellTowerInfo      | 9 tests  | 100%     |
+| CellTowerLayer     | 8 tests  | 100%     |
+| Crosshair          | 6 tests  | 100%     |
 
 ### 🎭 End-to-End Testing
 
@@ -256,14 +254,12 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main map container
 │   └── map/
-│       ├── BaseLayerControl.tsx   # [Deprecated] Base layer switcher
 │       ├── BaseLayerSelector.tsx  # Layer switcher component (modular)
 │       ├── CellTowerInfo.tsx      # Cell tower count display with states
 │       ├── CellTowerLayer.tsx     # Cell tower visualization with clustering
 │       ├── ControlsContainer.tsx  # Accordion container for map controls
 │       ├── Crosshair.tsx          # Crosshair marker for drag positioning
-│       ├── LocationSearchForm.tsx # Coordinate search form (refactored)
-│       └── MapStatusIndicators.tsx # [Deprecated] Status indicators
+│       └── LocationSearchForm.tsx # Coordinate search form (refactored)
 ├── hooks/
 │   └── useMapLocation.ts          # Custom hook for map interactions & drag state
 ├── stores/
