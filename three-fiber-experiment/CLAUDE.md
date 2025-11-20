@@ -8,9 +8,11 @@ This is a React + TypeScript + Vite experiment project for exploring Three.js/Re
 - React 19.2.0 with TypeScript
 - React Router DOM for client-side routing
 - Three.js and @react-three/fiber for 3D graphics
-- Vite (using rolldown-vite@7.2.2 build tool)
+- Vite (using rolldown-vite@7.2.6 build tool)
+- Tailwind CSS 4.1.17 for utility-first styling
 - Strict TypeScript configuration
-- ESLint with TypeScript, React Hooks, and React Refresh plugins
+- Dual linting with oxlint and ESLint
+- Prettier for code formatting
 
 ## Node Version
 
@@ -23,12 +25,20 @@ This project uses Node.js LTS/Krypton (Node 18). Use `nvm use` to switch to the 
 npm run dev          # Start Vite dev server with HMR
 npm run build        # TypeScript compilation + Vite production build
 npm run preview      # Preview production build locally
-npm run lint         # Run ESLint on all files
+```
+
+### Code Quality
+```bash
+npm run lint         # Run oxlint + ESLint on all files
+npm run lint:ox      # Run oxlint only (fast Rust-based linter)
+npm run lint:eslint  # Run ESLint only
+npm run format       # Format all files with Prettier
+npm run format:check # Check if files are formatted correctly
 ```
 
 ## Build System
 
-**Important:** This project uses `rolldown-vite@7.2.2` instead of standard Vite, configured via package.json overrides. The Rolldown bundler is used for better performance with React Fast Refresh via Babel/oxc.
+**Important:** This project uses `rolldown-vite@7.2.6` instead of standard Vite, configured via package.json overrides. The Rolldown bundler is used for better performance with React Fast Refresh via Babel/oxc.
 
 When the build command runs, it performs:
 1. TypeScript compilation with project references (`tsc -b`)
@@ -48,13 +58,43 @@ Key compiler options in tsconfig.app.json:
 - `noUncheckedSideEffectImports` enabled
 - JSX mode: `react-jsx`
 
-## ESLint Configuration
+## Code Quality Tools
 
-Uses flat config (eslint.config.js) with:
-- TypeScript ESLint recommended rules
-- React Hooks plugin (flat config)
-- React Refresh plugin for Vite
-- Global ignores for `dist/`
+### Linting (Dual Strategy)
+
+The project uses a dual-linting approach for optimal speed and coverage:
+
+1. **oxlint** (`.oxlintrc.json`) - Fast Rust-based linter that runs first
+   - TypeScript rules
+   - React rules
+   - Import statement rules
+   - JSX accessibility (a11y) rules
+   - Correctness, performance, and suspicious code detection
+
+2. **ESLint** (`eslint.config.js`) - Comprehensive linting with flat config
+   - TypeScript ESLint recommended rules
+   - React Hooks plugin (flat config)
+   - React Refresh plugin for Vite
+   - Prettier integration (disables conflicting rules)
+   - Global ignores for `dist/`
+
+### Formatting
+
+**Prettier** (`.prettierrc`) - Consistent code formatting
+- Single quotes
+- Semicolons enabled
+- 2-space indentation
+- 80 character line width
+- ES5 trailing commas
+- LF line endings
+
+### Styling
+
+**Tailwind CSS** - Utility-first CSS framework
+- Configuration: `tailwind.config.js`
+- PostCSS integration: `postcss.config.js`
+- Content paths: `index.html` and all files in `src/**/*.{js,ts,jsx,tsx}`
+- Autoprefixer included for browser compatibility
 
 ## Project Structure
 
@@ -63,11 +103,23 @@ src/
   main.tsx        # Application entry point with React 19 createRoot
   App.tsx         # Main application component with React Router setup
   App.css         # Application styles
-  index.css       # Global styles
+  index.css       # Global styles with Tailwind directives
   assets/         # Static assets (images, etc.)
   routes/
     First.tsx     # Demo route with React Three Fiber 3D scene
 ```
+
+**Configuration files:**
+- `.prettierrc` - Prettier formatting rules
+- `.prettierignore` - Files to exclude from formatting
+- `.oxlintrc.json` - Oxlint linting configuration
+- `eslint.config.js` - ESLint flat config
+- `tailwind.config.js` - Tailwind CSS configuration
+- `postcss.config.js` - PostCSS with Tailwind and Autoprefixer
+- `tsconfig.json` - TypeScript root configuration
+- `tsconfig.app.json` - App-specific TypeScript config
+- `tsconfig.node.json` - Build tools TypeScript config
+- `vite.config.ts` - Vite configuration with React plugin
 
 ## Key Architectural Notes
 
@@ -82,6 +134,8 @@ src/
 - **Vite Plugin**: Uses @vitejs/plugin-react with Babel for Fast Refresh (via rolldown)
 - **Module System**: ESM-only (type: "module" in package.json)
 - **Import Extensions**: TypeScript allows importing .tsx/.ts extensions directly due to `allowImportingTsExtensions`
+- **Styling**: Tailwind CSS utility classes are available throughout the application. The `index.css` file includes the three required Tailwind directives (`@tailwind base/components/utilities`)
+- **Code Quality**: Runs oxlint before ESLint for fast initial checks. Prettier is configured to work alongside ESLint without conflicts.
 
 ## React Three Fiber Patterns
 
