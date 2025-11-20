@@ -77,6 +77,42 @@ Complex 3D downtown scene featuring:
 - **Emissive materials** for realistic window glow
 - **Tailwind CSS UI** with instructions overlay
 
+### `/third` - Oil Refinery Complex
+Industrial 3D refinery scene showcasing:
+- **5 Storage Tanks** with realistic details:
+  - Cylindrical bodies (2.5-3.2 radius, 5-7 height)
+  - Spherical domed tops
+  - Vertical ladders
+  - Horizontal metal bands (torus geometry)
+  - Metallic materials with high reflectivity
+- **3 Distillation Towers** (most complex structures):
+  - Tall cylindrical bodies (16-20 units)
+  - 8 processing trays/platforms each
+  - Side pipes extending from trays
+  - Conical tops with exhaust pipes
+  - **Animated flames** with emissive glow
+  - **Dynamic point lights** from flames
+  - Gentle rotation animation
+  - Enhanced flame on hover
+- **2 Cooling Towers**:
+  - Hyperboloid shape (10 stacked cylinders)
+  - Rising steam effects (semi-transparent spheres)
+  - Concrete-like material
+- **Pipeline Network**:
+  - 6 major pipelines connecting structures
+  - Ground-level and elevated pipes
+  - Dynamic orientation calculations
+- **Environmental Effects**:
+  - Atmospheric fog for depth
+  - Shadow casting enabled
+  - Multiple light sources (directional + point lights)
+  - Dark industrial atmosphere
+- **Interactive Features**:
+  - Hover effects on tanks (turn white)
+  - Hover effects on towers (brighter flames)
+  - OrbitControls with constraints
+- **Tailwind CSS UI** with controls and feature list
+
 ## Tech Stack
 
 ### Core Framework

@@ -109,6 +109,7 @@ src/
   routes/
     First.tsx     # Demo route: Simple rotating cube with interactions
     Second.tsx    # Demo route: Downtown scene with 12 buildings
+    Third.tsx     # Demo route: Oil refinery complex with industrial structures
 ```
 
 **Configuration files:**
@@ -171,3 +172,18 @@ Complex downtown cityscape demonstrating:
 - Multiple light sources for realistic rendering
 - Emissive materials for window glow effects
 - Tailwind CSS for UI overlay
+
+### Third Route (`/third`)
+Industrial oil refinery complex demonstrating:
+- **5 Storage tanks** with cylindrical bodies, domed tops, ladders, and metal bands
+- **3 Distillation towers** with processing trays, side pipes, exhaust stacks, and animated flames
+- **2 Cooling towers** with hyperboloid shapes and rising steam effects
+- **Pipeline network** connecting structures (6 major pipes)
+- Advanced lighting with directional lights, point lights, and flame illumination
+- Atmospheric fog for depth
+- Animated elements (rotating towers, flame glow)
+- Dynamic point lights from tower flames
+- Metallic materials with varying roughness/metalness
+- Emissive materials for flames and steam
+- Interactive hover effects (tanks highlight, flames intensify)
+- Shadow casting and camera constraints
