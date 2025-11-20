@@ -4,6 +4,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import First from './routes/First.tsx'
+import Second from './routes/Second.tsx'
 
 function Home() {
   const [count, setCount] = useState(0)
@@ -39,11 +40,13 @@ function App() {
     <BrowserRouter>
       <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
         <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
-        <Link to="/first">First</Link>
+        <Link to="/first" style={{ marginRight: '1rem' }}>First</Link>
+        <Link to="/second">Second</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/first" element={<First />} />
+        <Route path="/second" element={<Second />} />
       </Routes>
     </BrowserRouter>
   )
