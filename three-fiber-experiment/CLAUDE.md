@@ -4,8 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React + TypeScript + Vite experiment project intended for exploring Three.js/React Three Fiber implementations. The project uses:
+This is a React + TypeScript + Vite experiment project for exploring Three.js/React Three Fiber implementations. The project uses:
 - React 19.2.0 with TypeScript
+- React Router DOM for client-side routing
+- Three.js and @react-three/fiber for 3D graphics
 - Vite (using rolldown-vite@7.2.2 build tool)
 - Strict TypeScript configuration
 - ESLint with TypeScript, React Hooks, and React Refresh plugins
@@ -59,16 +61,34 @@ Uses flat config (eslint.config.js) with:
 ```
 src/
   main.tsx        # Application entry point with React 19 createRoot
-  App.tsx         # Main application component
+  App.tsx         # Main application component with React Router setup
   App.css         # Application styles
   index.css       # Global styles
   assets/         # Static assets (images, etc.)
+  routes/
+    First.tsx     # Demo route with React Three Fiber 3D scene
 ```
 
 ## Key Architectural Notes
 
 - **React 19**: Uses React 19.2.0 with latest features (createRoot from react-dom/client)
 - **StrictMode**: Application is wrapped in StrictMode in main.tsx
+- **React Router**: BrowserRouter setup in App.tsx with route-based navigation
+- **React Three Fiber**:
+  - Canvas component wraps 3D scenes
+  - useFrame hook for animation loops
+  - Standard Three.js mesh, geometry, and material components as JSX
+  - Interactive 3D objects with onClick/onPointerOver events
 - **Vite Plugin**: Uses @vitejs/plugin-react with Babel for Fast Refresh (via rolldown)
 - **Module System**: ESM-only (type: "module" in package.json)
 - **Import Extensions**: TypeScript allows importing .tsx/.ts extensions directly due to `allowImportingTsExtensions`
+
+## React Three Fiber Patterns
+
+When working with 3D scenes:
+- Components inside `<Canvas>` are part of the Three.js scene graph
+- Use `useFrame` for per-frame animations (receives state and delta time)
+- Mesh refs should be typed as `Mesh` from 'three'
+- Geometry args are passed as arrays (e.g., `<boxGeometry args={[1, 1, 1]} />`)
+- Material properties like color can be set directly as props
+- Scene requires lighting (ambientLight, spotLight, pointLight, etc.) for materials to be visible

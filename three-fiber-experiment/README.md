@@ -1,15 +1,66 @@
-# React + TypeScript + Vite
+# Three Fiber Experiment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An experimental React application for exploring 3D graphics with React Three Fiber and Three.js.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** with TypeScript for type-safe development
+- **React Router DOM** for client-side routing
+- **React Three Fiber** for declarative 3D graphics with Three.js
+- **Vite** (rolldown-vite) for fast development and optimized builds
+- **ESLint** configured with TypeScript, React Hooks, and React Refresh rules
+
+## Getting Started
+
+### Prerequisites
+
+This project uses Node.js LTS/Krypton (Node 18). If you have nvm installed:
+
+```bash
+nvm use
+```
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
+
+```bash
+npm run dev          # Start dev server with HMR at http://localhost:5173
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
+
+## Project Structure
+
+- **/** - Home route with the default Vite + React template
+- **/first** - Demo route featuring an interactive 3D scene with a rotating box
+
+## 3D Scene Features
+
+The `/first` route demonstrates:
+- Animated rotating 3D cube
+- Interactive hover effects (color changes)
+- Click to scale animation
+- Multiple light sources for realistic rendering
+- Full viewport 3D canvas
+
+## Tech Stack
+
+- React 19.2.0
+- TypeScript 5.9.3
+- React Router DOM
+- Three.js
+- @react-three/fiber
+- Vite (rolldown-vite 7.2.2)
 
 ## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The React Compiler is not enabled on this project because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
 ## Expanding the ESLint configuration
 
