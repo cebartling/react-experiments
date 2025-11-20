@@ -1,6 +1,6 @@
 # MapLibre GL Experiment
 
-A React + TypeScript application for exploring MapLibre GL mapping capabilities with cell tower visualization, persistent location state, and comprehensive test coverage.
+A React + TypeScript application for exploring MapLibre GL mapping capabilities with cell tower visualization featuring intelligent clustering, persistent location state, and comprehensive test coverage.
 
 ## Features
 
@@ -22,9 +22,17 @@ A React + TypeScript application for exploring MapLibre GL mapping capabilities 
 
 - **Real-time Data Fetching**: Fetches cell tower data from OpenCelliD API using SWR for efficient data management
 - **Smart Caching**: Automatic caching and revalidation of cell tower data
-- **Visual Markers**: Cell towers displayed as red circular markers on the map
+- **Intelligent Clustering**: MapLibre native clustering automatically groups nearby towers
+  - **Zoom-responsive**: Clusters break apart progressively as you zoom in
+  - **Visual Density Indicators**: Cluster size and color represent tower count
+    - Small clusters (1-10 towers): 20px blue circles
+    - Medium clusters (10-30 towers): 30px yellow circles
+    - Large clusters (30+ towers): 40px pink circles
+  - **Count Labels**: Clear numeric labels show exact tower count in each cluster
+  - **Individual Markers**: Red circular markers appear at zoom level 14+ or for isolated towers
 - **Coverage Radius**: Displays towers within a 0.9km radius (1.8km × 1.8km search box)
 - **Tower Information**: Each marker contains cell tower metadata (cellid, radio type, MCC, MNC, range)
+- **Performance Optimized**: Native MapLibre clustering handles thousands of towers efficiently
 
 ### 🔍 Location Search
 
@@ -64,14 +72,19 @@ The application is organized into modular, reusable components:
 ```mermaid
 graph TD
     A[App.tsx] --> B[Map.tsx]
-    B --> C[LocationSearchForm]
-    B --> D[Crosshair]
-    B --> E[CellTowerLayer]
-    B --> F[NavigationControl]
-    B --> G[useMapLocation Hook]
-    G --> H[locationStore]
-    C --> H
-    C --> I[cellTowerService]
+    B --> C[ControlsContainer]
+    C --> D[LocationSearchForm]
+    C --> E[BaseLayerSelector]
+    C --> F[CellTowerInfo]
+    B --> G[Crosshair]
+    B --> H[CellTowerLayer - Clustering]
+    B --> I[NavigationControl]
+    B --> J[useMapLocation Hook]
+    J --> K[locationStore]
+    D --> K
+    E --> K
+    F --> L[cellTowerService]
+    H --> L
 ```
 
 #### State Management Architecture
@@ -123,11 +136,12 @@ sequenceDiagram
 
 Comprehensive test suite with **100% code coverage**:
 
-- **90 passing tests** across 7 test files
+- **100 passing tests** across 10 test files
 - **Unit tests** for all components, hooks, and stores
 - **Mocked dependencies** (localforage, MapLibre GL)
 - **User interaction testing** with Testing Library
 - **Fake timer testing** for animated UI state transitions
+- **Clustering tests** verifying MapLibre configuration and multi-layer rendering
 - **Coverage reporting** in text, JSON, and HTML formats
 
 #### Test Coverage
@@ -135,11 +149,14 @@ Comprehensive test suite with **100% code coverage**:
 | Component           | Tests    | Coverage |
 | ------------------- | -------- | -------- |
 | locationStore       | 13 tests | 100%     |
-| useMapLocation      | 11 tests | 100%     |
-| LocationSearchForm  | 32 tests | 100%     |
+| useMapLocation      | 12 tests | 100%     |
+| LocationSearchForm  | 13 tests | 100%     |
 | BaseLayerControl    | 11 tests | 100%     |
+| BaseLayerSelector   | 10 tests | 100%     |
+| ControlsContainer   | 8 tests  | 100%     |
+| CellTowerInfo       | 9 tests  | 100%     |
+| CellTowerLayer      | 8 tests  | 100%     |
 | MapStatusIndicators | 10 tests | 100%     |
-| CellTowerLayer      | 7 tests  | 100%     |
 | Crosshair           | 6 tests  | 100%     |
 
 ### 🎭 End-to-End Testing
@@ -239,11 +256,14 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main map container
 │   └── map/
-│       ├── BaseLayerControl.tsx   # Base layer switcher control panel
-│       ├── CellTowerLayer.tsx     # Cell tower visualization layer
+│       ├── BaseLayerControl.tsx   # [Deprecated] Base layer switcher
+│       ├── BaseLayerSelector.tsx  # Layer switcher component (modular)
+│       ├── CellTowerInfo.tsx      # Cell tower count display with states
+│       ├── CellTowerLayer.tsx     # Cell tower visualization with clustering
+│       ├── ControlsContainer.tsx  # Accordion container for map controls
 │       ├── Crosshair.tsx          # Crosshair marker for drag positioning
-│       ├── LocationSearchForm.tsx # Coordinate search form
-│       └── MapStatusIndicators.tsx # Loading/error/success indicators
+│       ├── LocationSearchForm.tsx # Coordinate search form (refactored)
+│       └── MapStatusIndicators.tsx # [Deprecated] Status indicators
 ├── hooks/
 │   └── useMapLocation.ts          # Custom hook for map interactions & drag state
 ├── stores/
@@ -354,14 +374,16 @@ The application fetches cell tower data from the OpenCelliD API:
 Potential areas for expansion:
 
 - [x] Multiple map layer support (street, satellite, hybrid) ✅
+- [x] Intelligent marker clustering with zoom-responsive behavior ✅
 - [ ] Additional map styles (terrain, topographic)
 - [ ] Cell tower filtering by radio type (LTE, 5G, GSM, etc.)
 - [ ] Distance measurement tools
 - [ ] Export/import saved locations
 - [ ] Offline map support
-- [ ] Custom marker clustering
+- [ ] Cluster expansion on click (zoom into cluster)
 - [ ] Tower detail popups on click
 - [ ] Drawing tools for custom areas
+- [ ] Heatmap visualization as alternative to clustering
 
 ## License
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MapLibre GL experiment - A React + TypeScript + Vite application for interactive mapping with cell tower visualization, persistent location state using IndexedDB, drag-to-reposition with visual crosshair feedback, and comprehensive test coverage. This project demonstrates best practices for building modern React applications with state management, data fetching, and testing.
+MapLibre GL experiment - A React + TypeScript + Vite application for interactive mapping with cell tower visualization featuring intelligent clustering, persistent location state using IndexedDB, drag-to-reposition with visual crosshair feedback, and comprehensive test coverage. This project demonstrates best practices for building modern React applications with state management, data fetching, and testing.
 
 ## Build Tool
 
@@ -62,11 +62,14 @@ src/
 ├── components/
 │   ├── Map.tsx                    # Main orchestrator component (keep minimal)
 │   └── map/
-│       ├── BaseLayerControl.tsx   # Layer switcher (street/satellite/hybrid)
-│       ├── CellTowerLayer.tsx     # Cell tower visualization (MapLibre Source/Layer)
+│       ├── BaseLayerControl.tsx   # Layer switcher (street/satellite/hybrid) [deprecated]
+│       ├── BaseLayerSelector.tsx  # Layer switcher component (modular)
+│       ├── CellTowerInfo.tsx      # Cell tower count display with loading/error states
+│       ├── CellTowerLayer.tsx     # Cell tower visualization with clustering
+│       ├── ControlsContainer.tsx  # Accordion container for all map controls
 │       ├── Crosshair.tsx          # Crosshair marker showing map center during drag
 │       ├── LocationSearchForm.tsx # Coordinate input form with validation
-│       └── MapStatusIndicators.tsx # Loading/error/success UI states
+│       └── MapStatusIndicators.tsx # Loading/error/success UI states [deprecated]
 ├── hooks/
 │   └── useMapLocation.ts          # Map interaction logic (drag, fly-to, drag state)
 ├── stores/
@@ -107,12 +110,48 @@ src/
 ### Components
 
 - **Map.tsx** - Main container. Keep this minimal - it should only orchestrate child components. Logic should be extracted to hooks or child components.
-- **BaseLayerControl.tsx** - Layer switcher with glass morphism UI. Features:
+- **ControlsContainer.tsx** - Accordion container for map controls. Features:
+   - Collapsible accordion with expand/collapse toggle
+   - Glass morphism styling (translucent background with backdrop blur)
+   - Accepts children components for flexible composition
+   - Starts expanded by default
+   - Smooth transition animations
+- **LocationSearchForm.tsx** - Coordinate input form (refactored to be focused). Features:
+   - Latitude/longitude input fields with validation (-90 to 90, -180 to 180)
+   - Blue submit button with pulsating glow on hover
+   - Green success feedback (800ms timeout) on valid submission
+   - Connected directly to Zustand store
+   - No longer handles accordion or layer switching (moved to separate components)
+- **BaseLayerSelector.tsx** - Layer switcher component. Features:
    - Three base layer options: Street, Satellite, Hybrid
    - Active layer highlighted with blue glow
    - Persists selection to IndexedDB via store
    - Icon and label for each layer type
-- **CellTowerLayer.tsx** - Converts cell tower data to GeoJSON and renders MapLibre Source/Layer components
+   - Glass morphism interactive buttons
+- **CellTowerInfo.tsx** - Cell tower count display. Features:
+   - Displays cell tower count with proper pluralization
+   - Loading state: "Loading cell towers..." with blue styling
+   - Error state: Error message with red styling
+   - Success state: Count display in white text
+   - Uses SWR hook (deduped with Map.tsx)
+- **CellTowerLayer.tsx** - Cell tower visualization with intelligent clustering. Features:
+   - **MapLibre Native Clustering**: Uses built-in GeoJSON clustering for performance
+   - **Three-Layer System**:
+     - `clusters`: Clustered markers with graduated sizing and color-coding
+     - `cluster-count`: Text labels showing count in each cluster
+     - `unclustered-point`: Individual cell tower markers (red with white border)
+   - **Clustering Configuration**:
+     - `cluster: true` - Enables clustering
+     - `clusterMaxZoom: 14` - Clusters break apart at zoom level 14+
+     - `clusterRadius: 50` - Markers within 50 pixels cluster together
+   - **Visual Design**:
+     - Cluster size: 20px (1-10 towers), 30px (10-30 towers), 40px (30+ towers)
+     - Cluster color: Blue (#51bbd6) small, Yellow (#f1f075) medium, Pink (#f28cb1) large
+     - Count labels: Black text centered on clusters
+     - Individual markers: Red (#FF6B6B) circles with white borders
+   - **Zoom Behavior**: Automatically groups nearby towers when zooming out, expands on zoom in
+   - Converts cell tower data to GeoJSON format with properties (cellid, radio, mcc, mnc, range)
+- **BaseLayerControl.tsx** - [DEPRECATED] Original monolithic layer switcher (replaced by BaseLayerSelector)
 - **Crosshair.tsx** - Visual feedback component for map center during drag operations. Features:
    - Red crosshair with center circle
    - Pulsating animation using Tailwind's `animate-pulse` for visual prominence
@@ -122,14 +161,7 @@ src/
    - Only visible during map dragging (controlled by `visible` prop)
    - Absolutely positioned at map center with pointer-events-none
    - Simple, pure presentational component
-- **LocationSearchForm.tsx** - Self-contained form with validation and glass morphism UI. Features:
-   - Translucent frosted glass background using Tailwind's backdrop-blur
-   - Blue button with pulsating glow on hover
-   - Green success feedback (800ms timeout) on valid submission
-   - Collapsible accordion interface
-   - Connected directly to Zustand store
-   - Displays cell tower count inline (no special background/border)
-- **MapStatusIndicators.tsx** - Pure presentational component for displaying loading/error/success states (deprecated in favor of inline display in LocationSearchForm)
+- **MapStatusIndicators.tsx** - [DEPRECATED] Pure presentational component for displaying loading/error/success states (replaced by inline display in CellTowerInfo)
 
 ### State & Data
 
@@ -167,7 +199,7 @@ The project uses TypeScript project references with three config files:
 - **@testing-library/react** for component testing
 - **@testing-library/user-event** for user interaction simulation
 - **100% code coverage** across all components, hooks, and stores
-- **91 passing tests** across 7 test files
+- **100 passing tests** across 10 test files
 
 ### E2E Testing (Playwright + Cucumber)
 
@@ -443,6 +475,21 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 - Always check if mapRef.current exists before calling methods
 - Base layer changes trigger automatic map re-render with new style
 
+### When Working with Clustering
+
+- **Use MapLibre Native Clustering**: Set `cluster={true}` on GeoJSON Source for automatic clustering
+- **Configure Clustering Parameters**:
+  - `clusterMaxZoom`: Zoom level where clusters break into individual points (e.g., 14)
+  - `clusterRadius`: Pixel radius for grouping points into clusters (e.g., 50)
+- **Three-Layer Pattern** for cluster visualization:
+  1. Cluster layer: Circle layer with `filter: ['has', 'point_count']`
+  2. Count label layer: Symbol layer showing `{point_count_abbreviated}`
+  3. Unclustered layer: Circle layer with `filter: ['!', ['has', 'point_count']]`
+- **Data-Driven Styling**: Use `['step', ['get', 'point_count'], ...]` for graduated sizing/coloring
+- **TypeScript Filters**: Use `as any` type assertion for MapLibre expression arrays to avoid type errors
+- **Performance**: MapLibre's native clustering is optimized for large datasets (thousands of points)
+- **Testing**: Mock Source component to accept clustering props (cluster, clusterMaxZoom, clusterRadius)
+
 ### Code Style
 
 - Use TypeScript strictly - no `any` types without good reason
@@ -472,12 +519,15 @@ The `cellTowerService.ts` uses SWR with the following configuration:
 When extending this project, consider:
 
 - Additional map styles (terrain, topographic) - add to `config/mapStyles.ts` and update `BaseLayerType`
-- Cell tower filtering - extend CellTowerLayer with filter props
+- Cell tower filtering - extend CellTowerLayer with filter props (e.g., by radio type)
 - Multiple locations/bookmarks - extend locationStore schema
 - Offline support - consider service worker and map tile caching
-- Popup details on click - add MapLibre popup component
+- Popup details on click - add MapLibre popup component showing tower details (cellid, radio, mcc, mnc, range)
 - Route planning - new component + service layer
-- Custom layer opacity controls - extend BaseLayerControl with sliders
+- Custom layer opacity controls - extend BaseLayerSelector with sliders
+- Cluster expansion on click - add click handler to fly into cluster and expand
+- Custom cluster icons - replace circles with SVG icons or images
+- Heatmap visualization - alternative to clustering for density display
 
 ## Troubleshooting
 
