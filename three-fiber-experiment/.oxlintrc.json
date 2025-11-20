@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "typescript": "warn",
+    "react": "warn",
+    "import": "warn",
+    "jsx-a11y": "warn"
+  },
+  "categories": {
+    "correctness": "warn",
+    "perf": "warn",
+    "suspicious": "warn"
+  }
+}
