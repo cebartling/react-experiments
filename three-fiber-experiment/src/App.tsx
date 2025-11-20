@@ -1,9 +1,11 @@
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import First from './routes/First.tsx'
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0)
 
   return (
@@ -29,6 +31,21 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
+        <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
+        <Link to="/first">First</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/first" element={<First />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
