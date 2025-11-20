@@ -5,6 +5,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import First from './routes/First.tsx'
 import Second from './routes/Second.tsx'
+import Third from './routes/Third.tsx'
 
 function Home() {
   const [count, setCount] = useState(0)
@@ -41,12 +42,14 @@ function App() {
       <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
         <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
         <Link to="/first" style={{ marginRight: '1rem' }}>First</Link>
-        <Link to="/second">Second</Link>
+        <Link to="/second" style={{ marginRight: '1rem' }}>Second</Link>
+        <Link to="/third">Third</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/first" element={<First />} />
         <Route path="/second" element={<Second />} />
+        <Route path="/third" element={<Third />} />
       </Routes>
     </BrowserRouter>
   )
