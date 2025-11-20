@@ -7,6 +7,7 @@ An experimental React application for exploring 3D graphics with React Three Fib
 - **React 19** with TypeScript for type-safe development
 - **React Router DOM** for client-side routing
 - **React Three Fiber** for declarative 3D graphics with Three.js
+- **@react-three/drei** for 3D scene helpers and utilities
 - **Tailwind CSS** for utility-first styling
 - **Vite** (rolldown-vite) for fast development and optimized builds
 - **Dual Linting** with oxlint (fast) and ESLint (comprehensive)
@@ -46,19 +47,35 @@ npm run format       # Format all files with Prettier
 npm run format:check # Check if files are formatted correctly
 ```
 
-## Project Structure
+## Routes
 
-- **/** - Home route with the default Vite + React template
-- **/first** - Demo route featuring an interactive 3D scene with a rotating box
+### `/` - Home
+Default Vite + React template with navigation links
 
-## 3D Scene Features
-
-The `/first` route demonstrates:
-- Animated rotating 3D cube
+### `/first` - Rotating Cube Scene
+Simple interactive 3D scene demonstrating:
+- Animated rotating 3D cube using `useFrame`
 - Interactive hover effects (color changes)
 - Click to scale animation
-- Multiple light sources for realistic rendering
+- Basic lighting setup (ambient + spot + point lights)
 - Full viewport 3D canvas
+
+### `/second` - Downtown Cityscape
+Complex 3D downtown scene featuring:
+- **12 Buildings** with varying heights (5-15 units) and colors
+- **Procedurally generated windows** on each building facade
+- **Street system** with road markings (north-south and east-west streets)
+- **Interactive hover effects** - buildings turn white and windows glow yellow
+- **OrbitControls** for camera manipulation:
+  - Click and drag to rotate view
+  - Scroll to zoom in/out
+  - Smooth damping for natural movement
+- **Advanced lighting**:
+  - Ambient light for base illumination
+  - Directional light (sun-like)
+  - Orange and blue point lights for atmospheric effects
+- **Emissive materials** for realistic window glow
+- **Tailwind CSS UI** with instructions overlay
 
 ## Tech Stack
 
@@ -70,14 +87,15 @@ The `/first` route demonstrates:
 ### 3D Graphics
 - Three.js 0.181.2
 - @react-three/fiber 9.4.0
+- @react-three/drei 9.119.2 (OrbitControls, helpers, abstractions)
 
 ### Build & Development
 - Vite (rolldown-vite 7.2.6)
 - PostCSS 8.5.6
-- Autoprefixer 10.4.22
 
 ### Styling
 - Tailwind CSS 4.1.17
+- @tailwindcss/postcss (required for Tailwind v4)
 
 ### Code Quality
 - oxlint 1.29.0 (Rust-based fast linter)
@@ -92,10 +110,10 @@ The React Compiler is not enabled on this project because of its impact on dev &
 
 ### Tailwind CSS
 
-Tailwind CSS is configured and ready to use. The utility classes are available throughout the application:
+Tailwind CSS v4 is configured and ready to use. The utility classes are available throughout the application:
 
 ```tsx
-// Example usage
+// Example usage (see /second route for real-world example)
 <div className="flex items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-purple-600">
   <h1 className="text-4xl font-bold text-white">Hello Tailwind!</h1>
 </div>
@@ -103,8 +121,10 @@ Tailwind CSS is configured and ready to use. The utility classes are available t
 
 Configuration files:
 - `tailwind.config.js` - Tailwind configuration (content paths, theme, plugins)
-- `postcss.config.js` - PostCSS with Tailwind and Autoprefixer
+- `postcss.config.js` - PostCSS with `@tailwindcss/postcss` (required for v4)
 - `src/index.css` - Includes Tailwind directives (`@tailwind base/components/utilities`)
+
+**Note:** Tailwind v4 uses a different PostCSS plugin (`@tailwindcss/postcss`) instead of the standard `tailwindcss` plugin.
 
 ### Linting Strategy
 
