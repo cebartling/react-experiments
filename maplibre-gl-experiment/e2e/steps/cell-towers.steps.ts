@@ -48,7 +48,7 @@ When('cell towers are loading', async function (this: CustomWorld) {
    if (!this.page) throw new Error('Page not initialized');
 
    // Ensure the form is expanded
-   const formContent = this.page.locator('#location-form-content');
+   const formContent = this.page.locator('#controls-content');
    const isExpanded = await formContent.isVisible();
 
    if (!isExpanded) {

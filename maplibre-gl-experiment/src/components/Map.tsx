@@ -6,7 +6,10 @@ import { useCellTowers } from '../services/cellTowerService';
 import { useLocationStore } from '../stores/locationStore';
 import { useMapLocation } from '../hooks/useMapLocation';
 import { getStyleByType } from '../config/mapStyles';
+import { ControlsContainer } from './map/ControlsContainer';
 import { LocationSearchForm } from './map/LocationSearchForm';
+import { BaseLayerSelector } from './map/BaseLayerSelector';
+import { CellTowerInfo } from './map/CellTowerInfo';
 import { CellTowerLayer } from './map/CellTowerLayer';
 import { Crosshair } from './map/Crosshair';
 
@@ -55,7 +58,11 @@ function Map() {
          </MapGL>
 
          <Crosshair visible={isDragging} latitude={currentCenter.lat} longitude={currentCenter.lng} />
-         <LocationSearchForm />
+         <ControlsContainer>
+            <LocationSearchForm />
+            <BaseLayerSelector />
+            <CellTowerInfo />
+         </ControlsContainer>
       </div>
    );
 }
