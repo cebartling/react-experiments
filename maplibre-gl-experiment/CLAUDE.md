@@ -12,6 +12,12 @@ This project uses **rolldown-vite** (version 7.2.5), not standard Vite. Rolldown
 
 ## Common Commands
 
+### Setting the Node.js runtime version
+
+```bash
+nvm use              # Use Node.js version specified in .nvmrc
+```
+
 ### Development
 
 ```bash
