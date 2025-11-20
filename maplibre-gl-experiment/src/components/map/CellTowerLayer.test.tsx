@@ -5,8 +5,14 @@ import type { CellTower } from '../../services/cellTowerService';
 
 // Mock the MapLibre components
 vi.mock('@vis.gl/react-maplibre', () => ({
-   Source: ({ children, data }: any) => (
-      <div data-testid="source" data-geojson={JSON.stringify(data)}>
+   Source: ({ children, data, cluster, clusterMaxZoom, clusterRadius }: any) => (
+      <div
+         data-testid="source"
+         data-geojson={JSON.stringify(data)}
+         data-cluster={cluster}
+         data-cluster-max-zoom={clusterMaxZoom}
+         data-cluster-radius={clusterRadius}
+      >
          {children}
       </div>
    ),
@@ -36,10 +42,11 @@ describe('CellTowerLayer', () => {
    ];
 
    it('should render Source and Layer components', () => {
-      const { getByTestId } = render(<CellTowerLayer cellTowers={mockCellTowers} />);
+      const { getByTestId, getAllByTestId } = render(<CellTowerLayer cellTowers={mockCellTowers} />);
 
       expect(getByTestId('source')).toBeInTheDocument();
-      expect(getByTestId('layer')).toBeInTheDocument();
+      const layers = getAllByTestId('layer');
+      expect(layers).toHaveLength(3); // cluster, cluster-count, and unclustered-point layers
    });
 
    it('should convert cell towers to GeoJSON format', () => {
@@ -109,10 +116,21 @@ describe('CellTowerLayer', () => {
       expect(geoJSON.features).toHaveLength(0);
    });
 
-   it('should render layer with correct id', () => {
+   it('should render cluster layers with correct ids', () => {
+      const { getAllByTestId } = render(<CellTowerLayer cellTowers={mockCellTowers} />);
+
+      const layers = getAllByTestId('layer');
+      expect(layers[0].getAttribute('data-layer-id')).toBe('clusters');
+      expect(layers[1].getAttribute('data-layer-id')).toBe('cluster-count');
+      expect(layers[2].getAttribute('data-layer-id')).toBe('unclustered-point');
+   });
+
+   it('should enable clustering with correct configuration', () => {
       const { getByTestId } = render(<CellTowerLayer cellTowers={mockCellTowers} />);
 
-      const layer = getByTestId('layer');
-      expect(layer.getAttribute('data-layer-id')).toBe('cell-towers');
+      const source = getByTestId('source');
+      expect(source.getAttribute('data-cluster')).toBe('true');
+      expect(source.getAttribute('data-cluster-max-zoom')).toBe('14');
+      expect(source.getAttribute('data-cluster-radius')).toBe('50');
    });
 });
