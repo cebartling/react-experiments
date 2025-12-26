@@ -22,7 +22,7 @@ dist
 ```
 
 Create a script in `package.json` to run Prettier.
-Create a feature branch for this work.
+Create a feature branch for this work off of the main branch.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
 
@@ -50,13 +50,20 @@ Create a CSS file `src/styles/tailwind.css` to include Tailwind directives:
 ```
 
 Create a script in `package.json` to build Tailwind CSS.
-Create a feature branch for this work.
+Create a feature branch for this work off of the main branch.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
 
 ## Zod
 
 Install Zod for schema validation.
-Create a feature branch for this work.
+Create a feature branch for this work off of the main branch.
+Commit the changes with a descriptive message.
+Create a PR from the feature branch that will be merged into the main branch after review.
+
+## Vitest
+
+Install vitest and React testing library for unit testing.
+Create a feature branch for this work off of the main branch.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
