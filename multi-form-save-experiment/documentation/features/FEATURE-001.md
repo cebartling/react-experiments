@@ -48,26 +48,44 @@ When building complex forms with multiple independent sections, each section may
 
 ### Component Hierarchy
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                   ParentContainer                       │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │              Global Save Button                  │   │
-│  │         [enabled when isDirty=true]              │   │
-│  └─────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │              Error Summary Panel                 │   │
-│  │    [displays validation failures by form]        │   │
-│  └─────────────────────────────────────────────────┘   │
-│                                                         │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
-│  │ ChildForm A │ │ ChildForm B │ │ ChildForm C │       │
-│  │             │ │             │ │             │       │
-│  │ - inputs    │ │ - inputs    │ │ - inputs    │       │
-│  │ - validate  │ │ - validate  │ │ - validate  │       │
-│  │ - submit    │ │ - submit    │ │ - submit    │       │
-│  └─────────────┘ └─────────────┘ └─────────────┘       │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    block:parent["ParentContainer"]
+        columns 3
+        space:3
+        block:header:3
+            columns 1
+            SaveButton["Global Save Button\n(enabled when isDirty=true)"]
+        end
+        space:3
+        block:errors:3
+            columns 1
+            ErrorSummary["Error Summary Panel\n(displays validation failures by form)"]
+        end
+        space:3
+        block:forms:3
+            columns 3
+            block:formA["ChildForm A"]
+                columns 1
+                A1["inputs"]
+                A2["validate()"]
+                A3["submit()"]
+            end
+            block:formB["ChildForm B"]
+                columns 1
+                B1["inputs"]
+                B2["validate()"]
+                B3["submit()"]
+            end
+            block:formC["ChildForm C"]
+                columns 1
+                C1["inputs"]
+                C2["validate()"]
+                C3["submit()"]
+            end
+        end
+    end
 ```
 
 ### Data Flow Diagram
