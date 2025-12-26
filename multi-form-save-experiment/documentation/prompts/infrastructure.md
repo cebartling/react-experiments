@@ -13,6 +13,7 @@ Create a configuration file `.prettierrc` in the root directory with the followi
   "printWidth": 100
 }
 ```
+
 Create an `.prettierignore` file to exclude files and directories from formatting:
 
 ```
@@ -39,6 +40,7 @@ module.exports = {
   plugins: [],
 };
 ```
+
 Create a CSS file `src/styles/tailwind.css` to include Tailwind directives:
 
 ```css
@@ -46,6 +48,7 @@ Create a CSS file `src/styles/tailwind.css` to include Tailwind directives:
 @tailwind components;
 @tailwind utilities;
 ```
+
 Create a script in `package.json` to build Tailwind CSS.
 Create a feature branch for this work.
 Commit the changes with a descriptive message.
@@ -57,4 +60,3 @@ Install Zod for schema validation.
 Create a feature branch for this work.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
-
