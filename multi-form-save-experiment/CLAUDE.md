@@ -32,5 +32,6 @@ Standard Vite React template structure:
 ## TypeScript Configuration
 
 Uses project references with separate configs:
+
 - `tsconfig.app.json` - For source code (ES2022 target, strict mode enabled)
 - `tsconfig.node.json` - For Node.js tooling files

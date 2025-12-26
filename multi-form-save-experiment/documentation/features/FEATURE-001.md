@@ -252,7 +252,7 @@ export function ParentContainer() {
   const isDirty = dirtyForms.size > 0;
 
   const handleDirtyChange = useCallback((formId: string, dirty: boolean) => {
-    setDirtyForms(prev => {
+    setDirtyForms((prev) => {
       const next = new Set(prev);
       if (dirty) {
         next.add(formId);
@@ -292,7 +292,7 @@ export function ParentContainer() {
 
     // Step 3: Submit all dirty forms
     try {
-      const submitPromises = Array.from(dirtyForms).map(formId => {
+      const submitPromises = Array.from(dirtyForms).map((formId) => {
         const ref = formRefs.current[formId];
         return ref?.submit();
       });
@@ -312,31 +312,25 @@ export function ParentContainer() {
     <div className="parent-container">
       <header className="form-header">
         <h1>Multi-Form Editor</h1>
-        <button
-          onClick={handleSave}
-          disabled={!isDirty || isSubmitting}
-          className="save-button"
-        >
+        <button onClick={handleSave} disabled={!isDirty || isSubmitting} className="save-button">
           {isSubmitting ? 'Saving...' : 'Save All Changes'}
         </button>
       </header>
 
-      {validationErrors.length > 0 && (
-        <ErrorSummary errors={validationErrors} />
-      )}
+      {validationErrors.length > 0 && <ErrorSummary errors={validationErrors} />}
 
       <div className="forms-container">
         <ChildFormA
-          ref={el => (formRefs.current['formA'] = el)}
-          onDirtyChange={dirty => handleDirtyChange('formA', dirty)}
+          ref={(el) => (formRefs.current['formA'] = el)}
+          onDirtyChange={(dirty) => handleDirtyChange('formA', dirty)}
         />
         <ChildFormB
-          ref={el => (formRefs.current['formB'] = el)}
-          onDirtyChange={dirty => handleDirtyChange('formB', dirty)}
+          ref={(el) => (formRefs.current['formB'] = el)}
+          onDirtyChange={(dirty) => handleDirtyChange('formB', dirty)}
         />
         <ChildFormC
-          ref={el => (formRefs.current['formC'] = el)}
-          onDirtyChange={dirty => handleDirtyChange('formC', dirty)}
+          ref={(el) => (formRefs.current['formC'] = el)}
+          onDirtyChange={(dirty) => handleDirtyChange('formC', dirty)}
         />
       </div>
     </div>
@@ -358,97 +352,92 @@ interface ChildFormHandle {
   submit: () => Promise<SubmitResult>;
 }
 
-export const ChildFormA = forwardRef<ChildFormHandle, ChildFormProps>(
-  function ChildFormA({ onDirtyChange }, ref) {
-    const [formData, setFormData] = useState({ name: '', email: '' });
-    const [initialData] = useState({ name: '', email: '' });
-    const [errors, setErrors] = useState<ValidationError[]>([]);
+export const ChildFormA = forwardRef<ChildFormHandle, ChildFormProps>(function ChildFormA(
+  { onDirtyChange },
+  ref
+) {
+  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [initialData] = useState({ name: '', email: '' });
+  const [errors, setErrors] = useState<ValidationError[]>([]);
 
-    // Track dirty state
-    const isDirty =
-      formData.name !== initialData.name ||
-      formData.email !== initialData.email;
+  // Track dirty state
+  const isDirty = formData.name !== initialData.name || formData.email !== initialData.email;
 
-    useEffect(() => {
-      onDirtyChange(isDirty);
-    }, [isDirty, onDirtyChange]);
+  useEffect(() => {
+    onDirtyChange(isDirty);
+  }, [isDirty, onDirtyChange]);
 
-    // Expose imperative handle to parent
-    useImperativeHandle(ref, () => ({
-      validate: () => {
-        const validationErrors: ValidationError[] = [];
+  // Expose imperative handle to parent
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const validationErrors: ValidationError[] = [];
 
-        if (!formData.name.trim()) {
-          validationErrors.push({
-            field: 'name',
-            message: 'Name is required',
-          });
-        }
-
-        if (!formData.email.includes('@')) {
-          validationErrors.push({
-            field: 'email',
-            message: 'Valid email is required',
-          });
-        }
-
-        setErrors(validationErrors);
-        return {
-          valid: validationErrors.length === 0,
-          errors: validationErrors,
-        };
-      },
-
-      submit: async () => {
-        // Mock API call
-        const response = await fetch('/api/mock/form-a', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+      if (!formData.name.trim()) {
+        validationErrors.push({
+          field: 'name',
+          message: 'Name is required',
         });
+      }
 
-        if (!response.ok) {
-          throw new Error('Submission failed');
-        }
+      if (!formData.email.includes('@')) {
+        validationErrors.push({
+          field: 'email',
+          message: 'Valid email is required',
+        });
+      }
 
-        return { success: true };
-      },
-    }));
+      setErrors(validationErrors);
+      return {
+        valid: validationErrors.length === 0,
+        errors: validationErrors,
+      };
+    },
 
-    return (
-      <div className="child-form">
-        <h2>User Information</h2>
-        <div className="form-field">
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            value={formData.name}
-            onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          />
-          {errors.find(e => e.field === 'name') && (
-            <span className="error">
-              {errors.find(e => e.field === 'name')?.message}
-            </span>
-          )}
-        </div>
-        <div className="form-field">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          />
-          {errors.find(e => e.field === 'email') && (
-            <span className="error">
-              {errors.find(e => e.field === 'email')?.message}
-            </span>
-          )}
-        </div>
+    submit: async () => {
+      // Mock API call
+      const response = await fetch('/api/mock/form-a', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Submission failed');
+      }
+
+      return { success: true };
+    },
+  }));
+
+  return (
+    <div className="child-form">
+      <h2>User Information</h2>
+      <div className="form-field">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+        />
+        {errors.find((e) => e.field === 'name') && (
+          <span className="error">{errors.find((e) => e.field === 'name')?.message}</span>
+        )}
       </div>
-    );
-  }
-);
+      <div className="form-field">
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+        />
+        {errors.find((e) => e.field === 'email') && (
+          <span className="error">{errors.find((e) => e.field === 'email')?.message}</span>
+        )}
+      </div>
+    </div>
+  );
+});
 ```
 
 ### Error Summary Component
@@ -463,7 +452,7 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
     <div className="error-summary" role="alert">
       <h3>Please fix the following errors:</h3>
       <ul>
-        {errors.map(formError => (
+        {errors.map((formError) => (
           <li key={formError.formId}>
             <strong>{formError.formName}:</strong>
             <ul>
@@ -484,7 +473,7 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
 ```typescript
 // services/mockApi.ts
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const mockApi = {
   async submitFormA(data: Record<string, unknown>) {
