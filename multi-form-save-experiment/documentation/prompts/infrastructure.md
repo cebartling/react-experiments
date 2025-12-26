@@ -24,3 +24,37 @@ Create a script in `package.json` to run Prettier.
 Create a feature branch for this work.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
+
+## Tailwind CSS
+
+Install Tailwind CSS for utility-first CSS styling.
+Create a configuration file `tailwind.config.js` in the root directory with the following content:
+
+```js
+module.exports = {
+  content: ['./src/**/*.{html,js,jsx,ts,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+Create a CSS file `src/styles/tailwind.css` to include Tailwind directives:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+Create a script in `package.json` to build Tailwind CSS.
+Create a feature branch for this work.
+Commit the changes with a descriptive message.
+Create a PR from the feature branch that will be merged into the main branch after review.
+
+## Zod
+
+Install Zod for schema validation.
+Create a feature branch for this work.
+Commit the changes with a descriptive message.
+Create a PR from the feature branch that will be merged into the main branch after review.
+
