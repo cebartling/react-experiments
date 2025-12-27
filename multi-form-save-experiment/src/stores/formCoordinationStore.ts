@@ -7,6 +7,8 @@ import type {
   SubmissionStatus,
   SubmissionSummary,
 } from '../types/form-coordination';
+import { useErrorStore } from './errorStore';
+import { toValidationError, toSubmissionError, createNetworkError } from '../utils/error-utils';
 
 interface FormCoordinationStoreState {
   // Dirty state
@@ -186,21 +188,60 @@ export const useFormCoordinationStore = create<FormCoordinationStoreState>((set,
 
   // Combined save operation
   saveAllChanges: async () => {
-    const { validateAllDirtyForms, submitAllDirtyForms, clearValidationErrors } = get();
+    const { validateAllDirtyForms, submitAllDirtyForms, clearValidationErrors, formRegistry } =
+      get();
+    const errorStore = useErrorStore.getState();
 
+    // Clear previous errors
+    errorStore.clearAllErrors();
     clearValidationErrors();
 
-    // Step 1: Validate all dirty forms
-    const allValid = await validateAllDirtyForms();
+    try {
+      // Step 1: Validate all dirty forms
+      const allValid = await validateAllDirtyForms();
 
-    if (!allValid) {
+      if (!allValid) {
+        const validationSummaries = get().validationErrors;
+        const validationErrors = validationSummaries.map(toValidationError);
+        errorStore.setValidationErrors(validationErrors);
+        return false;
+      }
+
+      // Step 2: Submit all dirty forms
+      const allSubmitted = await submitAllDirtyForms();
+
+      if (!allSubmitted) {
+        const summary = get().submissionSummary;
+        if (summary) {
+          const formNames = new Map<string, string>();
+          formRegistry.forEach((entry) => {
+            formNames.set(entry.formId, entry.displayName);
+          });
+
+          const submissionErrors = summary.failedForms.map((result) =>
+            toSubmissionError(result, formNames.get(result.formId) ?? result.formId)
+          );
+          errorStore.setSubmissionErrors(submissionErrors);
+        }
+        return false;
+      }
+
+      // Success notification
+      errorStore.addNotification({
+        severity: 'info',
+        title: 'Saved',
+        message: 'All changes have been saved successfully.',
+        dismissible: true,
+        autoDismiss: 3000,
+      });
+
+      return true;
+    } catch (error) {
+      // Handle unexpected errors
+      const networkError = createNetworkError(error);
+      errorStore.setNetworkError(networkError);
       return false;
     }
-
-    // Step 2: Submit all dirty forms
-    const allSubmitted = await submitAllDirtyForms();
-
-    return allSubmitted;
   },
 }));
 
