@@ -126,34 +126,38 @@ function ErrorSummary({ errors }: { errors: FormValidationSummary[] }) {
 }
 
 export function DirtyStateDemo() {
-  const { isDirty, dirtyFormIds, resetAllDirtyState } = useGlobalDirtyState();
+  const { isDirty, dirtyFormIds } = useGlobalDirtyState();
   const isValidating = useFormCoordinationStore((state) => state.isValidating);
   const validationErrors = useFormCoordinationStore((state) => state.validationErrors);
-  const validateAllDirtyForms = useFormCoordinationStore((state) => state.validateAllDirtyForms);
-  const clearValidationErrors = useFormCoordinationStore((state) => state.clearValidationErrors);
+  const submissionStatus = useFormCoordinationStore((state) => state.submissionStatus);
+  const saveAllChanges = useFormCoordinationStore((state) => state.saveAllChanges);
 
   const handleSaveAll = async () => {
-    const allValid = await validateAllDirtyForms();
-
-    if (allValid) {
-      // Simulate saving - in real app this would call APIs
-      console.log('All forms valid, saving...');
-      resetAllDirtyState();
-      clearValidationErrors();
-    }
-    // If not valid, errors are displayed in the error summary
+    await saveAllChanges();
   };
+
+  // Determine the status message
+  const getStatusMessage = () => {
+    if (isValidating) return 'Validating...';
+    if (submissionStatus === 'submitting') return 'Saving...';
+    if (validationErrors.length > 0) return 'Validation failed';
+    if (submissionStatus === 'success') return 'All saved';
+    if (submissionStatus === 'error') return 'Save failed';
+    if (isDirty) return 'Unsaved changes';
+    return 'All saved';
+  };
+
+  const isProcessing = isValidating || submissionStatus === 'submitting';
 
   return (
     <div className="dirty-state-demo" data-testid="dirty-state-demo">
       <h2>Multi-Form Dirty State Demo</h2>
 
       <div className="status-bar" data-testid="status-bar">
-        <span data-testid="dirty-status">Status: {isDirty ? 'Unsaved changes' : 'All saved'}</span>
+        <span data-testid="dirty-status">Status: {getStatusMessage()}</span>
         {isDirty && (
           <span data-testid="dirty-forms"> (Forms with changes: {dirtyFormIds.join(', ')})</span>
         )}
-        {isValidating && <span data-testid="validating-status"> Validating...</span>}
       </div>
 
       <ErrorSummary errors={validationErrors} />
@@ -166,10 +170,10 @@ export function DirtyStateDemo() {
       <div className="actions">
         <button
           onClick={handleSaveAll}
-          disabled={!isDirty || isValidating}
+          disabled={!isDirty || isProcessing}
           data-testid="save-all-button"
         >
-          {isValidating ? 'Validating...' : 'Save All Changes'}
+          {isProcessing ? 'Processing...' : 'Save All Changes'}
         </button>
       </div>
     </div>
