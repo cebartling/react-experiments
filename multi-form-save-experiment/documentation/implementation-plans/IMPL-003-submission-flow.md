@@ -311,7 +311,7 @@ export async function setupMocks() {
 
 **Update: `src/main.tsx`**
 
-```typescript
+```tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -608,7 +608,7 @@ src/
 
 ### Child Form with Submission
 
-```typescript
+```tsx
 import { useSubmittableForm } from '../hooks/useSubmittableForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userInfoSchema, UserInfoFormData } from '../utils/validation-schemas';
@@ -646,7 +646,7 @@ export function UserInfoForm() {
 
 ### Parent Container with Save
 
-```typescript
+```tsx
 import { useFormCoordinationStore } from '../stores/formCoordinationStore';
 
 export function ParentContainer() {
