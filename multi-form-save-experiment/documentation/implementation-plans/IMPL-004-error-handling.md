@@ -557,7 +557,7 @@ Create an error boundary for catching unexpected errors.
 
 **File: `src/components/FormErrorBoundary.tsx`**
 
-```typescript
+```tsx
 import { Component, ReactNode } from 'react';
 
 interface Props {
@@ -684,7 +684,7 @@ saveAllChanges: async () => {
     errorStore.setNetworkError(networkError);
     return false;
   }
-},
+}
 ```
 
 ## Error Flow Diagram
@@ -765,7 +765,7 @@ src/
 
 ### Parent Container with Error Display
 
-```typescript
+```tsx
 import { useErrorHandling } from '../hooks/useErrorHandling';
 import { ErrorSummary } from './ErrorSummary';
 import { NotificationList } from './NotificationList';
@@ -813,7 +813,7 @@ export function ParentContainer() {
 
 ### Child Form with Field Errors
 
-```typescript
+```tsx
 import { useErrorStore } from '../stores/errorStore';
 
 export function UserInfoForm() {
