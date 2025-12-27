@@ -13,3 +13,14 @@ Add acceptance criteria to define the expected behavior of the feature.
 Create a feature branch for this work.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
+
+Using the feature file @documentation/features/FEATURE-001.md, create a number of detailed implementation plans to achieve the desired functionality.
+Each implementation plan should focus on a specific aspect of the feature, such as setting up the dirty flag, validating child forms, handling the save button click, and displaying error messages.
+Provide step-by-step instructions for each implementation plan.
+Include code snippets and diagrams where necessary to illustrate the steps.
+Ensure that each implementation plan is clear and easy to follow for developers working on the feature.
+Add acceptance criteria to define the expected behavior delivered by the implementation plan.
+Implementation plans should be documented in separate files under @documentation/implementation-plans/ with appropriate filenames reflecting their focus areas.
+Create a feature branch for this work.
+Commit the changes with a descriptive message.
+Create a PR from the feature branch that will be merged into the main branch after review.
