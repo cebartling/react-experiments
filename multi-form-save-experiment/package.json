@@ -12,7 +12,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:acceptance": "NODE_OPTIONS='--import tsx' cucumber-js --import 'features/**/*.ts'"
+    "test:acceptance": "NODE_OPTIONS='--import tsx' cucumber-js --import 'features/**/*.ts'",
+    "test:acceptance:report": "NODE_OPTIONS='--import tsx' cucumber-js --import 'features/**/*.ts' --format json:reports/cucumber/report.json",
+    "report:generate": "NODE_OPTIONS='--import tsx' npx tsx scripts/generate-cucumber-report.ts",
+    "test:acceptance:html": "npm run test:acceptance:report && npm run report:generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -43,6 +46,7 @@
     "globals": "^16.5.0",
     "jsdom": "^27.4.0",
     "msw": "^2.12.6",
+    "multiple-cucumber-html-reporter": "^3.9.3",
     "playwright": "^1.57.0",
     "prettier": "^3.7.4",
     "tailwindcss": "^4.1.18",
