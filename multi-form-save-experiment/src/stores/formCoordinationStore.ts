@@ -3,6 +3,9 @@ import type {
   FormId,
   FormRegistryEntry,
   FormValidationSummary,
+  SubmitResult,
+  SubmissionStatus,
+  SubmissionSummary,
 } from '../types/form-coordination';
 
 interface FormCoordinationStoreState {
@@ -22,6 +25,15 @@ interface FormCoordinationStoreState {
   validationErrors: FormValidationSummary[];
   validateAllDirtyForms: () => Promise<boolean>;
   clearValidationErrors: () => void;
+
+  // Submission state
+  submissionStatus: SubmissionStatus;
+  submissionSummary: SubmissionSummary | null;
+  submitAllDirtyForms: () => Promise<boolean>;
+  resetSubmissionState: () => void;
+
+  // Combined save operation
+  saveAllChanges: () => Promise<boolean>;
 }
 
 export const useFormCoordinationStore = create<FormCoordinationStoreState>((set, get) => ({
@@ -106,6 +118,89 @@ export const useFormCoordinationStore = create<FormCoordinationStoreState>((set,
 
   clearValidationErrors: () => {
     set({ validationErrors: [] });
+  },
+
+  // Submission state
+  submissionStatus: 'idle',
+  submissionSummary: null,
+
+  submitAllDirtyForms: async () => {
+    const { dirtyForms, formRegistry } = get();
+
+    set({ submissionStatus: 'submitting' });
+
+    const submissionPromises: Promise<SubmitResult>[] = [];
+
+    for (const formId of dirtyForms) {
+      const entry = formRegistry.get(formId);
+      if (entry) {
+        submissionPromises.push(
+          entry.submit().catch((error) => ({
+            success: false,
+            formId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          }))
+        );
+      }
+    }
+
+    const results = await Promise.all(submissionPromises);
+
+    const successfulForms = results.filter((r) => r.success).map((r) => r.formId);
+    const failedForms = results.filter((r) => !r.success);
+
+    const allSuccessful = failedForms.length === 0;
+
+    const summary: SubmissionSummary = {
+      status: allSuccessful ? 'success' : 'error',
+      successfulForms,
+      failedForms,
+    };
+
+    set({
+      submissionStatus: allSuccessful ? 'success' : 'error',
+      submissionSummary: summary,
+    });
+
+    // Reset dirty state only for successful submissions
+    if (allSuccessful) {
+      set({ dirtyForms: new Set() });
+    } else {
+      // Remove only successful forms from dirty set
+      set((state) => {
+        const next = new Set(state.dirtyForms);
+        successfulForms.forEach((id) => next.delete(id));
+        return { dirtyForms: next };
+      });
+    }
+
+    return allSuccessful;
+  },
+
+  resetSubmissionState: () => {
+    set({
+      submissionStatus: 'idle',
+      submissionSummary: null,
+    });
+  },
+
+  // Combined save operation
+  saveAllChanges: async () => {
+    const { validateAllDirtyForms, submitAllDirtyForms, clearValidationErrors } = get();
+
+    clearValidationErrors();
+
+    // Step 1: Validate all dirty forms
+    const allValid = await validateAllDirtyForms();
+
+    if (!allValid) {
+      return false;
+    }
+
+    // Step 2: Submit all dirty forms
+    const allSubmitted = await submitAllDirtyForms();
+
+    return allSubmitted;
   },
 }));
 

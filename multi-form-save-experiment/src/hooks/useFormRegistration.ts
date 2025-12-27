@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useFormCoordinationStore } from '../stores/formCoordinationStore';
-import type { FormId, ValidationResult } from '../types/form-coordination';
+import type { FormId, ValidationResult, SubmitResult } from '../types/form-coordination';
 
 interface UseFormRegistrationOptions {
   formId: FormId;
@@ -9,11 +9,12 @@ interface UseFormRegistrationOptions {
 
 interface UseFormRegistrationReturn {
   setValidateFunction: (validateFn: () => Promise<ValidationResult>) => void;
+  setSubmitFunction: (submitFn: () => Promise<SubmitResult>) => void;
 }
 
 /**
  * Hook for child forms to register themselves with the coordination store.
- * This allows the parent to trigger validation on all registered forms.
+ * This allows the parent to trigger validation and submission on all registered forms.
  */
 export function useFormRegistration({
   formId,
@@ -27,8 +28,17 @@ export function useFormRegistration({
     Promise.resolve({ valid: true, errors: [] })
   );
 
+  // Use ref to store the submit function to avoid re-registering on every render
+  const submitFnRef = useRef<() => Promise<SubmitResult>>(() =>
+    Promise.resolve({ success: true, formId })
+  );
+
   const setValidateFunction = useCallback((validateFn: () => Promise<ValidationResult>) => {
     validateFnRef.current = validateFn;
+  }, []);
+
+  const setSubmitFunction = useCallback((submitFn: () => Promise<SubmitResult>) => {
+    submitFnRef.current = submitFn;
   }, []);
 
   useEffect(() => {
@@ -36,6 +46,7 @@ export function useFormRegistration({
       formId,
       displayName,
       validate: () => validateFnRef.current(),
+      submit: () => submitFnRef.current(),
     });
 
     return () => {
@@ -43,5 +54,5 @@ export function useFormRegistration({
     };
   }, [formId, displayName, registerForm, unregisterForm]);
 
-  return { setValidateFunction };
+  return { setValidateFunction, setSubmitFunction };
 }

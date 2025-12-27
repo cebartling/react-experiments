@@ -1,12 +1,34 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFormCoordinationStore, selectIsDirty } from './formCoordinationStore';
+import type { FormRegistryEntry } from '../types/form-coordination';
 
 function resetStore() {
   const store = useFormCoordinationStore.getState();
   store.resetAllDirtyState();
   store.clearValidationErrors();
+  store.resetSubmissionState();
   // Reset form registry
-  useFormCoordinationStore.setState({ formRegistry: new Map(), isValidating: false });
+  useFormCoordinationStore.setState({
+    formRegistry: new Map(),
+    isValidating: false,
+  });
+}
+
+/**
+ * Creates a mock registry entry with default submit function
+ */
+function createMockEntry(
+  formId: string,
+  displayName: string,
+  validate: () => Promise<{ valid: boolean; errors: Array<{ field: string; message: string }> }>,
+  submit?: () => Promise<{ success: boolean; formId: string; error?: string }>
+): FormRegistryEntry {
+  return {
+    formId,
+    displayName,
+    validate,
+    submit: submit ?? vi.fn().mockResolvedValue({ success: true, formId }),
+  };
 }
 
 describe('formCoordinationStore', () => {
@@ -138,11 +160,7 @@ describe('formCoordinationStore', () => {
       const { registerForm } = useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
 
       const state = useFormCoordinationStore.getState();
       expect(state.formRegistry.has('form-1')).toBe(true);
@@ -153,16 +171,8 @@ describe('formCoordinationStore', () => {
       const { registerForm } = useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate));
 
       const state = useFormCoordinationStore.getState();
       expect(state.formRegistry.size).toBe(2);
@@ -172,16 +182,8 @@ describe('formCoordinationStore', () => {
       const { registerForm } = useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Original Name',
-        validate: mockValidate,
-      });
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Updated Name',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Original Name', mockValidate));
+      registerForm(createMockEntry('form-1', 'Updated Name', mockValidate));
 
       const state = useFormCoordinationStore.getState();
       expect(state.formRegistry.size).toBe(1);
@@ -194,11 +196,7 @@ describe('formCoordinationStore', () => {
       const { registerForm, unregisterForm } = useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
       unregisterForm('form-1');
 
       const state = useFormCoordinationStore.getState();
@@ -215,16 +213,8 @@ describe('formCoordinationStore', () => {
       const { registerForm, unregisterForm } = useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate));
       unregisterForm('form-1');
 
       const state = useFormCoordinationStore.getState();
@@ -240,16 +230,8 @@ describe('formCoordinationStore', () => {
       const mockValidate1 = vi.fn().mockResolvedValue({ valid: true, errors: [] });
       const mockValidate2 = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate1,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidate2,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate2));
 
       markFormDirty('form-1');
       // form-2 is NOT marked dirty
@@ -272,16 +254,8 @@ describe('formCoordinationStore', () => {
         errors: [{ field: 'email', message: 'Invalid email' }],
       });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate1,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidate2,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate2));
 
       markFormDirty('form-1');
       markFormDirty('form-2');
@@ -299,11 +273,7 @@ describe('formCoordinationStore', () => {
         useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
 
       markFormDirty('form-1');
 
@@ -321,16 +291,8 @@ describe('formCoordinationStore', () => {
         errors: [{ field: 'name', message: 'Required' }],
       });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidateValid,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidateInvalid,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidateValid));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidateInvalid));
 
       markFormDirty('form-1');
       markFormDirty('form-2');
@@ -350,11 +312,7 @@ describe('formCoordinationStore', () => {
         return { valid: true, errors: [] };
       });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
 
       markFormDirty('form-1');
 
@@ -368,11 +326,7 @@ describe('formCoordinationStore', () => {
         useFormCoordinationStore.getState();
       const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
 
       markFormDirty('form-1');
 
@@ -402,16 +356,8 @@ describe('formCoordinationStore', () => {
         return { valid: true, errors: [] };
       });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate1,
-      });
-      registerForm({
-        formId: 'form-2',
-        displayName: 'Form Two',
-        validate: mockValidate2,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate2));
 
       markFormDirty('form-1');
       markFormDirty('form-2');
@@ -433,16 +379,303 @@ describe('formCoordinationStore', () => {
         errors: [{ field: 'name', message: 'Required' }],
       });
 
-      registerForm({
-        formId: 'form-1',
-        displayName: 'Form One',
-        validate: mockValidate,
-      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate));
 
       markFormDirty('form-1');
       await validateAllDirtyForms();
 
       clearValidationErrors();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.validationErrors).toHaveLength(0);
+    });
+  });
+
+  describe('submitAllDirtyForms', () => {
+    it('only submits dirty forms', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit1 = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      const mockSubmit2 = vi.fn().mockResolvedValue({ success: true, formId: 'form-2' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+
+      markFormDirty('form-1');
+      // form-2 is NOT marked dirty
+
+      await submitAllDirtyForms();
+
+      expect(mockSubmit1).toHaveBeenCalled();
+      expect(mockSubmit2).not.toHaveBeenCalled();
+    });
+
+    it('sets submissionStatus to submitting during submission', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+
+      let capturedStatus = '';
+      const mockSubmit = vi.fn().mockImplementation(async () => {
+        capturedStatus = useFormCoordinationStore.getState().submissionStatus;
+        return { success: true, formId: 'form-1' };
+      });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      await submitAllDirtyForms();
+
+      expect(capturedStatus).toBe('submitting');
+    });
+
+    it('sets submissionStatus to success when all submissions succeed', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.submissionStatus).toBe('success');
+    });
+
+    it('sets submissionStatus to error when any submission fails', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit1 = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      const mockSubmit2 = vi
+        .fn()
+        .mockResolvedValue({ success: false, formId: 'form-2', error: 'Server error' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+      markFormDirty('form-1');
+      markFormDirty('form-2');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.submissionStatus).toBe('error');
+    });
+
+    it('resets all dirty state when all submissions succeed', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit1 = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      const mockSubmit2 = vi.fn().mockResolvedValue({ success: true, formId: 'form-2' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+      markFormDirty('form-1');
+      markFormDirty('form-2');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.dirtyForms.size).toBe(0);
+    });
+
+    it('only removes successful forms from dirty set on partial failure', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit1 = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      const mockSubmit2 = vi
+        .fn()
+        .mockResolvedValue({ success: false, formId: 'form-2', error: 'Server error' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+      markFormDirty('form-1');
+      markFormDirty('form-2');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.dirtyForms.has('form-1')).toBe(false);
+      expect(state.dirtyForms.has('form-2')).toBe(true);
+    });
+
+    it('creates submission summary with successful and failed forms', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit1 = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      const mockSubmit2 = vi
+        .fn()
+        .mockResolvedValue({ success: false, formId: 'form-2', error: 'Server error' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+      markFormDirty('form-1');
+      markFormDirty('form-2');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.submissionSummary).not.toBeNull();
+      expect(state.submissionSummary?.successfulForms).toContain('form-1');
+      expect(state.submissionSummary?.failedForms).toHaveLength(1);
+      expect(state.submissionSummary?.failedForms[0].formId).toBe('form-2');
+    });
+
+    it('runs submissions in parallel', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+
+      const callOrder: string[] = [];
+
+      const mockSubmit1 = vi.fn().mockImplementation(async () => {
+        callOrder.push('start-1');
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        callOrder.push('end-1');
+        return { success: true, formId: 'form-1' };
+      });
+
+      const mockSubmit2 = vi.fn().mockImplementation(async () => {
+        callOrder.push('start-2');
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        callOrder.push('end-2');
+        return { success: true, formId: 'form-2' };
+      });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit1));
+      registerForm(createMockEntry('form-2', 'Form Two', mockValidate, mockSubmit2));
+      markFormDirty('form-1');
+      markFormDirty('form-2');
+
+      await submitAllDirtyForms();
+
+      // Both should start before either ends (parallel execution)
+      expect(callOrder[0]).toBe('start-1');
+      expect(callOrder[1]).toBe('start-2');
+    });
+
+    it('catches and handles exceptions from submit functions', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockRejectedValue(new Error('Network error'));
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      await submitAllDirtyForms();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.submissionStatus).toBe('error');
+      expect(state.submissionSummary?.failedForms[0].error).toBe('Network error');
+    });
+  });
+
+  describe('resetSubmissionState', () => {
+    it('resets submission status to idle', async () => {
+      const { registerForm, markFormDirty, submitAllDirtyForms, resetSubmissionState } =
+        useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+      await submitAllDirtyForms();
+
+      resetSubmissionState();
+
+      const state = useFormCoordinationStore.getState();
+      expect(state.submissionStatus).toBe('idle');
+      expect(state.submissionSummary).toBeNull();
+    });
+  });
+
+  describe('saveAllChanges', () => {
+    it('validates before submitting', async () => {
+      const { registerForm, markFormDirty, saveAllChanges } = useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      await saveAllChanges();
+
+      expect(mockValidate).toHaveBeenCalled();
+      expect(mockSubmit).toHaveBeenCalled();
+    });
+
+    it('does not submit if validation fails', async () => {
+      const { registerForm, markFormDirty, saveAllChanges } = useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({
+        valid: false,
+        errors: [{ field: 'name', message: 'Required' }],
+      });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      const result = await saveAllChanges();
+
+      expect(mockValidate).toHaveBeenCalled();
+      expect(mockSubmit).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+
+    it('returns true when all validations and submissions succeed', async () => {
+      const { registerForm, markFormDirty, saveAllChanges } = useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      const result = await saveAllChanges();
+
+      expect(result).toBe(true);
+    });
+
+    it('returns false when submission fails', async () => {
+      const { registerForm, markFormDirty, saveAllChanges } = useFormCoordinationStore.getState();
+      const mockValidate = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi
+        .fn()
+        .mockResolvedValue({ success: false, formId: 'form-1', error: 'Server error' });
+
+      registerForm(createMockEntry('form-1', 'Form One', mockValidate, mockSubmit));
+      markFormDirty('form-1');
+
+      const result = await saveAllChanges();
+
+      expect(result).toBe(false);
+    });
+
+    it('clears validation errors before validating', async () => {
+      const { registerForm, markFormDirty, saveAllChanges, validateAllDirtyForms } =
+        useFormCoordinationStore.getState();
+
+      // First, create some validation errors
+      const mockValidateInvalid = vi.fn().mockResolvedValue({
+        valid: false,
+        errors: [{ field: 'name', message: 'Required' }],
+      });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidateInvalid));
+      markFormDirty('form-1');
+      await validateAllDirtyForms();
+
+      // Now update to valid
+      const mockValidateValid = vi.fn().mockResolvedValue({ valid: true, errors: [] });
+      const mockSubmit = vi.fn().mockResolvedValue({ success: true, formId: 'form-1' });
+      registerForm(createMockEntry('form-1', 'Form One', mockValidateValid, mockSubmit));
+
+      await saveAllChanges();
 
       const state = useFormCoordinationStore.getState();
       expect(state.validationErrors).toHaveLength(0);
