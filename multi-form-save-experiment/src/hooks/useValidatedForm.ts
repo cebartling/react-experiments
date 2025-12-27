@@ -63,13 +63,20 @@ export function useValidatedForm<T extends FieldValues>({
 
   // Store form reference to access fresh state in validation callback
   const formRef = useRef(form);
-  formRef.current = form;
 
   // Store resolver reference for direct validation
   const resolverRef = useRef<Resolver<T> | undefined>(resolver);
-  resolverRef.current = resolver;
 
   const { isDirty } = form.formState;
+
+  // Update refs in effect to comply with React rules
+  useEffect(() => {
+    formRef.current = form;
+  }, [form]);
+
+  useEffect(() => {
+    resolverRef.current = resolver;
+  }, [resolver]);
 
   // Report dirty state changes
   useEffect(() => {
