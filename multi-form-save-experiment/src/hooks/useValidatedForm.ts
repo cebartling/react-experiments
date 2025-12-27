@@ -9,7 +9,8 @@ import type {
 } from 'react-hook-form';
 import { useDirtyTracking } from './useDirtyTracking';
 import { useFormRegistration } from './useFormRegistration';
-import type { FormId, ValidationResult, ValidationError } from '../types/form-coordination';
+import { submitForm } from '../services/formSubmissionService';
+import type { FormId, ValidationResult, ValidationError, SubmitResult } from '../types/form-coordination';
 
 interface UseValidatedFormOptions<T extends FieldValues> extends UseFormProps<T> {
   formId: FormId;
@@ -59,7 +60,7 @@ export function useValidatedForm<T extends FieldValues>({
 }: UseValidatedFormOptions<T>): UseValidatedFormReturn<T> {
   const form = useForm<T>({ resolver, ...formOptions });
   const { reportDirtyState } = useDirtyTracking({ formId });
-  const { setValidateFunction } = useFormRegistration({ formId, displayName });
+  const { setValidateFunction, setSubmitFunction } = useFormRegistration({ formId, displayName });
 
   // Store form reference to access fresh state in validation callback
   const formRef = useRef(form);
@@ -114,6 +115,24 @@ export function useValidatedForm<T extends FieldValues>({
 
     setValidateFunction(validateForm);
   }, [setValidateFunction]);
+
+  // Register the submit function
+  useEffect(() => {
+    const submitFormData = async (): Promise<SubmitResult> => {
+      const currentForm = formRef.current;
+      const data = currentForm.getValues();
+      const result = await submitForm(formId, data);
+
+      if (result.success) {
+        // Reset form to current values as new defaults
+        currentForm.reset(data, { keepValues: true, keepDirty: false });
+      }
+
+      return result;
+    };
+
+    setSubmitFunction(submitFormData);
+  }, [formId, setSubmitFunction]);
 
   return {
     ...form,

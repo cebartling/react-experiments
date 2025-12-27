@@ -60,10 +60,43 @@ export interface ValidatableForm {
 }
 
 /**
- * Registry entry for a validatable form
+ * Result of submitting a single form
+ */
+export interface SubmitResult {
+  success: boolean;
+  formId: FormId;
+  error?: string;
+  data?: unknown;
+}
+
+/**
+ * Interface that child forms must implement for submission coordination
+ */
+export interface SubmittableForm {
+  submit: () => Promise<SubmitResult>;
+  getFormData: () => unknown;
+}
+
+/**
+ * Registry entry for a validatable and submittable form
  */
 export interface FormRegistryEntry {
   formId: FormId;
   displayName: string;
   validate: () => Promise<ValidationResult>;
+  submit: () => Promise<SubmitResult>;
+}
+
+/**
+ * Overall submission status
+ */
+export type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
+
+/**
+ * Summary of submission results
+ */
+export interface SubmissionSummary {
+  status: SubmissionStatus;
+  successfulForms: FormId[];
+  failedForms: SubmitResult[];
 }
