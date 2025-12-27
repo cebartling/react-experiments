@@ -348,24 +348,17 @@ import { z } from 'zod';
  * Common validation patterns for reuse across forms
  */
 export const commonValidations = {
-  requiredString: (fieldName: string) =>
-    z.string().min(1, `${fieldName} is required`),
+  requiredString: (fieldName: string) => z.string().min(1, `${fieldName} is required`),
 
   email: z.string().email('Please enter a valid email address'),
 
-  phone: z.string().regex(
-    /^\+?[1-9]\d{1,14}$/,
-    'Please enter a valid phone number'
-  ),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
 
   url: z.string().url('Please enter a valid URL'),
 
   positiveNumber: z.number().positive('Must be a positive number'),
 
-  dateInFuture: z.date().refine(
-    (date) => date > new Date(),
-    'Date must be in the future'
-  ),
+  dateInFuture: z.date().refine((date) => date > new Date(), 'Date must be in the future'),
 };
 
 /**
@@ -478,17 +471,13 @@ export function UserInfoForm() {
       <div className="form-field">
         <label htmlFor="name">Name</label>
         <input id="name" {...register('name')} />
-        {errors.name && (
-          <span className="error">{errors.name.message}</span>
-        )}
+        {errors.name && <span className="error">{errors.name.message}</span>}
       </div>
 
       <div className="form-field">
         <label htmlFor="email">Email</label>
         <input id="email" type="email" {...register('email')} />
-        {errors.email && (
-          <span className="error">{errors.email.message}</span>
-        )}
+        {errors.email && <span className="error">{errors.email.message}</span>}
       </div>
     </div>
   );
@@ -504,9 +493,7 @@ export function ParentContainer() {
   const isDirty = useFormCoordinationStore((state) => state.dirtyForms.size > 0);
   const isValidating = useFormCoordinationStore((state) => state.isValidating);
   const validationErrors = useFormCoordinationStore((state) => state.validationErrors);
-  const validateAllDirtyForms = useFormCoordinationStore(
-    (state) => state.validateAllDirtyForms
-  );
+  const validateAllDirtyForms = useFormCoordinationStore((state) => state.validateAllDirtyForms);
 
   const handleSave = async () => {
     const allValid = await validateAllDirtyForms();
@@ -520,16 +507,11 @@ export function ParentContainer() {
 
   return (
     <div className="parent-container">
-      <button
-        onClick={handleSave}
-        disabled={!isDirty || isValidating}
-      >
+      <button onClick={handleSave} disabled={!isDirty || isValidating}>
         {isValidating ? 'Validating...' : 'Save All Changes'}
       </button>
 
-      {validationErrors.length > 0 && (
-        <ErrorSummary errors={validationErrors} />
-      )}
+      {validationErrors.length > 0 && <ErrorSummary errors={validationErrors} />}
 
       {/* Child forms */}
     </div>

@@ -36,11 +36,7 @@ interface ContainerProps {
 }
 
 export function Container({ children, className = '' }: ContainerProps) {
-  return (
-    <div className={`mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>;
 }
 ```
 
@@ -57,9 +53,7 @@ interface CardProps {
 
 export function Card({ children, className = '', as: Component = 'div' }: CardProps) {
   return (
-    <Component
-      className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}
-    >
+    <Component className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
       {children}
     </Component>
   );
@@ -76,9 +70,7 @@ export function CardHeader({ title, description, actions }: CardHeaderProps) {
     <div className="mb-6 flex items-start justify-between">
       <div>
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {description && (
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
-        )}
+        {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
       </div>
       {actions && <div className="ml-4">{actions}</div>}
     </div>
@@ -105,20 +97,10 @@ interface FormFieldProps {
   children: ReactNode;
 }
 
-export function FormField({
-  label,
-  htmlFor,
-  error,
-  required,
-  hint,
-  children,
-}: FormFieldProps) {
+export function FormField({ label, htmlFor, error, required, hint, children }: FormFieldProps) {
   return (
     <div className="mb-4">
-      <label
-        htmlFor={htmlFor}
-        className="mb-1 block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-gray-700">
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </label>
@@ -129,11 +111,7 @@ export function FormField({
       )}
       {children}
       {error && (
-        <p
-          className="mt-1 text-sm text-red-600"
-          id={`${htmlFor}-error`}
-          role="alert"
-        >
+        <p className="mt-1 text-sm text-red-600" id={`${htmlFor}-error`} role="alert">
           {error.message}
         </p>
       )}
@@ -145,74 +123,77 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hasError?: boolean;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  function Input({ hasError, className = '', ...props }, ref) {
-    const baseClasses =
-      'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
-    const stateClasses = hasError
-      ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { hasError, className = '', ...props },
+  ref
+) {
+  const baseClasses =
+    'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
+  const stateClasses = hasError
+    ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
 
-    return (
-      <input
-        ref={ref}
-        className={`${baseClasses} ${stateClasses} ${className}`}
-        aria-invalid={hasError}
-        {...props}
-      />
-    );
-  }
-);
+  return (
+    <input
+      ref={ref}
+      className={`${baseClasses} ${stateClasses} ${className}`}
+      aria-invalid={hasError}
+      {...props}
+    />
+  );
+});
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   hasError?: boolean;
   options: Array<{ value: string; label: string }>;
 }
 
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  function Select({ hasError, options, className = '', ...props }, ref) {
-    const baseClasses =
-      'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
-    const stateClasses = hasError
-      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
+  { hasError, options, className = '', ...props },
+  ref
+) {
+  const baseClasses =
+    'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
+  const stateClasses = hasError
+    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
 
-    return (
-      <select
-        ref={ref}
-        className={`${baseClasses} ${stateClasses} ${className}`}
-        aria-invalid={hasError}
-        {...props}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    );
-  }
-);
+  return (
+    <select
+      ref={ref}
+      className={`${baseClasses} ${stateClasses} ${className}`}
+      aria-invalid={hasError}
+      {...props}
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  );
+});
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  function Checkbox({ label, className = '', ...props }, ref) {
-    return (
-      <label className={`inline-flex items-center ${className}`}>
-        <input
-          ref={ref}
-          type="checkbox"
-          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          {...props}
-        />
-        <span className="ml-2 text-sm text-gray-700">{label}</span>
-      </label>
-    );
-  }
-);
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
+  { label, className = '', ...props },
+  ref
+) {
+  return (
+    <label className={`inline-flex items-center ${className}`}>
+      <input
+        ref={ref}
+        type="checkbox"
+        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        {...props}
+      />
+      <span className="ml-2 text-sm text-gray-700">{label}</span>
+    </label>
+  );
+});
 ```
 
 ### Step 3: Create Save Button Component
@@ -231,9 +212,7 @@ interface SaveButtonProps {
 export function SaveButton({ onSave }: SaveButtonProps) {
   const isDirty = useFormCoordinationStore((state) => state.dirtyForms.size > 0);
   const isValidating = useFormCoordinationStore((state) => state.isValidating);
-  const submissionStatus = useFormCoordinationStore(
-    (state) => state.submissionStatus
-  );
+  const submissionStatus = useFormCoordinationStore((state) => state.submissionStatus);
 
   const isProcessing = isValidating || submissionStatus === 'submitting';
   const isDisabled = !isDirty || isProcessing;
@@ -305,11 +284,7 @@ interface ErrorSummaryProps {
   onDismiss?: () => void;
 }
 
-export function ErrorSummary({
-  validationErrors,
-  submissionErrors,
-  onDismiss,
-}: ErrorSummaryProps) {
+export function ErrorSummary({ validationErrors, submissionErrors, onDismiss }: ErrorSummaryProps) {
   const hasValidation = validationErrors.length > 0;
   const hasSubmission = submissionErrors.length > 0;
 
@@ -339,18 +314,13 @@ export function ErrorSummary({
           </svg>
         </div>
         <div className="ml-3 flex-1">
-          <h3
-            id="error-summary-title"
-            className="text-sm font-medium text-red-800"
-          >
+          <h3 id="error-summary-title" className="text-sm font-medium text-red-800">
             Please fix the following errors before saving:
           </h3>
 
           {hasValidation && (
             <div className="mt-3">
-              <h4 className="text-sm font-medium text-red-700">
-                Validation Errors
-              </h4>
+              <h4 className="text-sm font-medium text-red-700">Validation Errors</h4>
               <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
                 {validationErrors.map((error) => (
                   <li key={error.formId}>
@@ -368,14 +338,11 @@ export function ErrorSummary({
 
           {hasSubmission && (
             <div className="mt-3">
-              <h4 className="text-sm font-medium text-red-700">
-                Submission Errors
-              </h4>
+              <h4 className="text-sm font-medium text-red-700">Submission Errors</h4>
               <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
                 {submissionErrors.map((error) => (
                   <li key={error.formId}>
-                    <span className="font-medium">{error.formName}:</span>{' '}
-                    {error.message}
+                    <span className="font-medium">{error.formName}:</span> {error.message}
                   </li>
                 ))}
               </ul>
@@ -391,12 +358,7 @@ export function ErrorSummary({
               className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
               aria-label="Dismiss errors"
             >
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
+              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
               </svg>
             </button>
@@ -422,10 +384,7 @@ interface NotificationListProps {
   onDismiss: (id: string) => void;
 }
 
-export function NotificationList({
-  notifications,
-  onDismiss,
-}: NotificationListProps) {
+export function NotificationList({ notifications, onDismiss }: NotificationListProps) {
   if (notifications.length === 0) {
     return null;
   }
@@ -495,12 +454,7 @@ function Notification({ notification, onDismiss }: NotificationProps) {
           className="flex-shrink-0 rounded p-1 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2"
           aria-label="Dismiss notification"
         >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
           </svg>
         </button>
@@ -536,18 +490,10 @@ export function UserInfoForm() {
 
   return (
     <Card as="section" aria-labelledby="user-info-title">
-      <CardHeader
-        title="User Information"
-        description="Enter your personal details"
-      />
+      <CardHeader title="User Information" description="Enter your personal details" />
 
       <fieldset disabled={isSubmitting}>
-        <FormField
-          label="Name"
-          htmlFor="user-name"
-          error={errors.name}
-          required
-        >
+        <FormField label="Name" htmlFor="user-name" error={errors.name} required>
           <Input
             id="user-name"
             {...register('name')}
@@ -557,12 +503,7 @@ export function UserInfoForm() {
           />
         </FormField>
 
-        <FormField
-          label="Email"
-          htmlFor="user-email"
-          error={errors.email}
-          required
-        >
+        <FormField label="Email" htmlFor="user-email" error={errors.email} required>
           <Input
             id="user-email"
             type="email"
@@ -600,18 +541,10 @@ export function AddressForm() {
 
   return (
     <Card as="section" aria-labelledby="address-title">
-      <CardHeader
-        title="Address"
-        description="Enter your mailing address"
-      />
+      <CardHeader title="Address" description="Enter your mailing address" />
 
       <fieldset disabled={isSubmitting}>
-        <FormField
-          label="Street Address"
-          htmlFor="address-street"
-          error={errors.street}
-          required
-        >
+        <FormField label="Street Address" htmlFor="address-street" error={errors.street} required>
           <Input
             id="address-street"
             {...register('street')}
@@ -621,12 +554,7 @@ export function AddressForm() {
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            label="City"
-            htmlFor="address-city"
-            error={errors.city}
-            required
-          >
+          <FormField label="City" htmlFor="address-city" error={errors.city} required>
             <Input
               id="address-city"
               {...register('city')}
@@ -635,12 +563,7 @@ export function AddressForm() {
             />
           </FormField>
 
-          <FormField
-            label="State"
-            htmlFor="address-state"
-            error={errors.state}
-            required
-          >
+          <FormField label="State" htmlFor="address-state" error={errors.state} required>
             <Input
               id="address-state"
               {...register('state')}
@@ -650,12 +573,7 @@ export function AddressForm() {
           </FormField>
         </div>
 
-        <FormField
-          label="ZIP Code"
-          htmlFor="address-zip"
-          error={errors.zipCode}
-          required
-        >
+        <FormField label="ZIP Code" htmlFor="address-zip" error={errors.zipCode} required>
           <Input
             id="address-zip"
             {...register('zipCode')}
@@ -707,10 +625,7 @@ export function PreferencesForm() {
 
   return (
     <Card as="section" aria-labelledby="preferences-title">
-      <CardHeader
-        title="Preferences"
-        description="Customize your experience"
-      />
+      <CardHeader title="Preferences" description="Customize your experience" />
 
       <fieldset disabled={isSubmitting}>
         <FormField
@@ -726,11 +641,7 @@ export function PreferencesForm() {
           />
         </FormField>
 
-        <FormField
-          label="Theme"
-          htmlFor="pref-theme"
-          error={errors.theme}
-        >
+        <FormField label="Theme" htmlFor="pref-theme" error={errors.theme}>
           <Select
             id="pref-theme"
             {...register('theme')}
@@ -740,10 +651,7 @@ export function PreferencesForm() {
         </FormField>
 
         <div className="mt-4">
-          <Checkbox
-            {...register('newsletter')}
-            label="Subscribe to newsletter"
-          />
+          <Checkbox {...register('newsletter')} label="Subscribe to newsletter" />
         </div>
       </fieldset>
     </Card>
@@ -771,20 +679,11 @@ import { PreferencesForm } from './forms/PreferencesForm';
 import { FormErrorBoundary } from './FormErrorBoundary';
 
 export function ParentContainer() {
-  const saveAllChanges = useFormCoordinationStore(
-    (state) => state.saveAllChanges
-  );
-  const dirtyFormIds = useFormCoordinationStore((state) =>
-    Array.from(state.dirtyForms)
-  );
+  const saveAllChanges = useFormCoordinationStore((state) => state.saveAllChanges);
+  const dirtyFormIds = useFormCoordinationStore((state) => Array.from(state.dirtyForms));
 
-  const {
-    validationErrors,
-    submissionErrors,
-    notifications,
-    dismissNotification,
-    clearAllErrors,
-  } = useErrorHandling();
+  const { validationErrors, submissionErrors, notifications, dismissNotification, clearAllErrors } =
+    useErrorHandling();
 
   const handleSave = useCallback(async () => {
     await saveAllChanges();
@@ -792,16 +691,11 @@ export function ParentContainer() {
 
   return (
     <Container className="py-8">
-      <NotificationList
-        notifications={notifications}
-        onDismiss={dismissNotification}
-      />
+      <NotificationList notifications={notifications} onDismiss={dismissNotification} />
 
       <header className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Multi-Form Editor
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Multi-Form Editor</h1>
           {dirtyFormIds.length > 0 && (
             <p className="mt-1 text-sm text-gray-500">
               Unsaved changes in {dirtyFormIds.length} form(s)

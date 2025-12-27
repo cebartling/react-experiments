@@ -227,7 +227,8 @@ export const useErrorStore = create<ErrorStoreState>((set, get) => ({
   setNetworkError: (error) => {
     set({
       networkError: error,
-      hasErrors: error !== null || get().validationErrors.length > 0 || get().submissionErrors.length > 0,
+      hasErrors:
+        error !== null || get().validationErrors.length > 0 || get().submissionErrors.length > 0,
       lastErrorTimestamp: error ? new Date() : get().lastErrorTimestamp,
     });
   },
@@ -316,10 +317,7 @@ export function toValidationError(summary: FormValidationSummary): FormValidatio
 /**
  * Converts failed submit result to FormSubmissionError
  */
-export function toSubmissionError(
-  result: SubmitResult,
-  formName: string
-): FormSubmissionError {
+export function toSubmissionError(result: SubmitResult, formName: string): FormSubmissionError {
   return {
     type: 'submission',
     formId: result.formId,
@@ -359,7 +357,10 @@ export function groupErrorsByForm(
   validationErrors: FormValidationError[],
   submissionErrors: FormSubmissionError[]
 ): Map<FormId, { validation: FieldValidationError[]; submission: string | null }> {
-  const grouped = new Map<FormId, { validation: FieldValidationError[]; submission: string | null }>();
+  const grouped = new Map<
+    FormId,
+    { validation: FieldValidationError[]; submission: string | null }
+  >();
 
   for (const error of validationErrors) {
     const existing = grouped.get(error.formId) ?? { validation: [], submission: null };
@@ -379,9 +380,7 @@ export function groupErrorsByForm(
 /**
  * Determines if an error is retryable
  */
-export function isRetryableError(
-  error: FormSubmissionError | NetworkError
-): boolean {
+export function isRetryableError(error: FormSubmissionError | NetworkError): boolean {
   if (error.type === 'network') {
     return error.retryable;
   }
@@ -398,7 +397,9 @@ export function isRetryableError(
 /**
  * Gets user-friendly error message
  */
-export function getErrorMessage(error: FormValidationError | FormSubmissionError | NetworkError): string {
+export function getErrorMessage(
+  error: FormValidationError | FormSubmissionError | NetworkError
+): string {
   switch (error.type) {
     case 'validation':
       return `Please fix the errors in ${error.formName}`;
@@ -421,11 +422,7 @@ Create a hook for components to interact with error state.
 ```typescript
 import { useCallback } from 'react';
 import { useErrorStore } from '../stores/errorStore';
-import {
-  toValidationError,
-  toSubmissionError,
-  createNetworkError,
-} from '../utils/error-utils';
+import { toValidationError, toSubmissionError, createNetworkError } from '../utils/error-utils';
 import type { FormId, FormValidationSummary, SubmitResult } from '../types/form-coordination';
 
 interface UseErrorHandlingReturn {
@@ -438,10 +435,7 @@ interface UseErrorHandlingReturn {
 
   // Actions
   handleValidationFailures: (summaries: FormValidationSummary[]) => void;
-  handleSubmissionFailures: (
-    results: SubmitResult[],
-    formNames: Map<FormId, string>
-  ) => void;
+  handleSubmissionFailures: (results: SubmitResult[], formNames: Map<FormId, string>) => void;
   handleNetworkError: (error: unknown) => void;
   clearErrorsForForm: (formId: FormId) => void;
   clearAllErrors: () => void;
@@ -463,12 +457,8 @@ export function useErrorHandling(): UseErrorHandlingReturn {
   const setValidationErrors = useErrorStore((state) => state.setValidationErrors);
   const setSubmissionErrors = useErrorStore((state) => state.setSubmissionErrors);
   const setNetworkError = useErrorStore((state) => state.setNetworkError);
-  const clearValidationErrorsForForm = useErrorStore(
-    (state) => state.clearValidationErrorsForForm
-  );
-  const clearSubmissionErrorForForm = useErrorStore(
-    (state) => state.clearSubmissionErrorForForm
-  );
+  const clearValidationErrorsForForm = useErrorStore((state) => state.clearValidationErrorsForForm);
+  const clearSubmissionErrorForForm = useErrorStore((state) => state.clearSubmissionErrorForForm);
   const clearAllErrorsFn = useErrorStore((state) => state.clearAllErrors);
   const addNotification = useErrorStore((state) => state.addNotification);
   const dismissNotificationFn = useErrorStore((state) => state.dismissNotification);
@@ -684,7 +674,7 @@ saveAllChanges: async () => {
     errorStore.setNetworkError(networkError);
     return false;
   }
-}
+};
 ```
 
 ## Error Flow Diagram
@@ -783,17 +773,12 @@ export function ParentContainer() {
 
   return (
     <div className="parent-container">
-      <NotificationList
-        notifications={notifications}
-        onDismiss={dismissNotification}
-      />
+      <NotificationList notifications={notifications} onDismiss={dismissNotification} />
 
       {networkError && (
         <div className="network-error-banner" role="alert">
           <span>{networkError.message}</span>
-          <button onClick={() => window.location.reload()}>
-            Retry
-          </button>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
       )}
 

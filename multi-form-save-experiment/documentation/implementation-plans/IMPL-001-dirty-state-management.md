@@ -38,19 +38,19 @@ export type DirtyChangeCallback = (formId: FormId, isDirty: boolean) => void;
  * Props interface for child forms that participate in dirty tracking
  */
 export interface DirtyTrackingProps {
-    formId: FormId;
-    onDirtyChange: DirtyChangeCallback;
+  formId: FormId;
+  onDirtyChange: DirtyChangeCallback;
 }
 
 /**
  * State shape for the form coordination store
  */
 export interface FormCoordinationState {
-    dirtyForms: Set<FormId>;
-    isDirty: boolean;
-    markFormDirty: (formId: FormId) => void;
-    markFormClean: (formId: FormId) => void;
-    resetAllDirtyState: () => void;
+  dirtyForms: Set<FormId>;
+  isDirty: boolean;
+  markFormDirty: (formId: FormId) => void;
+  markFormClean: (formId: FormId) => void;
+  resetAllDirtyState: () => void;
 }
 ```
 
@@ -61,35 +61,35 @@ Create a centralized store to manage dirty state across all forms.
 **File: `src/stores/formCoordinationStore.ts`**
 
 ```typescript
-import {create} from 'zustand';
-import type {FormId, FormCoordinationState} from '../types/form-coordination';
+import { create } from 'zustand';
+import type { FormId, FormCoordinationState } from '../types/form-coordination';
 
 export const useFormCoordinationStore = create<FormCoordinationState>((set, get) => ({
-    dirtyForms: new Set<FormId>(),
+  dirtyForms: new Set<FormId>(),
 
-    get isDirty() {
-        return get().dirtyForms.size > 0;
-    },
+  get isDirty() {
+    return get().dirtyForms.size > 0;
+  },
 
-    markFormDirty: (formId: FormId) => {
-        set((state) => {
-            const next = new Set(state.dirtyForms);
-            next.add(formId);
-            return {dirtyForms: next};
-        });
-    },
+  markFormDirty: (formId: FormId) => {
+    set((state) => {
+      const next = new Set(state.dirtyForms);
+      next.add(formId);
+      return { dirtyForms: next };
+    });
+  },
 
-    markFormClean: (formId: FormId) => {
-        set((state) => {
-            const next = new Set(state.dirtyForms);
-            next.delete(formId);
-            return {dirtyForms: next};
-        });
-    },
+  markFormClean: (formId: FormId) => {
+    set((state) => {
+      const next = new Set(state.dirtyForms);
+      next.delete(formId);
+      return { dirtyForms: next };
+    });
+  },
 
-    resetAllDirtyState: () => {
-        set({dirtyForms: new Set()});
-    },
+  resetAllDirtyState: () => {
+    set({ dirtyForms: new Set() });
+  },
 }));
 ```
 
@@ -100,45 +100,45 @@ Create a custom hook that child forms use to report their dirty state.
 **File: `src/hooks/useDirtyTracking.ts`**
 
 ```typescript
-import {useEffect, useCallback} from 'react';
-import {useFormCoordinationStore} from '../stores/formCoordinationStore';
-import type {FormId} from '../types/form-coordination';
+import { useEffect, useCallback } from 'react';
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
+import type { FormId } from '../types/form-coordination';
 
 interface UseDirtyTrackingOptions {
-    formId: FormId;
+  formId: FormId;
 }
 
 interface UseDirtyTrackingReturn {
-    reportDirtyState: (isDirty: boolean) => void;
+  reportDirtyState: (isDirty: boolean) => void;
 }
 
 /**
  * Hook for child forms to report their dirty state to the parent container.
  * Automatically cleans up when the component unmounts.
  */
-export function useDirtyTracking({formId}: UseDirtyTrackingOptions): UseDirtyTrackingReturn {
-    const markFormDirty = useFormCoordinationStore((state) => state.markFormDirty);
-    const markFormClean = useFormCoordinationStore((state) => state.markFormClean);
+export function useDirtyTracking({ formId }: UseDirtyTrackingOptions): UseDirtyTrackingReturn {
+  const markFormDirty = useFormCoordinationStore((state) => state.markFormDirty);
+  const markFormClean = useFormCoordinationStore((state) => state.markFormClean);
 
-    // Cleanup on unmount - mark form as clean
-    useEffect(() => {
-        return () => {
-            markFormClean(formId);
-        };
-    }, [formId, markFormClean]);
+  // Cleanup on unmount - mark form as clean
+  useEffect(() => {
+    return () => {
+      markFormClean(formId);
+    };
+  }, [formId, markFormClean]);
 
-    const reportDirtyState = useCallback(
-        (isDirty: boolean) => {
-            if (isDirty) {
-                markFormDirty(formId);
-            } else {
-                markFormClean(formId);
-            }
-        },
-        [formId, markFormDirty, markFormClean]
-    );
+  const reportDirtyState = useCallback(
+    (isDirty: boolean) => {
+      if (isDirty) {
+        markFormDirty(formId);
+      } else {
+        markFormClean(formId);
+      }
+    },
+    [formId, markFormDirty, markFormClean]
+  );
 
-    return {reportDirtyState};
+  return { reportDirtyState };
 }
 ```
 
@@ -149,13 +149,13 @@ Create a wrapper hook that combines React Hook Form's dirty state with our track
 **File: `src/hooks/useTrackedForm.ts`**
 
 ```typescript
-import {useEffect} from 'react';
-import {useForm, UseFormProps, UseFormReturn, FieldValues} from 'react-hook-form';
-import {useDirtyTracking} from './useDirtyTracking';
-import type {FormId} from '../types/form-coordination';
+import { useEffect } from 'react';
+import { useForm, UseFormProps, UseFormReturn, FieldValues } from 'react-hook-form';
+import { useDirtyTracking } from './useDirtyTracking';
+import type { FormId } from '../types/form-coordination';
 
 interface UseTrackedFormOptions<T extends FieldValues> extends UseFormProps<T> {
-    formId: FormId;
+  formId: FormId;
 }
 
 /**
@@ -163,19 +163,19 @@ interface UseTrackedFormOptions<T extends FieldValues> extends UseFormProps<T> {
  * tracks and reports dirty state to the coordination store.
  */
 export function useTrackedForm<T extends FieldValues>({
-                                                          formId,
-                                                          ...formOptions
-                                                      }: UseTrackedFormOptions<T>): UseFormReturn<T> {
-    const form = useForm<T>(formOptions);
-    const {reportDirtyState} = useDirtyTracking({formId});
+  formId,
+  ...formOptions
+}: UseTrackedFormOptions<T>): UseFormReturn<T> {
+  const form = useForm<T>(formOptions);
+  const { reportDirtyState } = useDirtyTracking({ formId });
 
-    const {isDirty} = form.formState;
+  const { isDirty } = form.formState;
 
-    useEffect(() => {
-        reportDirtyState(isDirty);
-    }, [isDirty, reportDirtyState]);
+  useEffect(() => {
+    reportDirtyState(isDirty);
+  }, [isDirty, reportDirtyState]);
 
-    return form;
+  return form;
 }
 ```
 
@@ -186,26 +186,26 @@ Create a hook for the parent container to access the aggregated dirty state.
 **File: `src/hooks/useGlobalDirtyState.ts`**
 
 ```typescript
-import {useFormCoordinationStore} from '../stores/formCoordinationStore';
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
 
 interface UseGlobalDirtyStateReturn {
-    isDirty: boolean;
-    dirtyFormIds: string[];
-    resetAllDirtyState: () => void;
+  isDirty: boolean;
+  dirtyFormIds: string[];
+  resetAllDirtyState: () => void;
 }
 
 /**
  * Hook for the parent container to access the global dirty state.
  */
 export function useGlobalDirtyState(): UseGlobalDirtyStateReturn {
-    const dirtyForms = useFormCoordinationStore((state) => state.dirtyForms);
-    const resetAllDirtyState = useFormCoordinationStore((state) => state.resetAllDirtyState);
+  const dirtyForms = useFormCoordinationStore((state) => state.dirtyForms);
+  const resetAllDirtyState = useFormCoordinationStore((state) => state.resetAllDirtyState);
 
-    return {
-        isDirty: dirtyForms.size > 0,
-        dirtyFormIds: Array.from(dirtyForms),
-        resetAllDirtyState,
-    };
+  return {
+    isDirty: dirtyForms.size > 0,
+    dirtyFormIds: Array.from(dirtyForms),
+    resetAllDirtyState,
+  };
 }
 ```
 
@@ -261,53 +261,52 @@ src/
 ### Child Form Usage
 
 ```tsx
-import {useTrackedForm} from '../hooks/useTrackedForm';
-import {z} from 'zod';
-import {zodResolver} from '@hookform/resolvers/zod';
+import { useTrackedForm } from '../hooks/useTrackedForm';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Valid email required'),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Valid email required'),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export function UserInfoForm() {
-    const {register, formState: {errors}} = useTrackedForm<FormData>({
-        formId: 'userInfo',
-        resolver: zodResolver(schema),
-        defaultValues: {name: '', email: ''},
-    });
+  const {
+    register,
+    formState: { errors },
+  } = useTrackedForm<FormData>({
+    formId: 'userInfo',
+    resolver: zodResolver(schema),
+    defaultValues: { name: '', email: '' },
+  });
 
-    return (
-        <form>
-            <input {...register('name')} />
-            {errors.name && <span>{errors.name.message}</span>}
-            <input {...register('email')} />
-            {errors.email && <span>{errors.email.message}</span>}
-        </form>
-    );
+  return (
+    <form>
+      <input {...register('name')} />
+      {errors.name && <span>{errors.name.message}</span>}
+      <input {...register('email')} />
+      {errors.email && <span>{errors.email.message}</span>}
+    </form>
+  );
 }
 ```
 
 ### Parent Container Usage
 
 ```tsx
-import {useGlobalDirtyState} from '../hooks/useGlobalDirtyState';
+import { useGlobalDirtyState } from '../hooks/useGlobalDirtyState';
 
 export function ParentContainer() {
-    const {isDirty, dirtyFormIds} = useGlobalDirtyState();
+  const { isDirty, dirtyFormIds } = useGlobalDirtyState();
 
-    return (
-        <div>
-            <button disabled={!isDirty}>
-                Save All Changes
-            </button>
-            {isDirty && (
-                <p>Unsaved changes in: {dirtyFormIds.join(', ')}</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <button disabled={!isDirty}>Save All Changes</button>
+      {isDirty && <p>Unsaved changes in: {dirtyFormIds.join(', ')}</p>}
+    </div>
+  );
 }
 ```
 
@@ -316,20 +315,20 @@ export function ParentContainer() {
 ### Unit Tests
 
 1. **formCoordinationStore.test.ts**
-    - Test `markFormDirty` adds form ID to set
-    - Test `markFormClean` removes form ID from set
-    - Test `isDirty` returns true when set is non-empty
-    - Test `isDirty` returns false when set is empty
-    - Test `resetAllDirtyState` clears all form IDs
+   - Test `markFormDirty` adds form ID to set
+   - Test `markFormClean` removes form ID from set
+   - Test `isDirty` returns true when set is non-empty
+   - Test `isDirty` returns false when set is empty
+   - Test `resetAllDirtyState` clears all form IDs
 
 2. **useDirtyTracking.test.ts**
-    - Test `reportDirtyState(true)` calls `markFormDirty`
-    - Test `reportDirtyState(false)` calls `markFormClean`
-    - Test cleanup on unmount calls `markFormClean`
+   - Test `reportDirtyState(true)` calls `markFormDirty`
+   - Test `reportDirtyState(false)` calls `markFormClean`
+   - Test cleanup on unmount calls `markFormClean`
 
 3. **useTrackedForm.test.ts**
-    - Test dirty state is reported when form values change
-    - Test clean state is reported when form is reset
+   - Test dirty state is reported when form values change
+   - Test clean state is reported when form is reset
 
 ### Integration Tests
 
@@ -340,7 +339,7 @@ export function ParentContainer() {
 ## Acceptance Criteria
 
 - [ ] **AC1.1**: When a child form input is modified from its initial value, the form is marked as dirty in the global
-  store
+      store
 - [ ] **AC1.2**: When a child form input is reverted to its initial value, the form is removed from the dirty set
 - [ ] **AC1.3**: The parent container correctly displays which forms are dirty via `dirtyFormIds`
 - [ ] **AC1.4**: The `isDirty` flag is `false` when no forms have unsaved changes

@@ -142,9 +142,7 @@ export const useFormCoordinationStore = create<FormCoordinationState>((set, get)
 
     const results = await Promise.all(submissionPromises);
 
-    const successfulForms = results
-      .filter((r) => r.success)
-      .map((r) => r.formId);
+    const successfulForms = results.filter((r) => r.success).map((r) => r.formId);
 
     const failedForms = results.filter((r) => !r.success);
 
@@ -274,10 +272,7 @@ export const handlers = [
   http.post('/api/forms/failing', async () => {
     await delay(300);
 
-    return HttpResponse.json(
-      { success: false, error: 'Simulated server error' },
-      { status: 500 }
-    );
+    return HttpResponse.json({ success: false, error: 'Simulated server error' }, { status: 500 });
   }),
 ];
 ```
@@ -355,10 +350,7 @@ const FORM_ENDPOINTS: Record<FormId, string> = {
 /**
  * Submits form data to the appropriate API endpoint
  */
-export async function submitForm<T>(
-  formId: FormId,
-  data: T
-): Promise<SubmitResult> {
+export async function submitForm<T>(formId: FormId, data: T): Promise<SubmitResult> {
   const endpoint = FORM_ENDPOINTS[formId];
 
   if (!endpoint) {
@@ -415,7 +407,12 @@ import { useForm, UseFormProps, UseFormReturn, FieldValues } from 'react-hook-fo
 import { useDirtyTracking } from './useDirtyTracking';
 import { useFormCoordinationStore } from '../stores/formCoordinationStore';
 import { submitForm } from '../services/formSubmissionService';
-import type { FormId, ValidationResult, SubmitResult, ValidationError } from '../types/form-coordination';
+import type {
+  FormId,
+  ValidationResult,
+  SubmitResult,
+  ValidationError,
+} from '../types/form-coordination';
 
 interface UseSubmittableFormOptions<T extends FieldValues> extends UseFormProps<T> {
   formId: FormId;
@@ -426,9 +423,7 @@ interface UseSubmittableFormReturn<T extends FieldValues> extends UseFormReturn<
   formId: FormId;
 }
 
-function convertErrors<T extends FieldValues>(
-  errors: Record<string, unknown>
-): ValidationError[] {
+function convertErrors<T extends FieldValues>(errors: Record<string, unknown>): ValidationError[] {
   const result: ValidationError[] = [];
 
   function processErrors(obj: Record<string, unknown>, prefix = '') {
