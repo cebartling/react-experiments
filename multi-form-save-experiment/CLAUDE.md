@@ -23,10 +23,12 @@ This is a React 19 + TypeScript experiment using Vite (specifically rolldown-vit
 - **React Router** v7 for client-side routing
 - **Zustand** for state management
 - **Zod** for schema validation
+- **React Hook Form** for form state management and validation
 - **Tailwind CSS** v4 for styling
 - **ESLint 9** with flat config (`eslint.config.js`)
 - **Prettier** for code formatting
 - **Vitest** with Testing Library for unit testing
+- **Mock Service Worker (msw)** for API mocking in tests
 - **Cucumber.js** with Playwright for acceptance testing
 - **Node.js**: LTS/Krypton (v24.x) specified in `.nvmrc`
 
