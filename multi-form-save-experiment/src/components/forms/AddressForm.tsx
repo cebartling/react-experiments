@@ -31,7 +31,7 @@ export function AddressForm() {
           />
         </FormField>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="City" htmlFor="address-city" error={errors.city} required>
             <Input
               id="address-city"

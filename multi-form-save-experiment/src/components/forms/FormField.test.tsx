@@ -89,7 +89,7 @@ describe('Input', () => {
     render(<Input data-testid="input" />);
 
     const input = screen.getByTestId('input');
-    expect(input).toHaveClass('border-gray-300');
+    expect(input).toHaveClass('border-surface-300');
   });
 
   it('passes through additional props', () => {
@@ -135,7 +135,7 @@ describe('Select', () => {
     render(<Select options={options} data-testid="select" />);
 
     const select = screen.getByTestId('select');
-    expect(select).toHaveClass('border-gray-300');
+    expect(select).toHaveClass('border-surface-300');
   });
 
   it('passes through additional props', () => {
