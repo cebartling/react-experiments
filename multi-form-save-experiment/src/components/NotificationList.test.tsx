@@ -111,9 +111,9 @@ describe('NotificationList', () => {
     render(<NotificationList notifications={notifications} onDismiss={() => {}} />);
 
     const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('bg-yellow-50');
-    expect(alert).toHaveClass('border-yellow-200');
-    expect(alert).toHaveClass('text-yellow-800');
+    expect(alert).toHaveClass('bg-amber-50');
+    expect(alert).toHaveClass('border-amber-200');
+    expect(alert).toHaveClass('text-amber-800');
   });
 
   it('applies correct styling for info severity', () => {
@@ -130,9 +130,9 @@ describe('NotificationList', () => {
     render(<NotificationList notifications={notifications} onDismiss={() => {}} />);
 
     const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('bg-green-50');
-    expect(alert).toHaveClass('border-green-200');
-    expect(alert).toHaveClass('text-green-800');
+    expect(alert).toHaveClass('bg-emerald-50');
+    expect(alert).toHaveClass('border-emerald-200');
+    expect(alert).toHaveClass('text-emerald-800');
   });
 
   it('renders multiple notifications stacked', () => {
