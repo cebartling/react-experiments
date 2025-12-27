@@ -83,3 +83,10 @@ Create a feature branch for this work off of the main branch.
 Commit the changes with a descriptive message.
 Create a PR from the feature branch that will be merged into the main branch after review.
 
+## React Router
+
+Install React Router for routing.
+Create a feature branch for this work off of the main branch.
+Commit the changes with a descriptive message.
+Create a PR from the feature branch that will be merged into the main branch after review.
+
