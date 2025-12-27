@@ -10,7 +10,12 @@ import type {
 import { useDirtyTracking } from './useDirtyTracking';
 import { useFormRegistration } from './useFormRegistration';
 import { submitForm } from '../services/formSubmissionService';
-import type { FormId, ValidationResult, ValidationError, SubmitResult } from '../types/form-coordination';
+import type {
+  FormId,
+  ValidationResult,
+  ValidationError,
+  SubmitResult,
+} from '../types/form-coordination';
 
 interface UseValidatedFormOptions<T extends FieldValues> extends UseFormProps<T> {
   formId: FormId;
