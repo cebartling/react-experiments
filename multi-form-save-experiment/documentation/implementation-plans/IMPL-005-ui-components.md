@@ -2,926 +2,973 @@
 
 ## Overview
 
-This implementation plan covers the main UI components including the parent container layout, save button with loading states, child form components, and the overall page structure. It brings together all previous implementations into a cohesive user interface.
-
-## Related Feature
-
-- **Feature**: [FEATURE-001: Multi-Form Save with Coordinated Validation](../features/FEATURE-001.md)
-- **Acceptance Criteria**: AC5.1 - AC5.2
+This implementation plan covers the user interface components for the multi-form save feature. It includes the parent container layout, child form components, save button, error summary, notifications, and loading states.
 
 ## Prerequisites
 
-- [IMPL-001: Dirty State Management](./IMPL-001-dirty-state-management.md) completed
-- [IMPL-002: Validation Flow](./IMPL-002-validation-flow.md) completed
-- [IMPL-003: Submission Flow](./IMPL-003-submission-flow.md) completed
-- [IMPL-004: Error Handling and Display](./IMPL-004-error-handling.md) completed
-- Tailwind CSS configured
-- React Router configured
+- IMPL-001 (Dirty State Management) completed
+- IMPL-002 (Validation Flow) completed
+- IMPL-003 (Submission Flow) completed
+- IMPL-004 (Error Handling) completed
+- Tailwind CSS v4 configured
 
----
+## Dependencies
+
+- IMPL-001: Dirty State Management
+- IMPL-002: Validation Flow
+- IMPL-003: Submission Flow
+- IMPL-004: Error Handling
 
 ## Implementation Steps
 
-### Step 1: Create Save Button Component
+### Step 1: Create Base Layout Components
 
-Create a reusable save button with loading and disabled states.
+Create the foundational layout components.
 
-**File**: `src/components/SaveButton.tsx`
+**File: `src/components/layout/Container.tsx`**
 
-```typescript
-import { useFormDirtyStore } from '../stores/formDirtyStore';
-import { useSubmissionStore } from '../stores/submissionStore';
+```tsx
+import { ReactNode } from 'react';
 
-interface SaveButtonProps {
-  onClick: () => void;
+interface ContainerProps {
+  children: ReactNode;
+  className?: string;
 }
 
-export function SaveButton({ onClick }: SaveButtonProps) {
-  const isDirty = useFormDirtyStore((state) => state.dirtyForms.size > 0);
-  const isSubmitting = useSubmissionStore((state) => state.isSubmitting);
+export function Container({ children, className = '' }: ContainerProps) {
+  return (
+    <div className={`mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 ${className}`}>
+      {children}
+    </div>
+  );
+}
+```
 
-  const isDisabled = !isDirty || isSubmitting;
+**File: `src/components/layout/Card.tsx`**
+
+```tsx
+import { ReactNode } from 'react';
+
+interface CardProps {
+  children: ReactNode;
+  className?: string;
+  as?: 'div' | 'section' | 'article';
+}
+
+export function Card({ children, className = '', as: Component = 'div' }: CardProps) {
+  return (
+    <Component
+      className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}
+    >
+      {children}
+    </Component>
+  );
+}
+
+interface CardHeaderProps {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+}
+
+export function CardHeader({ title, description, actions }: CardHeaderProps) {
+  return (
+    <div className="mb-6 flex items-start justify-between">
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        {description && (
+          <p className="mt-1 text-sm text-gray-500">{description}</p>
+        )}
+      </div>
+      {actions && <div className="ml-4">{actions}</div>}
+    </div>
+  );
+}
+```
+
+### Step 2: Create Form Field Components
+
+Create reusable form field components.
+
+**File: `src/components/forms/FormField.tsx`**
+
+```tsx
+import { ReactNode, forwardRef, InputHTMLAttributes } from 'react';
+import { FieldError } from 'react-hook-form';
+
+interface FormFieldProps {
+  label: string;
+  htmlFor: string;
+  error?: FieldError;
+  required?: boolean;
+  hint?: string;
+  children: ReactNode;
+}
+
+export function FormField({
+  label,
+  htmlFor,
+  error,
+  required,
+  hint,
+  children,
+}: FormFieldProps) {
+  return (
+    <div className="mb-4">
+      <label
+        htmlFor={htmlFor}
+        className="mb-1 block text-sm font-medium text-gray-700"
+      >
+        {label}
+        {required && <span className="ml-1 text-red-500">*</span>}
+      </label>
+      {hint && (
+        <p className="mb-1 text-sm text-gray-500" id={`${htmlFor}-hint`}>
+          {hint}
+        </p>
+      )}
+      {children}
+      {error && (
+        <p
+          className="mt-1 text-sm text-red-600"
+          id={`${htmlFor}-error`}
+          role="alert"
+        >
+          {error.message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  hasError?: boolean;
+}
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  function Input({ hasError, className = '', ...props }, ref) {
+    const baseClasses =
+      'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
+    const stateClasses = hasError
+      ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+
+    return (
+      <input
+        ref={ref}
+        className={`${baseClasses} ${stateClasses} ${className}`}
+        aria-invalid={hasError}
+        {...props}
+      />
+    );
+  }
+);
+
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  hasError?: boolean;
+  options: Array<{ value: string; label: string }>;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  function Select({ hasError, options, className = '', ...props }, ref) {
+    const baseClasses =
+      'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
+    const stateClasses = hasError
+      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+
+    return (
+      <select
+        ref={ref}
+        className={`${baseClasses} ${stateClasses} ${className}`}
+        aria-invalid={hasError}
+        {...props}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+);
+
+interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+}
+
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+  function Checkbox({ label, className = '', ...props }, ref) {
+    return (
+      <label className={`inline-flex items-center ${className}`}>
+        <input
+          ref={ref}
+          type="checkbox"
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          {...props}
+        />
+        <span className="ml-2 text-sm text-gray-700">{label}</span>
+      </label>
+    );
+  }
+);
+```
+
+### Step 3: Create Save Button Component
+
+Create the global save button with loading states.
+
+**File: `src/components/SaveButton.tsx`**
+
+```tsx
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
+
+interface SaveButtonProps {
+  onSave: () => Promise<void>;
+}
+
+export function SaveButton({ onSave }: SaveButtonProps) {
+  const isDirty = useFormCoordinationStore((state) => state.dirtyForms.size > 0);
+  const isValidating = useFormCoordinationStore((state) => state.isValidating);
+  const submissionStatus = useFormCoordinationStore(
+    (state) => state.submissionStatus
+  );
+
+  const isProcessing = isValidating || submissionStatus === 'submitting';
+  const isDisabled = !isDirty || isProcessing;
+
+  const getButtonText = () => {
+    if (isValidating) return 'Validating...';
+    if (submissionStatus === 'submitting') return 'Saving...';
+    return 'Save All Changes';
+  };
 
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={onSave}
       disabled={isDisabled}
       className={`
-        inline-flex items-center px-4 py-2 border border-transparent
-        text-sm font-medium rounded-md shadow-sm text-white
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-        transition-colors duration-200
+        inline-flex items-center rounded-md px-4 py-2 text-sm font-medium
+        shadow-sm transition-all focus:outline-none focus:ring-2
+        focus:ring-blue-500 focus:ring-offset-2
         ${
           isDisabled
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-blue-600 hover:bg-blue-700'
+            ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
         }
       `}
-      aria-busy={isSubmitting}
-      aria-disabled={isDisabled}
+      aria-busy={isProcessing}
     >
-      {isSubmitting ? (
-        <>
-          <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          Saving...
-        </>
-      ) : (
-        <>
-          <svg
-            className="-ml-1 mr-2 h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
+      {isProcessing && (
+        <svg
+          className="-ml-1 mr-2 h-4 w-4 animate-spin text-current"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
             fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" />
-          </svg>
-          Save All Changes
-        </>
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
+        </svg>
       )}
+      {getButtonText()}
     </button>
   );
 }
 ```
 
-### Step 2: Create Dirty Indicator Component
+### Step 4: Create Error Summary Component
 
-Create a visual indicator showing unsaved changes.
+Create the error summary display component.
 
-**File**: `src/components/DirtyIndicator.tsx`
+**File: `src/components/ErrorSummary.tsx`**
 
-```typescript
-import { useFormDirtyStore } from '../stores/formDirtyStore';
+```tsx
+import type { FormValidationError, FormSubmissionError } from '../types/errors';
 
-export function DirtyIndicator() {
-  const dirtyForms = useFormDirtyStore((state) => state.dirtyForms);
-  const isDirty = dirtyForms.size > 0;
+interface ErrorSummaryProps {
+  validationErrors: FormValidationError[];
+  submissionErrors: FormSubmissionError[];
+  onDismiss?: () => void;
+}
 
-  if (!isDirty) {
+export function ErrorSummary({
+  validationErrors,
+  submissionErrors,
+  onDismiss,
+}: ErrorSummaryProps) {
+  const hasValidation = validationErrors.length > 0;
+  const hasSubmission = submissionErrors.length > 0;
+
+  if (!hasValidation && !hasSubmission) {
     return null;
   }
 
   return (
     <div
-      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-      role="status"
-      aria-live="polite"
+      className="mb-6 rounded-md border border-red-200 bg-red-50 p-4"
+      role="alert"
+      aria-labelledby="error-summary-title"
     >
-      <svg
-        className="-ml-0.5 mr-1.5 h-2 w-2 text-yellow-400"
-        fill="currentColor"
-        viewBox="0 0 8 8"
-        aria-hidden="true"
-      >
-        <circle cx="4" cy="4" r="3" />
-      </svg>
-      {dirtyForms.size} unsaved {dirtyForms.size === 1 ? 'change' : 'changes'}
+      <div className="flex items-start">
+        <div className="flex-shrink-0">
+          <svg
+            className="h-5 w-5 text-red-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+        <div className="ml-3 flex-1">
+          <h3
+            id="error-summary-title"
+            className="text-sm font-medium text-red-800"
+          >
+            Please fix the following errors before saving:
+          </h3>
+
+          {hasValidation && (
+            <div className="mt-3">
+              <h4 className="text-sm font-medium text-red-700">
+                Validation Errors
+              </h4>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
+                {validationErrors.map((error) => (
+                  <li key={error.formId}>
+                    <span className="font-medium">{error.formName}:</span>
+                    <ul className="ml-4 mt-1 list-inside list-disc">
+                      {error.fieldErrors.map((fieldError, idx) => (
+                        <li key={idx}>{fieldError.message}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {hasSubmission && (
+            <div className="mt-3">
+              <h4 className="text-sm font-medium text-red-700">
+                Submission Errors
+              </h4>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
+                {submissionErrors.map((error) => (
+                  <li key={error.formId}>
+                    <span className="font-medium">{error.formName}:</span>{' '}
+                    {error.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {onDismiss && (
+          <div className="ml-auto pl-3">
+            <button
+              type="button"
+              onClick={onDismiss}
+              className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+              aria-label="Dismiss errors"
+            >
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+              </svg>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 ```
 
-### Step 3: Create Page Header Component
+### Step 5: Create Notification Components
 
-Create the header with title, dirty indicator, and save button.
+Create toast notification components.
 
-**File**: `src/components/PageHeader.tsx`
+**File: `src/components/NotificationList.tsx`**
 
-```typescript
-import { SaveButton } from './SaveButton';
-import { DirtyIndicator } from './DirtyIndicator';
+```tsx
+import type { ErrorNotification } from '../types/errors';
 
-interface PageHeaderProps {
-  title: string;
-  onSave: () => void;
+interface NotificationListProps {
+  notifications: ErrorNotification[];
+  onDismiss: (id: string) => void;
 }
 
-export function PageHeader({ title, onSave }: PageHeaderProps) {
-  return (
-    <header className="bg-white shadow">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-            <DirtyIndicator />
-          </div>
-          <SaveButton onClick={onSave} />
-        </div>
-      </div>
-    </header>
-  );
-}
-```
-
-### Step 4: Create Form Card Component
-
-Create a card wrapper for child forms with consistent styling.
-
-**File**: `src/components/FormCard.tsx`
-
-```typescript
-import { type ReactNode } from 'react';
-import { useFormDirtyStore } from '../stores/formDirtyStore';
-
-interface FormCardProps {
-  formId: string;
-  title: string;
-  description?: string;
-  children: ReactNode;
-}
-
-export function FormCard({ formId, title, description, children }: FormCardProps) {
-  const isDirty = useFormDirtyStore((state) => state.dirtyForms.has(formId));
+export function NotificationList({
+  notifications,
+  onDismiss,
+}: NotificationListProps) {
+  if (notifications.length === 0) {
+    return null;
+  }
 
   return (
     <div
-      className={`
-        bg-white rounded-lg shadow-md overflow-hidden
-        transition-all duration-200
-        ${isDirty ? 'ring-2 ring-yellow-400' : ''}
-      `}
+      aria-live="polite"
+      aria-label="Notifications"
+      className="fixed right-4 top-4 z-50 flex flex-col gap-2"
     >
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-            {description && (
-              <p className="mt-1 text-sm text-gray-500">{description}</p>
-            )}
-          </div>
-          {isDirty && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-              Modified
-            </span>
-          )}
-        </div>
+      {notifications.map((notification) => (
+        <Notification
+          key={notification.id}
+          notification={notification}
+          onDismiss={() => onDismiss(notification.id)}
+        />
+      ))}
+    </div>
+  );
+}
+
+interface NotificationProps {
+  notification: ErrorNotification;
+  onDismiss: () => void;
+}
+
+function Notification({ notification, onDismiss }: NotificationProps) {
+  const { severity, title, message, dismissible } = notification;
+
+  const severityStyles = {
+    error: 'bg-red-50 border-red-200 text-red-800',
+    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    info: 'bg-green-50 border-green-200 text-green-800',
+  };
+
+  const iconPaths = {
+    error:
+      'M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z',
+    warning:
+      'M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z',
+    info: 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z',
+  };
+
+  return (
+    <div
+      className={`flex w-80 items-start gap-3 rounded-lg border p-4 shadow-lg ${severityStyles[severity]}`}
+      role="alert"
+    >
+      <svg
+        className="h-5 w-5 flex-shrink-0"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path fillRule="evenodd" d={iconPaths[severity]} clipRule="evenodd" />
+      </svg>
+
+      <div className="flex-1">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="mt-1 text-sm opacity-90">{message}</p>
       </div>
-      <div className="px-6 py-4">{children}</div>
+
+      {dismissible && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="flex-shrink-0 rounded p-1 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2"
+          aria-label="Dismiss notification"
+        >
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
 ```
 
-### Step 5: Create Complete Child Form Components
+### Step 6: Create Child Form Components
 
-Create all three child form components with full implementation.
+Create the three child form components.
 
-**File**: `src/components/ChildFormA.tsx`
+**File: `src/components/forms/UserInfoForm.tsx`**
 
-```typescript
-import { forwardRef, useState, useMemo } from 'react';
-import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
-import { useFormRegistration } from '../hooks/useFormRegistration';
-import { useFieldErrors } from '../hooks/useFieldErrors';
-import { formASchema, type FormAData } from '../schemas/formSchemas';
-import { mockApi } from '../services/mockApi';
-import { FormCard } from './FormCard';
-import { FormField } from './FormField';
-import {
-  zodErrorsToValidationErrors,
-  type ChildFormHandle,
-  type ValidationResult,
-} from '../types/validation.types';
-import type { SubmitResult } from '../types/submission.types';
+```tsx
+import { useSubmittableForm } from '../../hooks/useSubmittableForm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { userInfoSchema, UserInfoFormData } from '../../utils/validation-schemas';
+import { Card, CardHeader } from '../layout/Card';
+import { FormField, Input } from './FormField';
 
-const FORM_ID = 'formA';
-const FORM_NAME = 'User Information';
-const INITIAL_DATA: FormAData = { name: '', email: '' };
-
-export const ChildFormA = forwardRef<ChildFormHandle>(function ChildFormA(
-  _props,
-  ref
-) {
-  const [formData, setFormData] = useState<FormAData>(INITIAL_DATA);
-  const { errors, setErrors, getFieldError, clearErrors } = useFieldErrors();
-
-  useFormDirtyTracking({
-    formId: FORM_ID,
-    currentData: formData,
-    initialData: INITIAL_DATA,
+export function UserInfoForm() {
+  const {
+    register,
+    formState: { errors, isSubmitting },
+  } = useSubmittableForm<UserInfoFormData>({
+    formId: 'userInfo',
+    displayName: 'User Information',
+    resolver: zodResolver(userInfoSchema),
+    defaultValues: { name: '', email: '' },
   });
 
-  const handle: ChildFormHandle = useMemo(
-    () => ({
-      getFormId: () => FORM_ID,
-
-      validate: (): ValidationResult => {
-        const result = formASchema.safeParse(formData);
-
-        if (result.success) {
-          clearErrors();
-          return { valid: true, errors: [] };
-        }
-
-        const validationErrors = zodErrorsToValidationErrors(result.error);
-        setErrors(validationErrors);
-        return { valid: false, errors: validationErrors };
-      },
-
-      submit: async (): Promise<SubmitResult> => {
-        try {
-          const response = await mockApi.submitFormA(formData);
-          return {
-            success: response.success,
-            formId: FORM_ID,
-            error: response.error,
-            data: response.data,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            formId: FORM_ID,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          };
-        }
-      },
-
-      reset: () => {
-        setFormData(INITIAL_DATA);
-        clearErrors();
-      },
-    }),
-    [formData, clearErrors, setErrors]
-  );
-
-  useFormRegistration({ formId: FORM_ID, ref, handle });
-
   return (
-    <FormCard
-      formId={FORM_ID}
-      title={FORM_NAME}
-      description="Enter your personal information"
-    >
-      <div className="space-y-4">
+    <Card as="section" aria-labelledby="user-info-title">
+      <CardHeader
+        title="User Information"
+        description="Enter your personal details"
+      />
+
+      <fieldset disabled={isSubmitting}>
         <FormField
-          label="Full Name"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, name: e.target.value }))
-          }
-          error={getFieldError('name')}
-          placeholder="John Doe"
-        />
+          label="Name"
+          htmlFor="user-name"
+          error={errors.name}
+          required
+        >
+          <Input
+            id="user-name"
+            {...register('name')}
+            hasError={!!errors.name}
+            placeholder="John Doe"
+            aria-describedby={errors.name ? 'user-name-error' : undefined}
+          />
+        </FormField>
 
         <FormField
-          label="Email Address"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, email: e.target.value }))
-          }
-          error={getFieldError('email')}
-          placeholder="john@example.com"
-        />
-      </div>
-    </FormCard>
+          label="Email"
+          htmlFor="user-email"
+          error={errors.email}
+          required
+        >
+          <Input
+            id="user-email"
+            type="email"
+            {...register('email')}
+            hasError={!!errors.email}
+            placeholder="john@example.com"
+            aria-describedby={errors.email ? 'user-email-error' : undefined}
+          />
+        </FormField>
+      </fieldset>
+    </Card>
   );
-});
+}
 ```
 
-**File**: `src/components/ChildFormB.tsx`
+**File: `src/components/forms/AddressForm.tsx`**
 
-```typescript
-import { forwardRef, useState, useMemo } from 'react';
-import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
-import { useFormRegistration } from '../hooks/useFormRegistration';
-import { useFieldErrors } from '../hooks/useFieldErrors';
-import { formBSchema, type FormBData } from '../schemas/formSchemas';
-import { mockApi } from '../services/mockApi';
-import { FormCard } from './FormCard';
-import { FormField } from './FormField';
-import {
-  zodErrorsToValidationErrors,
-  type ChildFormHandle,
-  type ValidationResult,
-} from '../types/validation.types';
-import type { SubmitResult } from '../types/submission.types';
+```tsx
+import { useSubmittableForm } from '../../hooks/useSubmittableForm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addressSchema, AddressFormData } from '../../utils/validation-schemas';
+import { Card, CardHeader } from '../layout/Card';
+import { FormField, Input } from './FormField';
 
-const FORM_ID = 'formB';
-const FORM_NAME = 'Address';
-const INITIAL_DATA: FormBData = { address: '', city: '', zipCode: '' };
-
-export const ChildFormB = forwardRef<ChildFormHandle>(function ChildFormB(
-  _props,
-  ref
-) {
-  const [formData, setFormData] = useState<FormBData>(INITIAL_DATA);
-  const { errors, setErrors, getFieldError, clearErrors } = useFieldErrors();
-
-  useFormDirtyTracking({
-    formId: FORM_ID,
-    currentData: formData,
-    initialData: INITIAL_DATA,
+export function AddressForm() {
+  const {
+    register,
+    formState: { errors, isSubmitting },
+  } = useSubmittableForm<AddressFormData>({
+    formId: 'address',
+    displayName: 'Address',
+    resolver: zodResolver(addressSchema),
+    defaultValues: { street: '', city: '', state: '', zipCode: '' },
   });
 
-  const handle: ChildFormHandle = useMemo(
-    () => ({
-      getFormId: () => FORM_ID,
-
-      validate: (): ValidationResult => {
-        const result = formBSchema.safeParse(formData);
-
-        if (result.success) {
-          clearErrors();
-          return { valid: true, errors: [] };
-        }
-
-        const validationErrors = zodErrorsToValidationErrors(result.error);
-        setErrors(validationErrors);
-        return { valid: false, errors: validationErrors };
-      },
-
-      submit: async (): Promise<SubmitResult> => {
-        try {
-          const response = await mockApi.submitFormB(formData);
-          return {
-            success: response.success,
-            formId: FORM_ID,
-            error: response.error,
-            data: response.data,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            formId: FORM_ID,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          };
-        }
-      },
-
-      reset: () => {
-        setFormData(INITIAL_DATA);
-        clearErrors();
-      },
-    }),
-    [formData, clearErrors, setErrors]
-  );
-
-  useFormRegistration({ formId: FORM_ID, ref, handle });
-
   return (
-    <FormCard
-      formId={FORM_ID}
-      title={FORM_NAME}
-      description="Enter your mailing address"
-    >
-      <div className="space-y-4">
+    <Card as="section" aria-labelledby="address-title">
+      <CardHeader
+        title="Address"
+        description="Enter your mailing address"
+      />
+
+      <fieldset disabled={isSubmitting}>
         <FormField
           label="Street Address"
-          name="address"
-          type="text"
-          value={formData.address}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, address: e.target.value }))
-          }
-          error={getFieldError('address')}
-          placeholder="123 Main Street"
-        />
+          htmlFor="address-street"
+          error={errors.street}
+          required
+        >
+          <Input
+            id="address-street"
+            {...register('street')}
+            hasError={!!errors.street}
+            placeholder="123 Main St"
+          />
+        </FormField>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
             label="City"
-            name="city"
-            type="text"
-            value={formData.city}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, city: e.target.value }))
-            }
-            error={getFieldError('city')}
-            placeholder="Springfield"
-          />
+            htmlFor="address-city"
+            error={errors.city}
+            required
+          >
+            <Input
+              id="address-city"
+              {...register('city')}
+              hasError={!!errors.city}
+              placeholder="New York"
+            />
+          </FormField>
 
           <FormField
-            label="ZIP Code"
-            name="zipCode"
-            type="text"
-            value={formData.zipCode}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, zipCode: e.target.value }))
-            }
-            error={getFieldError('zipCode')}
-            placeholder="12345"
-          />
+            label="State"
+            htmlFor="address-state"
+            error={errors.state}
+            required
+          >
+            <Input
+              id="address-state"
+              {...register('state')}
+              hasError={!!errors.state}
+              placeholder="NY"
+            />
+          </FormField>
         </div>
-      </div>
-    </FormCard>
+
+        <FormField
+          label="ZIP Code"
+          htmlFor="address-zip"
+          error={errors.zipCode}
+          required
+        >
+          <Input
+            id="address-zip"
+            {...register('zipCode')}
+            hasError={!!errors.zipCode}
+            placeholder="10001"
+          />
+        </FormField>
+      </fieldset>
+    </Card>
   );
-});
+}
 ```
 
-**File**: `src/components/ChildFormC.tsx`
+**File: `src/components/forms/PreferencesForm.tsx`**
 
-```typescript
-import { forwardRef, useState, useMemo } from 'react';
-import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
-import { useFormRegistration } from '../hooks/useFormRegistration';
-import { useFieldErrors } from '../hooks/useFieldErrors';
-import { formCSchema, type FormCData } from '../schemas/formSchemas';
-import { mockApi } from '../services/mockApi';
-import { FormCard } from './FormCard';
-import { FormField } from './FormField';
-import {
-  zodErrorsToValidationErrors,
-  type ChildFormHandle,
-  type ValidationResult,
-} from '../types/validation.types';
-import type { SubmitResult } from '../types/submission.types';
+```tsx
+import { useSubmittableForm } from '../../hooks/useSubmittableForm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { preferencesSchema, PreferencesFormData } from '../../utils/validation-schemas';
+import { Card, CardHeader } from '../layout/Card';
+import { FormField, Select, Checkbox } from './FormField';
 
-const FORM_ID = 'formC';
-const FORM_NAME = 'Contact Preferences';
-const INITIAL_DATA: FormCData = { phone: '', preferredContact: 'email' };
+const notificationOptions = [
+  { value: 'all', label: 'All notifications' },
+  { value: 'important', label: 'Important only' },
+  { value: 'none', label: 'None' },
+];
 
-export const ChildFormC = forwardRef<ChildFormHandle>(function ChildFormC(
-  _props,
-  ref
-) {
-  const [formData, setFormData] = useState<FormCData>(INITIAL_DATA);
-  const { errors, setErrors, getFieldError, clearErrors } = useFieldErrors();
+const themeOptions = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System default' },
+];
 
-  useFormDirtyTracking({
-    formId: FORM_ID,
-    currentData: formData,
-    initialData: INITIAL_DATA,
+export function PreferencesForm() {
+  const {
+    register,
+    formState: { errors, isSubmitting },
+  } = useSubmittableForm<PreferencesFormData>({
+    formId: 'preferences',
+    displayName: 'Preferences',
+    resolver: zodResolver(preferencesSchema),
+    defaultValues: {
+      newsletter: false,
+      notifications: 'all',
+      theme: 'system',
+    },
   });
 
-  const handle: ChildFormHandle = useMemo(
-    () => ({
-      getFormId: () => FORM_ID,
+  return (
+    <Card as="section" aria-labelledby="preferences-title">
+      <CardHeader
+        title="Preferences"
+        description="Customize your experience"
+      />
 
-      validate: (): ValidationResult => {
-        const result = formCSchema.safeParse(formData);
+      <fieldset disabled={isSubmitting}>
+        <FormField
+          label="Email Notifications"
+          htmlFor="pref-notifications"
+          error={errors.notifications}
+        >
+          <Select
+            id="pref-notifications"
+            {...register('notifications')}
+            options={notificationOptions}
+            hasError={!!errors.notifications}
+          />
+        </FormField>
 
-        if (result.success) {
-          clearErrors();
-          return { valid: true, errors: [] };
-        }
+        <FormField
+          label="Theme"
+          htmlFor="pref-theme"
+          error={errors.theme}
+        >
+          <Select
+            id="pref-theme"
+            {...register('theme')}
+            options={themeOptions}
+            hasError={!!errors.theme}
+          />
+        </FormField>
 
-        const validationErrors = zodErrorsToValidationErrors(result.error);
-        setErrors(validationErrors);
-        return { valid: false, errors: validationErrors };
-      },
+        <div className="mt-4">
+          <Checkbox
+            {...register('newsletter')}
+            label="Subscribe to newsletter"
+          />
+        </div>
+      </fieldset>
+    </Card>
+  );
+}
+```
 
-      submit: async (): Promise<SubmitResult> => {
-        try {
-          const response = await mockApi.submitFormC(formData);
-          return {
-            success: response.success,
-            formId: FORM_ID,
-            error: response.error,
-            data: response.data,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            formId: FORM_ID,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          };
-        }
-      },
+### Step 7: Create Parent Container Component
 
-      reset: () => {
-        setFormData(INITIAL_DATA);
-        clearErrors();
-      },
-    }),
-    [formData, clearErrors, setErrors]
+Create the main parent container that orchestrates everything.
+
+**File: `src/components/ParentContainer.tsx`**
+
+```tsx
+import { useCallback } from 'react';
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
+import { useErrorHandling } from '../hooks/useErrorHandling';
+import { Container } from './layout/Container';
+import { SaveButton } from './SaveButton';
+import { ErrorSummary } from './ErrorSummary';
+import { NotificationList } from './NotificationList';
+import { UserInfoForm } from './forms/UserInfoForm';
+import { AddressForm } from './forms/AddressForm';
+import { PreferencesForm } from './forms/PreferencesForm';
+import { FormErrorBoundary } from './FormErrorBoundary';
+
+export function ParentContainer() {
+  const saveAllChanges = useFormCoordinationStore(
+    (state) => state.saveAllChanges
+  );
+  const dirtyFormIds = useFormCoordinationStore((state) =>
+    Array.from(state.dirtyForms)
   );
 
-  useFormRegistration({ formId: FORM_ID, ref, handle });
+  const {
+    validationErrors,
+    submissionErrors,
+    notifications,
+    dismissNotification,
+    clearAllErrors,
+  } = useErrorHandling();
+
+  const handleSave = useCallback(async () => {
+    await saveAllChanges();
+  }, [saveAllChanges]);
 
   return (
-    <FormCard
-      formId={FORM_ID}
-      title={FORM_NAME}
-      description="How would you like us to contact you?"
-    >
-      <div className="space-y-4">
-        <FormField
-          label="Phone Number"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, phone: e.target.value }))
-          }
-          error={getFieldError('phone')}
-          placeholder="555-123-4567"
-        />
+    <Container className="py-8">
+      <NotificationList
+        notifications={notifications}
+        onDismiss={dismissNotification}
+      />
 
-        <div className="form-field">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Preferred Contact Method
-          </label>
-          <div className="space-y-2">
-            {(['email', 'phone', 'mail'] as const).map((option) => (
-              <label key={option} className="flex items-center">
-                <input
-                  type="radio"
-                  name="preferredContact"
-                  value={option}
-                  checked={formData.preferredContact === option}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      preferredContact: e.target.value as FormCData['preferredContact'],
-                    }))
-                  }
-                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700 capitalize">
-                  {option}
-                </span>
-              </label>
-            ))}
-          </div>
-          {getFieldError('preferredContact') && (
-            <p className="mt-1 text-sm text-red-600">
-              {getFieldError('preferredContact')}
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Multi-Form Editor
+          </h1>
+          {dirtyFormIds.length > 0 && (
+            <p className="mt-1 text-sm text-gray-500">
+              Unsaved changes in {dirtyFormIds.length} form(s)
             </p>
           )}
         </div>
+        <SaveButton onSave={handleSave} />
+      </header>
+
+      <ErrorSummary
+        validationErrors={validationErrors}
+        submissionErrors={submissionErrors}
+        onDismiss={clearAllErrors}
+      />
+
+      <div className="space-y-6">
+        <FormErrorBoundary>
+          <UserInfoForm />
+        </FormErrorBoundary>
+
+        <FormErrorBoundary>
+          <AddressForm />
+        </FormErrorBoundary>
+
+        <FormErrorBoundary>
+          <PreferencesForm />
+        </FormErrorBoundary>
       </div>
-    </FormCard>
-  );
-});
-```
-
-### Step 6: Create Parent Container Component
-
-Create the main container that brings everything together.
-
-**File**: `src/components/ParentContainer.tsx`
-
-```typescript
-import { useSubmissionStore } from '../stores/submissionStore';
-import { useFormSubmission } from '../hooks/useFormSubmission';
-import { PageHeader } from './PageHeader';
-import { ErrorSummary } from './ErrorSummary';
-import { SubmissionError } from './SubmissionError';
-import { SuccessMessage } from './SuccessMessage';
-import { ChildFormA } from './ChildFormA';
-import { ChildFormB } from './ChildFormB';
-import { ChildFormC } from './ChildFormC';
-
-export function ParentContainer() {
-  const isSubmitting = useSubmissionStore((state) => state.isSubmitting);
-  const { submitAllForms } = useFormSubmission();
-
-  const handleSave = async () => {
-    await submitAllForms();
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <PageHeader title="Multi-Form Editor" onSave={handleSave} />
-
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Feedback Messages */}
-        <SuccessMessage />
-        <SubmissionError />
-        <ErrorSummary />
-
-        {/* Forms Grid */}
-        <div
-          className={`
-            grid gap-6 md:grid-cols-2 lg:grid-cols-3
-            ${isSubmitting ? 'opacity-50 pointer-events-none' : ''}
-          `}
-          aria-busy={isSubmitting}
-        >
-          <ChildFormA />
-          <ChildFormB />
-          <ChildFormC />
-        </div>
-      </main>
-    </div>
+    </Container>
   );
 }
 ```
-
-### Step 7: Create Route Configuration
-
-Set up React Router for the application.
-
-**File**: `src/App.tsx`
-
-```typescript
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ParentContainer } from './components/ParentContainer';
-
-export function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ParentContainer />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-```
-
----
 
 ## Component Hierarchy Diagram
 
 ```mermaid
 graph TD
-    App[App]
-    App --> Router[BrowserRouter]
-    Router --> Routes[Routes]
-    Routes --> PC[ParentContainer]
+    A[ParentContainer] --> B[NotificationList]
+    A --> C[Header]
+    C --> D[SaveButton]
+    A --> E[ErrorSummary]
+    A --> F[FormErrorBoundary]
+    A --> G[FormErrorBoundary]
+    A --> H[FormErrorBoundary]
 
-    PC --> PH[PageHeader]
-    PC --> SM[SuccessMessage]
-    PC --> SE[SubmissionError]
-    PC --> ES[ErrorSummary]
-    PC --> Forms[Forms Grid]
+    F --> I[UserInfoForm]
+    G --> J[AddressForm]
+    H --> K[PreferencesForm]
 
-    PH --> DI[DirtyIndicator]
-    PH --> SB[SaveButton]
+    I --> L[Card]
+    I --> M[FormField]
+    M --> N[Input]
 
-    Forms --> CFA[ChildFormA]
-    Forms --> CFB[ChildFormB]
-    Forms --> CFC[ChildFormC]
+    J --> O[Card]
+    J --> P[FormField]
 
-    CFA --> FC1[FormCard]
-    CFB --> FC2[FormCard]
-    CFC --> FC3[FormCard]
-
-    FC1 --> FF1[FormField]
-    FC2 --> FF2[FormField]
-    FC3 --> FF3[FormField]
-
-    FF1 --> FE1[FieldError]
-    FF2 --> FE2[FieldError]
-    FF3 --> FE3[FieldError]
+    K --> Q[Card]
+    K --> R[FormField]
+    R --> S[Select]
+    K --> T[Checkbox]
 ```
 
----
-
-## Acceptance Criteria
-
-| ID | Criterion | Validation |
-|----|-----------|------------|
-| AC5.1 | Save button shows loading state during submission | Verify spinner and "Saving..." text appear when `isSubmitting=true` |
-| AC5.2 | Forms are not editable during submission | Verify `pointer-events-none` class applied to form grid |
-
----
-
-## Unit Tests
-
-**File**: `src/components/SaveButton.test.tsx`
-
-```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { SaveButton } from './SaveButton';
-import { useFormDirtyStore } from '../stores/formDirtyStore';
-import { useSubmissionStore } from '../stores/submissionStore';
-
-describe('SaveButton', () => {
-  const mockOnClick = vi.fn();
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    useFormDirtyStore.setState({ dirtyForms: new Set() });
-    useSubmissionStore.setState({ isSubmitting: false });
-  });
-
-  it('should be disabled when no forms are dirty', () => {
-    render(<SaveButton onClick={mockOnClick} />);
-    const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
-  });
-
-  it('should be enabled when forms are dirty', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA']) });
-
-    render(<SaveButton onClick={mockOnClick} />);
-    const button = screen.getByRole('button');
-    expect(button).not.toBeDisabled();
-  });
-
-  it('should call onClick when clicked', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA']) });
-
-    render(<SaveButton onClick={mockOnClick} />);
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockOnClick).toHaveBeenCalled();
-  });
-
-  it('should show loading state when submitting', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA']) });
-    useSubmissionStore.setState({ isSubmitting: true });
-
-    render(<SaveButton onClick={mockOnClick} />);
-    expect(screen.getByText('Saving...')).toBeInTheDocument();
-  });
-
-  it('should be disabled when submitting', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA']) });
-    useSubmissionStore.setState({ isSubmitting: true });
-
-    render(<SaveButton onClick={mockOnClick} />);
-    expect(screen.getByRole('button')).toBeDisabled();
-  });
-});
-```
-
-**File**: `src/components/DirtyIndicator.test.tsx`
-
-```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { DirtyIndicator } from './DirtyIndicator';
-import { useFormDirtyStore } from '../stores/formDirtyStore';
-
-describe('DirtyIndicator', () => {
-  beforeEach(() => {
-    useFormDirtyStore.setState({ dirtyForms: new Set() });
-  });
-
-  it('should not render when no forms are dirty', () => {
-    render(<DirtyIndicator />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-  });
-
-  it('should show singular text for one dirty form', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA']) });
-
-    render(<DirtyIndicator />);
-    expect(screen.getByText('1 unsaved change')).toBeInTheDocument();
-  });
-
-  it('should show plural text for multiple dirty forms', () => {
-    useFormDirtyStore.setState({ dirtyForms: new Set(['formA', 'formB']) });
-
-    render(<DirtyIndicator />);
-    expect(screen.getByText('2 unsaved changes')).toBeInTheDocument();
-  });
-});
-```
-
----
-
-## Styling Guidelines
-
-### Color Palette
-
-| State | Background | Border | Text |
-|-------|------------|--------|------|
-| Default | `bg-white` | `border-gray-200` | `text-gray-900` |
-| Dirty | `ring-yellow-400` | - | - |
-| Error | `bg-red-50` | `border-red-200` | `text-red-800` |
-| Success | `bg-green-50` | `border-green-500` | `text-green-800` |
-| Disabled | `bg-gray-400` | - | `text-white` |
-
-### Spacing
-
-- Card padding: `px-6 py-4`
-- Form field margin: `mb-4`
-- Grid gap: `gap-6`
-- Container max-width: `max-w-7xl`
-
----
-
-## Dependencies
-
-- `react-router-dom` - Routing
-- `tailwindcss` - Styling
-- `vitest` - Unit testing
-- `@testing-library/react` - Component testing
-
-## Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/components/SaveButton.tsx` | Create | Save button with loading state |
-| `src/components/DirtyIndicator.tsx` | Create | Unsaved changes indicator |
-| `src/components/PageHeader.tsx` | Create | Page header component |
-| `src/components/FormCard.tsx` | Create | Form card wrapper |
-| `src/components/ChildFormA.tsx` | Create | User information form |
-| `src/components/ChildFormB.tsx` | Create | Address form |
-| `src/components/ChildFormC.tsx` | Create | Contact preferences form |
-| `src/components/ParentContainer.tsx` | Create | Main container component |
-| `src/App.tsx` | Modify | Add routing configuration |
-| `src/components/SaveButton.test.tsx` | Create | Button tests |
-| `src/components/DirtyIndicator.test.tsx` | Create | Indicator tests |
-
-## Complete File Structure
+## File Structure
 
 ```
 src/
-├── components/
-│   ├── ChildFormA.tsx
-│   ├── ChildFormB.tsx
-│   ├── ChildFormC.tsx
-│   ├── DirtyIndicator.tsx
-│   ├── ErrorSummary.tsx
-│   ├── FieldError.tsx
-│   ├── FormCard.tsx
-│   ├── FormField.tsx
-│   ├── PageHeader.tsx
-│   ├── ParentContainer.tsx
-│   ├── SaveButton.tsx
-│   ├── SubmissionError.tsx
-│   └── SuccessMessage.tsx
-├── hooks/
-│   ├── useFieldErrors.ts
-│   ├── useFormDirtyTracking.ts
-│   ├── useFormRegistration.ts
-│   ├── useFormSubmission.ts
-│   └── useFormValidation.ts
-├── schemas/
-│   └── formSchemas.ts
-├── services/
-│   └── mockApi.ts
-├── stores/
-│   ├── formDirtyStore.ts
-│   ├── formRegistryStore.ts
-│   ├── submissionStore.ts
-│   └── validationStore.ts
-├── types/
-│   ├── error.types.ts
-│   ├── form.types.ts
-│   ├── submission.types.ts
-│   └── validation.types.ts
-├── App.tsx
-└── main.tsx
+└── components/
+    ├── layout/
+    │   ├── Container.tsx
+    │   └── Card.tsx
+    ├── forms/
+    │   ├── FormField.tsx
+    │   ├── UserInfoForm.tsx
+    │   ├── AddressForm.tsx
+    │   └── PreferencesForm.tsx
+    ├── SaveButton.tsx
+    ├── ErrorSummary.tsx
+    ├── NotificationList.tsx
+    ├── FormErrorBoundary.tsx
+    └── ParentContainer.tsx
 ```
 
-## Implementation Complete
+## Styling Guidelines
 
-This concludes the implementation plans for FEATURE-001. The five plans provide a complete guide for implementing the multi-form save feature:
+### Tailwind CSS Classes
 
-1. **IMPL-001**: Dirty State Management
-2. **IMPL-002**: Validation Flow
-3. **IMPL-003**: Submission Flow
-4. **IMPL-004**: Error Handling and Display
-5. **IMPL-005**: UI Components
+The components use Tailwind CSS v4 with the following design tokens:
 
-Follow the plans in order, as each builds on the previous implementations.
+- **Colors**: Use semantic color names (gray, blue, red, green, yellow)
+- **Spacing**: Follow the default spacing scale (4, 6, 8)
+- **Typography**: Use text-sm for form labels, text-lg for headings
+- **Borders**: Use rounded-md for inputs, rounded-lg for cards
+- **Shadows**: Use shadow-sm for subtle elevation
+
+### Accessibility
+
+All components follow WCAG 2.1 AA guidelines:
+
+- Proper label associations with `htmlFor`
+- Error messages linked via `aria-describedby`
+- Invalid fields marked with `aria-invalid`
+- Loading states announced with `aria-busy`
+- Focus management and visible focus indicators
+- Color contrast ratios meet minimum requirements
+
+## Testing Strategy
+
+### Unit Tests
+
+1. **FormField.test.tsx**
+   - Test renders label correctly
+   - Test shows required indicator
+   - Test displays error message
+   - Test error message has correct role
+
+2. **SaveButton.test.tsx**
+   - Test disabled when not dirty
+   - Test enabled when dirty
+   - Test shows loading state when validating
+   - Test shows loading state when submitting
+
+3. **ErrorSummary.test.tsx**
+   - Test renders nothing when no errors
+   - Test shows validation errors grouped by form
+   - Test shows submission errors
+   - Test dismiss button works
+
+4. **NotificationList.test.tsx**
+   - Test renders notifications
+   - Test dismiss callback called correctly
+   - Test auto-dismiss works
+
+### Integration Tests
+
+1. Test complete user flow: fill forms, save, see success
+2. Test validation error flow: invalid input, save, see errors
+3. Test submission error flow: mock API failure, see error
+4. Test error clearing when user fixes issues
+5. Test multiple forms dirty simultaneously
+
+### Visual Regression Tests
+
+1. Capture form states: empty, filled, error, disabled
+2. Capture error summary with various error counts
+3. Capture notification positions and animations
+4. Test responsive layouts at various breakpoints
+
+## Acceptance Criteria
+
+- [ ] **AC5.1**: The save button shows a loading state during validation and submission
+- [ ] **AC5.2**: Forms are disabled during submission (fieldset disabled)
+- [ ] **AC5.3**: Validation error messages are clear and actionable
+- [ ] **AC5.4**: Error summary can be dismissed with the X button
+- [ ] **AC5.5**: Error summary auto-clears when user initiates a new save
+- [ ] **AC5.6**: Success notification appears after successful save
+- [ ] **AC5.7**: Success notification auto-dismisses after 3 seconds
+- [ ] **AC5.8**: Invalid form fields have visible error styling
+- [ ] **AC5.9**: Parent container shows count of dirty forms
+- [ ] **AC5.10**: Each form section has clear visual boundaries (cards)
+- [ ] **AC5.11**: All interactive elements have visible focus states
+- [ ] **AC5.12**: Components are responsive on mobile devices
+
+## Notes
+
+- Components use Tailwind CSS utility classes for styling
+- All form inputs are properly labeled for accessibility
+- Error boundaries prevent individual form crashes from breaking the entire UI
+- Notifications use a fixed position overlay for visibility
+- Forms use fieldset disabled to prevent input during submission
+- The design is mobile-first and responsive

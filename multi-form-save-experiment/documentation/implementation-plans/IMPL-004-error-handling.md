@@ -1,677 +1,909 @@
-# IMPL-004: Error Handling and Display
+# IMPL-004: Error Handling
 
 ## Overview
 
-This implementation plan covers the error handling system that displays validation errors, submission failures, and provides clear feedback to users. It includes the error summary component, inline field errors, and toast notifications.
-
-## Related Feature
-
-- **Feature**: [FEATURE-001: Multi-Form Save with Coordinated Validation](../features/FEATURE-001.md)
-- **Acceptance Criteria**: AC2.4 - AC2.6, AC4.4, AC5.3 - AC5.4
+This implementation plan covers the comprehensive error handling strategy for the multi-form save feature. It includes validation error display, submission error handling, error summary components, and recovery mechanisms.
 
 ## Prerequisites
 
-- [IMPL-001: Dirty State Management](./IMPL-001-dirty-state-management.md) completed
-- [IMPL-002: Validation Flow](./IMPL-002-validation-flow.md) completed
-- [IMPL-003: Submission Flow](./IMPL-003-submission-flow.md) completed
-- Tailwind CSS configured
+- IMPL-001 (Dirty State Management) completed
+- IMPL-002 (Validation Flow) completed
+- IMPL-003 (Submission Flow) completed
 
----
+## Dependencies
+
+- IMPL-001: Dirty State Management
+- IMPL-002: Validation Flow
+- IMPL-003: Submission Flow
 
 ## Implementation Steps
 
-### Step 1: Define Error Display Types
+### Step 1: Define Error Types
 
-Create type definitions for error display components.
+Create comprehensive error type definitions.
 
-**File**: `src/types/error.types.ts`
+**File: `src/types/errors.ts`**
 
 ```typescript
-export type ErrorSeverity = 'error' | 'warning' | 'info';
+import type { FormId } from './form-coordination';
 
-export interface DisplayError {
-  id: string;
+/**
+ * Base error interface for all form-related errors
+ */
+export interface FormError {
+  type: 'validation' | 'submission' | 'network' | 'unknown';
   message: string;
-  severity: ErrorSeverity;
-  dismissible: boolean;
-  autoHide?: number; // milliseconds
+  timestamp: Date;
 }
 
-export interface FieldError {
+/**
+ * Field-level validation error
+ */
+export interface FieldValidationError {
   field: string;
   message: string;
+  code?: string;
 }
 
-export interface FormErrorGroup {
-  formId: string;
+/**
+ * Form-level validation error summary
+ */
+export interface FormValidationError extends FormError {
+  type: 'validation';
+  formId: FormId;
   formName: string;
-  errors: FieldError[];
+  fieldErrors: FieldValidationError[];
 }
-```
 
-### Step 2: Create Error Summary Component
-
-Create the main error summary component that displays all validation errors.
-
-**File**: `src/components/ErrorSummary.tsx`
-
-```typescript
-import { useValidationStore } from '../stores/validationStore';
-
-export function ErrorSummary() {
-  const validationErrors = useValidationStore((state) => state.validationErrors);
-  const clearValidationErrors = useValidationStore(
-    (state) => state.clearValidationErrors
-  );
-
-  if (validationErrors.length === 0) {
-    return null;
-  }
-
-  return (
-    <div
-      className="error-summary bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
-      role="alert"
-      aria-labelledby="error-summary-title"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-start">
-          <svg
-            className="h-5 w-5 text-red-400 mt-0.5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <div className="ml-3">
-            <h3
-              id="error-summary-title"
-              className="text-sm font-medium text-red-800"
-            >
-              Please fix the following errors before saving:
-            </h3>
-            <div className="mt-2 text-sm text-red-700">
-              <ul className="list-none space-y-2">
-                {validationErrors.map((formError) => (
-                  <li key={formError.formId}>
-                    <span className="font-semibold">{formError.formName}:</span>
-                    <ul className="list-disc list-inside ml-4 mt-1">
-                      {formError.errors.map((error, index) => (
-                        <li key={`${formError.formId}-${error.field}-${index}`}>
-                          {error.message}
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={clearValidationErrors}
-          className="ml-4 inline-flex text-red-400 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          aria-label="Dismiss errors"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
+/**
+ * Submission error for a single form
+ */
+export interface FormSubmissionError extends FormError {
+  type: 'submission';
+  formId: FormId;
+  formName: string;
+  statusCode?: number;
+  retryable: boolean;
 }
-```
 
-### Step 3: Create Inline Field Error Component
+/**
+ * Network-level error
+ */
+export interface NetworkError extends FormError {
+  type: 'network';
+  originalError?: Error;
+  retryable: boolean;
+}
 
-Create a reusable component for displaying field-level errors.
+/**
+ * Aggregated error state for the entire form system
+ */
+export interface ErrorState {
+  hasErrors: boolean;
+  validationErrors: FormValidationError[];
+  submissionErrors: FormSubmissionError[];
+  networkError: NetworkError | null;
+  lastErrorTimestamp: Date | null;
+}
 
-**File**: `src/components/FieldError.tsx`
+/**
+ * Error severity levels for UI display
+ */
+export type ErrorSeverity = 'error' | 'warning' | 'info';
 
-```typescript
-interface FieldErrorProps {
+/**
+ * Dismissible error notification
+ */
+export interface ErrorNotification {
   id: string;
-  message: string | undefined;
-}
-
-export function FieldError({ id, message }: FieldErrorProps) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p
-      id={id}
-      className="mt-1 text-sm text-red-600 flex items-center"
-      role="alert"
-    >
-      <svg
-        className="h-4 w-4 mr-1 flex-shrink-0"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          fillRule="evenodd"
-          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-          clipRule="evenodd"
-        />
-      </svg>
-      {message}
-    </p>
-  );
+  severity: ErrorSeverity;
+  title: string;
+  message: string;
+  formId?: FormId;
+  dismissible: boolean;
+  autoDismiss?: number; // milliseconds
 }
 ```
 
-### Step 4: Create Submission Error Alert
+### Step 2: Create Error State Store
 
-Create a component for displaying submission failures.
+Create a dedicated store for managing error state.
 
-**File**: `src/components/SubmissionError.tsx`
+**File: `src/stores/errorStore.ts`**
 
 ```typescript
-import { useSubmissionStore } from '../stores/submissionStore';
+import { create } from 'zustand';
+import type {
+  ErrorState,
+  FormValidationError,
+  FormSubmissionError,
+  NetworkError,
+  ErrorNotification,
+} from '../types/errors';
+import type { FormId } from '../types/form-coordination';
 
-export function SubmissionError() {
-  const submissionError = useSubmissionStore((state) => state.submissionError);
-  const setSubmissionError = useSubmissionStore(
-    (state) => state.setSubmissionError
-  );
+interface ErrorStoreState extends ErrorState {
+  // Notifications
+  notifications: ErrorNotification[];
 
-  if (!submissionError) {
-    return null;
-  }
+  // Actions for validation errors
+  setValidationErrors: (errors: FormValidationError[]) => void;
+  clearValidationErrors: () => void;
+  clearValidationErrorsForForm: (formId: FormId) => void;
 
-  return (
-    <div
-      className="submission-error bg-red-100 border-l-4 border-red-500 p-4 mb-6"
-      role="alert"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex">
-          <svg
-            className="h-5 w-5 text-red-500"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">
-              Submission Failed
-            </h3>
-            <p className="mt-1 text-sm text-red-700">{submissionError}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setSubmissionError(null)}
-          className="ml-4 text-red-400 hover:text-red-500"
-          aria-label="Dismiss error"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
+  // Actions for submission errors
+  setSubmissionErrors: (errors: FormSubmissionError[]) => void;
+  addSubmissionError: (error: FormSubmissionError) => void;
+  clearSubmissionErrors: () => void;
+  clearSubmissionErrorForForm: (formId: FormId) => void;
+
+  // Actions for network errors
+  setNetworkError: (error: NetworkError | null) => void;
+  clearNetworkError: () => void;
+
+  // Notification actions
+  addNotification: (notification: Omit<ErrorNotification, 'id'>) => string;
+  dismissNotification: (id: string) => void;
+  clearAllNotifications: () => void;
+
+  // Global actions
+  clearAllErrors: () => void;
 }
-```
 
-### Step 5: Create Success Message Component
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
-Create a component for displaying success feedback.
+export const useErrorStore = create<ErrorStoreState>((set, get) => ({
+  // Initial state
+  hasErrors: false,
+  validationErrors: [],
+  submissionErrors: [],
+  networkError: null,
+  lastErrorTimestamp: null,
+  notifications: [],
 
-**File**: `src/components/SuccessMessage.tsx`
+  // Validation error actions
+  setValidationErrors: (errors) => {
+    set({
+      validationErrors: errors,
+      hasErrors: errors.length > 0 || get().submissionErrors.length > 0,
+      lastErrorTimestamp: errors.length > 0 ? new Date() : get().lastErrorTimestamp,
+    });
+  },
 
-```typescript
-import { useEffect } from 'react';
-import { useSubmissionStore } from '../stores/submissionStore';
+  clearValidationErrors: () => {
+    set((state) => ({
+      validationErrors: [],
+      hasErrors: state.submissionErrors.length > 0,
+    }));
+  },
 
-const AUTO_HIDE_DELAY = 5000; // 5 seconds
+  clearValidationErrorsForForm: (formId) => {
+    set((state) => {
+      const filtered = state.validationErrors.filter((e) => e.formId !== formId);
+      return {
+        validationErrors: filtered,
+        hasErrors: filtered.length > 0 || state.submissionErrors.length > 0,
+      };
+    });
+  },
 
-export function SuccessMessage() {
-  const successMessage = useSubmissionStore((state) => state.successMessage);
-  const setSuccessMessage = useSubmissionStore(
-    (state) => state.setSuccessMessage
-  );
+  // Submission error actions
+  setSubmissionErrors: (errors) => {
+    set({
+      submissionErrors: errors,
+      hasErrors: errors.length > 0 || get().validationErrors.length > 0,
+      lastErrorTimestamp: errors.length > 0 ? new Date() : get().lastErrorTimestamp,
+    });
+  },
 
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-      }, AUTO_HIDE_DELAY);
+  addSubmissionError: (error) => {
+    set((state) => ({
+      submissionErrors: [...state.submissionErrors, error],
+      hasErrors: true,
+      lastErrorTimestamp: new Date(),
+    }));
+  },
 
-      return () => clearTimeout(timer);
+  clearSubmissionErrors: () => {
+    set((state) => ({
+      submissionErrors: [],
+      hasErrors: state.validationErrors.length > 0,
+    }));
+  },
+
+  clearSubmissionErrorForForm: (formId) => {
+    set((state) => {
+      const filtered = state.submissionErrors.filter((e) => e.formId !== formId);
+      return {
+        submissionErrors: filtered,
+        hasErrors: filtered.length > 0 || state.validationErrors.length > 0,
+      };
+    });
+  },
+
+  // Network error actions
+  setNetworkError: (error) => {
+    set({
+      networkError: error,
+      hasErrors: error !== null || get().validationErrors.length > 0 || get().submissionErrors.length > 0,
+      lastErrorTimestamp: error ? new Date() : get().lastErrorTimestamp,
+    });
+  },
+
+  clearNetworkError: () => {
+    set((state) => ({
+      networkError: null,
+      hasErrors: state.validationErrors.length > 0 || state.submissionErrors.length > 0,
+    }));
+  },
+
+  // Notification actions
+  addNotification: (notification) => {
+    const id = generateId();
+    const fullNotification: ErrorNotification = { ...notification, id };
+
+    set((state) => ({
+      notifications: [...state.notifications, fullNotification],
+    }));
+
+    // Auto-dismiss if configured
+    if (notification.autoDismiss) {
+      setTimeout(() => {
+        get().dismissNotification(id);
+      }, notification.autoDismiss);
     }
-  }, [successMessage, setSuccessMessage]);
 
-  if (!successMessage) {
-    return null;
-  }
+    return id;
+  },
 
-  return (
-    <div
-      className="success-message bg-green-50 border-l-4 border-green-500 p-4 mb-6"
-      role="status"
-      aria-live="polite"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex">
-          <svg
-            className="h-5 w-5 text-green-500"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <p className="ml-3 text-sm font-medium text-green-800">
-            {successMessage}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setSuccessMessage(null)}
-          className="ml-4 text-green-400 hover:text-green-500"
-          aria-label="Dismiss message"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
+  dismissNotification: (id) => {
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    }));
+  },
+
+  clearAllNotifications: () => {
+    set({ notifications: [] });
+  },
+
+  // Global clear
+  clearAllErrors: () => {
+    set({
+      hasErrors: false,
+      validationErrors: [],
+      submissionErrors: [],
+      networkError: null,
+      notifications: [],
+    });
+  },
+}));
 ```
 
-### Step 6: Create Form Field Wrapper with Error Styling
+### Step 3: Create Error Handling Utilities
 
-Create a reusable form field wrapper that handles error states.
+Create utility functions for error processing and formatting.
 
-**File**: `src/components/FormField.tsx`
-
-```typescript
-import { type ReactNode, type InputHTMLAttributes } from 'react';
-import { FieldError } from './FieldError';
-
-interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  name: string;
-  error?: string;
-  children?: ReactNode;
-}
-
-export function FormField({
-  label,
-  name,
-  error,
-  children,
-  ...inputProps
-}: FormFieldProps) {
-  const errorId = `${name}-error`;
-  const hasError = !!error;
-
-  return (
-    <div className="form-field mb-4">
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
-        {label}
-      </label>
-      {children ?? (
-        <input
-          id={name}
-          name={name}
-          aria-invalid={hasError}
-          aria-describedby={hasError ? errorId : undefined}
-          className={`
-            block w-full rounded-md shadow-sm sm:text-sm
-            ${
-              hasError
-                ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-            }
-          `}
-          {...inputProps}
-        />
-      )}
-      <FieldError id={errorId} message={error} />
-    </div>
-  );
-}
-```
-
-### Step 7: Create Custom Hook for Field Error Access
-
-Create a hook for easy access to field-level errors in forms.
-
-**File**: `src/hooks/useFieldErrors.ts`
+**File: `src/utils/error-utils.ts`**
 
 ```typescript
-import { useCallback, useState } from 'react';
-import type { ValidationError } from '../types/validation.types';
+import type {
+  FormValidationError,
+  FormSubmissionError,
+  NetworkError,
+  FieldValidationError,
+} from '../types/errors';
+import type { FormId, FormValidationSummary, SubmitResult } from '../types/form-coordination';
 
-export function useFieldErrors() {
-  const [errors, setErrors] = useState<ValidationError[]>([]);
+/**
+ * Converts validation summary to FormValidationError
+ */
+export function toValidationError(summary: FormValidationSummary): FormValidationError {
+  return {
+    type: 'validation',
+    formId: summary.formId,
+    formName: summary.formName,
+    message: `${summary.formName} has validation errors`,
+    fieldErrors: summary.errors.map((e) => ({
+      field: e.field,
+      message: e.message,
+    })),
+    timestamp: new Date(),
+  };
+}
 
-  const getFieldError = useCallback(
-    (field: string): string | undefined => {
-      return errors.find((e) => e.field === field)?.message;
-    },
-    [errors]
-  );
+/**
+ * Converts failed submit result to FormSubmissionError
+ */
+export function toSubmissionError(
+  result: SubmitResult,
+  formName: string
+): FormSubmissionError {
+  return {
+    type: 'submission',
+    formId: result.formId,
+    formName,
+    message: result.error ?? 'Submission failed',
+    retryable: true,
+    timestamp: new Date(),
+  };
+}
 
-  const hasFieldError = useCallback(
-    (field: string): boolean => {
-      return errors.some((e) => e.field === field);
-    },
-    [errors]
-  );
-
-  const clearErrors = useCallback(() => {
-    setErrors([]);
-  }, []);
-
-  const clearFieldError = useCallback((field: string) => {
-    setErrors((prev) => prev.filter((e) => e.field !== field));
-  }, []);
+/**
+ * Creates a network error from a caught exception
+ */
+export function createNetworkError(error: unknown): NetworkError {
+  const originalError = error instanceof Error ? error : new Error(String(error));
 
   return {
-    errors,
-    setErrors,
-    getFieldError,
-    hasFieldError,
-    clearErrors,
-    clearFieldError,
+    type: 'network',
+    message: 'Network error occurred. Please check your connection.',
+    originalError,
+    retryable: true,
+    timestamp: new Date(),
+  };
+}
+
+/**
+ * Formats field errors for display
+ */
+export function formatFieldErrors(errors: FieldValidationError[]): string {
+  return errors.map((e) => `${e.field}: ${e.message}`).join('; ');
+}
+
+/**
+ * Groups errors by form for summary display
+ */
+export function groupErrorsByForm(
+  validationErrors: FormValidationError[],
+  submissionErrors: FormSubmissionError[]
+): Map<FormId, { validation: FieldValidationError[]; submission: string | null }> {
+  const grouped = new Map<FormId, { validation: FieldValidationError[]; submission: string | null }>();
+
+  for (const error of validationErrors) {
+    const existing = grouped.get(error.formId) ?? { validation: [], submission: null };
+    existing.validation = error.fieldErrors;
+    grouped.set(error.formId, existing);
+  }
+
+  for (const error of submissionErrors) {
+    const existing = grouped.get(error.formId) ?? { validation: [], submission: null };
+    existing.submission = error.message;
+    grouped.set(error.formId, existing);
+  }
+
+  return grouped;
+}
+
+/**
+ * Determines if an error is retryable
+ */
+export function isRetryableError(
+  error: FormSubmissionError | NetworkError
+): boolean {
+  if (error.type === 'network') {
+    return error.retryable;
+  }
+
+  // Check for specific non-retryable status codes
+  if (error.statusCode) {
+    const nonRetryable = [400, 401, 403, 404, 422];
+    return !nonRetryable.includes(error.statusCode);
+  }
+
+  return error.retryable;
+}
+
+/**
+ * Gets user-friendly error message
+ */
+export function getErrorMessage(error: FormValidationError | FormSubmissionError | NetworkError): string {
+  switch (error.type) {
+    case 'validation':
+      return `Please fix the errors in ${error.formName}`;
+    case 'submission':
+      return `Failed to save ${error.formName}: ${error.message}`;
+    case 'network':
+      return error.message;
+    default:
+      return 'An unexpected error occurred';
+  }
+}
+```
+
+### Step 4: Create useErrorHandling Hook
+
+Create a hook for components to interact with error state.
+
+**File: `src/hooks/useErrorHandling.ts`**
+
+```typescript
+import { useCallback } from 'react';
+import { useErrorStore } from '../stores/errorStore';
+import {
+  toValidationError,
+  toSubmissionError,
+  createNetworkError,
+} from '../utils/error-utils';
+import type { FormId, FormValidationSummary, SubmitResult } from '../types/form-coordination';
+
+interface UseErrorHandlingReturn {
+  // State
+  hasErrors: boolean;
+  validationErrors: ReturnType<typeof useErrorStore.getState>['validationErrors'];
+  submissionErrors: ReturnType<typeof useErrorStore.getState>['submissionErrors'];
+  networkError: ReturnType<typeof useErrorStore.getState>['networkError'];
+  notifications: ReturnType<typeof useErrorStore.getState>['notifications'];
+
+  // Actions
+  handleValidationFailures: (summaries: FormValidationSummary[]) => void;
+  handleSubmissionFailures: (
+    results: SubmitResult[],
+    formNames: Map<FormId, string>
+  ) => void;
+  handleNetworkError: (error: unknown) => void;
+  clearErrorsForForm: (formId: FormId) => void;
+  clearAllErrors: () => void;
+  dismissNotification: (id: string) => void;
+  showSuccessNotification: (message: string) => void;
+  showErrorNotification: (title: string, message: string) => void;
+}
+
+/**
+ * Hook for managing error state in form components
+ */
+export function useErrorHandling(): UseErrorHandlingReturn {
+  const hasErrors = useErrorStore((state) => state.hasErrors);
+  const validationErrors = useErrorStore((state) => state.validationErrors);
+  const submissionErrors = useErrorStore((state) => state.submissionErrors);
+  const networkError = useErrorStore((state) => state.networkError);
+  const notifications = useErrorStore((state) => state.notifications);
+
+  const setValidationErrors = useErrorStore((state) => state.setValidationErrors);
+  const setSubmissionErrors = useErrorStore((state) => state.setSubmissionErrors);
+  const setNetworkError = useErrorStore((state) => state.setNetworkError);
+  const clearValidationErrorsForForm = useErrorStore(
+    (state) => state.clearValidationErrorsForForm
+  );
+  const clearSubmissionErrorForForm = useErrorStore(
+    (state) => state.clearSubmissionErrorForForm
+  );
+  const clearAllErrorsFn = useErrorStore((state) => state.clearAllErrors);
+  const addNotification = useErrorStore((state) => state.addNotification);
+  const dismissNotificationFn = useErrorStore((state) => state.dismissNotification);
+
+  const handleValidationFailures = useCallback(
+    (summaries: FormValidationSummary[]) => {
+      const errors = summaries.map(toValidationError);
+      setValidationErrors(errors);
+    },
+    [setValidationErrors]
+  );
+
+  const handleSubmissionFailures = useCallback(
+    (results: SubmitResult[], formNames: Map<FormId, string>) => {
+      const failedResults = results.filter((r) => !r.success);
+      const errors = failedResults.map((r) =>
+        toSubmissionError(r, formNames.get(r.formId) ?? r.formId)
+      );
+      setSubmissionErrors(errors);
+    },
+    [setSubmissionErrors]
+  );
+
+  const handleNetworkError = useCallback(
+    (error: unknown) => {
+      const networkErr = createNetworkError(error);
+      setNetworkError(networkErr);
+    },
+    [setNetworkError]
+  );
+
+  const clearErrorsForForm = useCallback(
+    (formId: FormId) => {
+      clearValidationErrorsForForm(formId);
+      clearSubmissionErrorForForm(formId);
+    },
+    [clearValidationErrorsForForm, clearSubmissionErrorForForm]
+  );
+
+  const showSuccessNotification = useCallback(
+    (message: string) => {
+      addNotification({
+        severity: 'info',
+        title: 'Success',
+        message,
+        dismissible: true,
+        autoDismiss: 5000,
+      });
+    },
+    [addNotification]
+  );
+
+  const showErrorNotification = useCallback(
+    (title: string, message: string) => {
+      addNotification({
+        severity: 'error',
+        title,
+        message,
+        dismissible: true,
+      });
+    },
+    [addNotification]
+  );
+
+  return {
+    hasErrors,
+    validationErrors,
+    submissionErrors,
+    networkError,
+    notifications,
+    handleValidationFailures,
+    handleSubmissionFailures,
+    handleNetworkError,
+    clearErrorsForForm,
+    clearAllErrors: clearAllErrorsFn,
+    dismissNotification: dismissNotificationFn,
+    showSuccessNotification,
+    showErrorNotification,
   };
 }
 ```
 
-### Step 8: Update Child Form with Error Display
+### Step 5: Create Error Boundary Component
 
-Update child forms to display field-level errors properly.
+Create an error boundary for catching unexpected errors.
 
-**File**: `src/components/ChildFormA.tsx` (error display section)
+**File: `src/components/FormErrorBoundary.tsx`**
 
 ```typescript
-import { FormField } from './FormField';
-import { useFieldErrors } from '../hooks/useFieldErrors';
+import { Component, ReactNode } from 'react';
 
-// Inside component:
-const { errors, setErrors, getFieldError, clearErrors } = useFieldErrors();
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+}
 
-// In the validate method:
-validate: (): ValidationResult => {
-  const result = formASchema.safeParse(formData);
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
 
-  if (result.success) {
-    clearErrors();
-    return { valid: true, errors: [] };
+/**
+ * Error boundary specifically for form-related errors.
+ * Catches rendering errors and displays a fallback UI.
+ */
+export class FormErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
-  const validationErrors = zodErrorsToValidationErrors(result.error);
-  setErrors(validationErrors);
-  return { valid: false, errors: validationErrors };
-},
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
 
-// In the JSX:
-return (
-  <div className="child-form bg-white rounded-lg shadow p-6">
-    <h2 className="text-lg font-semibold mb-4">User Information</h2>
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Form error boundary caught error:', error, errorInfo);
+    this.props.onError?.(error, errorInfo);
+  }
 
-    <FormField
-      label="Name"
-      name="name"
-      value={formData.name}
-      onChange={(e) =>
-        setFormData((prev) => ({ ...prev, name: e.target.value }))
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
       }
-      error={getFieldError('name')}
-    />
 
-    <FormField
-      label="Email"
-      name="email"
-      type="email"
-      value={formData.email}
-      onChange={(e) =>
-        setFormData((prev) => ({ ...prev, email: e.target.value }))
-      }
-      error={getFieldError('email')}
-    />
-  </div>
-);
+      return (
+        <div className="form-error-boundary" role="alert">
+          <h3>Something went wrong</h3>
+          <p>An error occurred while rendering this form section.</p>
+          <details>
+            <summary>Error details</summary>
+            <pre>{this.state.error?.message}</pre>
+          </details>
+          <button onClick={this.handleRetry} type="button">
+            Try Again
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 ```
 
----
+### Step 6: Integrate Error Handling with Form Coordination Store
+
+Update the form coordination store to use error handling.
+
+**File: `src/stores/formCoordinationStore.ts`** (integration additions)
+
+```typescript
+import { useErrorStore } from './errorStore';
+import { toValidationError, toSubmissionError } from '../utils/error-utils';
+
+// In the saveAllChanges method:
+saveAllChanges: async () => {
+  const { validateAllDirtyForms, submitAllDirtyForms, formRegistry } = get();
+  const errorStore = useErrorStore.getState();
+
+  // Clear previous errors
+  errorStore.clearAllErrors();
+
+  try {
+    // Step 1: Validate all dirty forms
+    const allValid = await validateAllDirtyForms();
+
+    if (!allValid) {
+      const validationSummaries = get().validationErrors;
+      const validationErrors = validationSummaries.map(toValidationError);
+      errorStore.setValidationErrors(validationErrors);
+      return false;
+    }
+
+    // Step 2: Submit all dirty forms
+    const allSubmitted = await submitAllDirtyForms();
+
+    if (!allSubmitted) {
+      const summary = get().submissionSummary;
+      if (summary) {
+        const formNames = new Map<string, string>();
+        formRegistry.forEach((entry) => {
+          formNames.set(entry.formId, entry.displayName);
+        });
+
+        const submissionErrors = summary.failedForms.map((result) =>
+          toSubmissionError(result, formNames.get(result.formId) ?? result.formId)
+        );
+        errorStore.setSubmissionErrors(submissionErrors);
+      }
+      return false;
+    }
+
+    // Success notification
+    errorStore.addNotification({
+      severity: 'info',
+      title: 'Saved',
+      message: 'All changes have been saved successfully.',
+      dismissible: true,
+      autoDismiss: 3000,
+    });
+
+    return true;
+  } catch (error) {
+    // Handle unexpected errors
+    const networkError = createNetworkError(error);
+    errorStore.setNetworkError(networkError);
+    return false;
+  }
+},
+```
 
 ## Error Flow Diagram
 
 ```mermaid
 flowchart TD
-    subgraph Triggers["Error Triggers"]
-        V[Validation Failure]
-        S[Submission Failure]
-    end
+    A[User Clicks Save] --> B{Validation Phase}
 
-    subgraph Stores["State Stores"]
-        VS[validationStore]
-        SS[submissionStore]
-    end
+    B -->|All Valid| C{Submission Phase}
+    B -->|Has Errors| D[Collect Validation Errors]
 
-    subgraph Components["Display Components"]
-        ES[ErrorSummary]
-        SE[SubmissionError]
-        FE[FieldError]
-        SM[SuccessMessage]
-    end
+    D --> E[Store in errorStore.validationErrors]
+    E --> F[Display Error Summary]
+    F --> G[Highlight Fields in Forms]
 
-    V -->|setValidationErrors| VS
-    S -->|setSubmissionError| SS
+    C -->|All Success| H[Clear All Errors]
+    H --> I[Show Success Notification]
 
-    VS -->|validationErrors| ES
-    VS -->|errors per form| FE
-    SS -->|submissionError| SE
-    SS -->|successMessage| SM
+    C -->|Has Failures| J[Collect Submission Errors]
+    J --> K[Store in errorStore.submissionErrors]
+    K --> L[Display Submission Error Summary]
 
-    ES -->|dismiss| VS
-    SE -->|dismiss| SS
-    SM -->|auto-hide/dismiss| SS
+    C -->|Network Error| M[Create Network Error]
+    M --> N[Store in errorStore.networkError]
+    N --> O[Display Network Error Banner]
+
+    G --> P[User Fixes Errors]
+    L --> P
+    O --> P
+
+    P --> Q[Clear Errors for Form]
+    Q --> A
 ```
 
----
+## Error State Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> NoErrors: Initial
+
+    NoErrors --> ValidationErrors: Validation Failed
+    NoErrors --> SubmissionErrors: Submission Failed
+    NoErrors --> NetworkError: Network Failed
+
+    ValidationErrors --> NoErrors: User Fixes & Resubmits
+    ValidationErrors --> ValidationErrors: Validation Still Failing
+    ValidationErrors --> SubmissionErrors: Validation Passes, Submission Fails
+
+    SubmissionErrors --> NoErrors: Retry Succeeds
+    SubmissionErrors --> SubmissionErrors: Retry Fails
+    SubmissionErrors --> NetworkError: Network Issue
+
+    NetworkError --> NoErrors: Retry Succeeds
+    NetworkError --> SubmissionErrors: Network OK, Server Error
+    NetworkError --> NetworkError: Still Offline
+
+    NoErrors --> [*]: Session Ends
+```
+
+## File Structure
+
+```
+src/
+├── types/
+│   └── errors.ts                  # Error type definitions
+├── stores/
+│   ├── formCoordinationStore.ts   # Extended with error integration
+│   └── errorStore.ts              # Dedicated error state store
+├── hooks/
+│   └── useErrorHandling.ts        # Error handling hook
+├── utils/
+│   └── error-utils.ts             # Error utility functions
+└── components/
+    └── FormErrorBoundary.tsx      # React error boundary
+```
+
+## Usage Examples
+
+### Parent Container with Error Display
+
+```typescript
+import { useErrorHandling } from '../hooks/useErrorHandling';
+import { ErrorSummary } from './ErrorSummary';
+import { NotificationList } from './NotificationList';
+
+export function ParentContainer() {
+  const {
+    hasErrors,
+    validationErrors,
+    submissionErrors,
+    networkError,
+    notifications,
+    dismissNotification,
+    clearAllErrors,
+  } = useErrorHandling();
+
+  return (
+    <div className="parent-container">
+      <NotificationList
+        notifications={notifications}
+        onDismiss={dismissNotification}
+      />
+
+      {networkError && (
+        <div className="network-error-banner" role="alert">
+          <span>{networkError.message}</span>
+          <button onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {hasErrors && (
+        <ErrorSummary
+          validationErrors={validationErrors}
+          submissionErrors={submissionErrors}
+          onDismiss={clearAllErrors}
+        />
+      )}
+
+      {/* Forms */}
+    </div>
+  );
+}
+```
+
+### Child Form with Field Errors
+
+```typescript
+import { useErrorStore } from '../stores/errorStore';
+
+export function UserInfoForm() {
+  const validationErrors = useErrorStore((state) =>
+    state.validationErrors.find((e) => e.formId === 'userInfo')
+  );
+
+  const getFieldError = (field: string) =>
+    validationErrors?.fieldErrors.find((e) => e.field === field)?.message;
+
+  return (
+    <div className="form-section">
+      <div className={`form-field ${getFieldError('name') ? 'has-error' : ''}`}>
+        <label htmlFor="name">Name</label>
+        <input id="name" {...register('name')} aria-invalid={!!getFieldError('name')} />
+        {getFieldError('name') && (
+          <span className="field-error" role="alert">
+            {getFieldError('name')}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+## Testing Strategy
+
+### Unit Tests
+
+1. **errorStore.test.ts**
+   - Test `setValidationErrors` updates state correctly
+   - Test `clearValidationErrors` removes all validation errors
+   - Test `clearValidationErrorsForForm` removes only specific form errors
+   - Test `hasErrors` computed correctly from all error types
+   - Test notification auto-dismiss works correctly
+
+2. **error-utils.test.ts**
+   - Test `toValidationError` converts correctly
+   - Test `toSubmissionError` converts correctly
+   - Test `createNetworkError` handles various input types
+   - Test `isRetryableError` returns correct values
+
+3. **useErrorHandling.test.ts**
+   - Test hook returns correct state
+   - Test `handleValidationFailures` updates store
+   - Test `handleSubmissionFailures` updates store
+   - Test `clearErrorsForForm` clears only specific form
+
+4. **FormErrorBoundary.test.tsx**
+   - Test renders children when no error
+   - Test renders fallback on error
+   - Test retry resets error state
+   - Test `onError` callback is called
+
+### Integration Tests
+
+1. Test validation errors display in summary and forms
+2. Test submission errors display with retry option
+3. Test network error banner and recovery
+4. Test clearing errors when user fixes issues
+5. Test notification lifecycle (show, auto-dismiss, manual dismiss)
 
 ## Acceptance Criteria
 
-| ID | Criterion | Validation |
-|----|-----------|------------|
-| AC2.4 | Parent container displays error summary when validation fails | Verify `ErrorSummary` renders with `validationErrors` |
-| AC2.5 | Error summary identifies which form(s) failed | Verify `formName` is displayed for each failed form |
-| AC2.6 | Error summary lists specific errors for each form | Verify individual error messages are listed |
-| AC4.4 | Submission failure displays an error | Verify `SubmissionError` component renders |
-| AC5.3 | Validation error messages are clear and actionable | Verify messages describe what needs to be fixed |
-| AC5.4 | Error summary can be dismissed or auto-clears | Verify dismiss button works and errors clear on retry |
+- [ ] **AC4.1**: If any validation fails, no submissions occur (verified)
+- [ ] **AC4.2**: Parent container displays an error summary when validation fails
+- [ ] **AC4.3**: Error summary identifies which form(s) failed by name
+- [ ] **AC4.4**: Error summary lists specific field-level errors for each form
+- [ ] **AC4.5**: Field-level errors are displayed inline within each child form
+- [ ] **AC4.6**: Invalid fields are visually highlighted (aria-invalid, CSS class)
+- [ ] **AC4.7**: Submission errors are displayed with the failed form name
+- [ ] **AC4.8**: Network errors are displayed in a dismissible banner
+- [ ] **AC4.9**: Errors can be cleared when user corrects issues
+- [ ] **AC4.10**: Error summary can be dismissed or auto-clears on next save attempt
+- [ ] **AC4.11**: Success notification appears after successful save
+- [ ] **AC4.12**: Error boundary catches and displays unexpected rendering errors
 
----
+## Accessibility Requirements
 
-## Unit Tests
+- All error messages must be associated with form fields using `aria-describedby`
+- Error summary must use `role="alert"` for screen reader announcement
+- Invalid fields must have `aria-invalid="true"`
+- Focus should move to first error field after failed validation
+- Color alone should not be the only indicator of errors
 
-**File**: `src/components/ErrorSummary.test.tsx`
+## Notes
 
-```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorSummary } from './ErrorSummary';
-import { useValidationStore } from '../stores/validationStore';
-
-describe('ErrorSummary', () => {
-  beforeEach(() => {
-    useValidationStore.setState({ validationErrors: [] });
-  });
-
-  it('should not render when there are no errors', () => {
-    render(<ErrorSummary />);
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
-
-  it('should render when there are validation errors', () => {
-    useValidationStore.setState({
-      validationErrors: [
-        {
-          formId: 'formA',
-          formName: 'User Information',
-          errors: [{ field: 'name', message: 'Name is required' }],
-        },
-      ],
-    });
-
-    render(<ErrorSummary />);
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.getByText('User Information:')).toBeInTheDocument();
-    expect(screen.getByText('Name is required')).toBeInTheDocument();
-  });
-
-  it('should display multiple form errors', () => {
-    useValidationStore.setState({
-      validationErrors: [
-        {
-          formId: 'formA',
-          formName: 'User Information',
-          errors: [{ field: 'name', message: 'Name is required' }],
-        },
-        {
-          formId: 'formB',
-          formName: 'Address',
-          errors: [{ field: 'city', message: 'City is required' }],
-        },
-      ],
-    });
-
-    render(<ErrorSummary />);
-    expect(screen.getByText('User Information:')).toBeInTheDocument();
-    expect(screen.getByText('Address:')).toBeInTheDocument();
-  });
-
-  it('should clear errors when dismiss button is clicked', () => {
-    useValidationStore.setState({
-      validationErrors: [
-        {
-          formId: 'formA',
-          formName: 'User Information',
-          errors: [{ field: 'name', message: 'Name is required' }],
-        },
-      ],
-    });
-
-    render(<ErrorSummary />);
-
-    const dismissButton = screen.getByLabelText('Dismiss errors');
-    fireEvent.click(dismissButton);
-
-    expect(useValidationStore.getState().validationErrors).toHaveLength(0);
-  });
-});
-```
-
-**File**: `src/components/SuccessMessage.test.tsx`
-
-```typescript
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
-import { SuccessMessage } from './SuccessMessage';
-import { useSubmissionStore } from '../stores/submissionStore';
-
-describe('SuccessMessage', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    useSubmissionStore.setState({ successMessage: null });
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('should not render when there is no success message', () => {
-    render(<SuccessMessage />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-  });
-
-  it('should render when there is a success message', () => {
-    useSubmissionStore.setState({ successMessage: 'All changes saved!' });
-
-    render(<SuccessMessage />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
-    expect(screen.getByText('All changes saved!')).toBeInTheDocument();
-  });
-
-  it('should auto-hide after 5 seconds', () => {
-    useSubmissionStore.setState({ successMessage: 'All changes saved!' });
-
-    render(<SuccessMessage />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
-
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
-
-    expect(useSubmissionStore.getState().successMessage).toBeNull();
-  });
-});
-```
-
----
-
-## Accessibility Considerations
-
-1. **ARIA Roles**: Use `role="alert"` for errors, `role="status"` for success
-2. **Live Regions**: Use `aria-live="polite"` for non-critical updates
-3. **Focus Management**: Move focus to error summary when validation fails
-4. **Color Contrast**: Ensure error text meets WCAG 2.1 AA standards
-5. **Descriptive Messages**: Error messages should explain how to fix the issue
-
----
-
-## Dependencies
-
-- `tailwindcss` - Styling
-- `vitest` - Unit testing
-- `@testing-library/react` - Component testing
-
-## Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/types/error.types.ts` | Create | Error display type definitions |
-| `src/components/ErrorSummary.tsx` | Create | Error summary component |
-| `src/components/FieldError.tsx` | Create | Inline field error component |
-| `src/components/SubmissionError.tsx` | Create | Submission error alert |
-| `src/components/SuccessMessage.tsx` | Create | Success message component |
-| `src/components/FormField.tsx` | Create | Form field wrapper |
-| `src/hooks/useFieldErrors.ts` | Create | Field error access hook |
-| `src/components/ErrorSummary.test.tsx` | Create | Error summary tests |
-| `src/components/SuccessMessage.test.tsx` | Create | Success message tests |
-
-## Next Steps
-
-After implementing error handling, proceed to:
-- [IMPL-005: UI Components](./IMPL-005-ui-components.md)
+- The error store is separate from the form coordination store for cleaner separation of concerns
+- Error state persists until explicitly cleared or a successful save occurs
+- Notifications support auto-dismiss for transient messages
+- The error boundary catches React rendering errors specifically
+- All errors are timestamped for debugging and potential retry logic

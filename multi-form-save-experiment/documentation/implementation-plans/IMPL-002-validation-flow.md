@@ -2,580 +2,587 @@
 
 ## Overview
 
-This implementation plan covers the validation system that validates all dirty forms when the save button is clicked. It uses Zod for schema validation and coordinates validation across multiple child forms using React refs.
-
-## Related Feature
-
-- **Feature**: [FEATURE-001: Multi-Form Save with Coordinated Validation](../features/FEATURE-001.md)
-- **Acceptance Criteria**: AC2.1 - AC2.6
+This implementation plan covers the coordinated validation system that allows the parent container to trigger validation across all dirty child forms when the global save button is clicked. Validation must pass for all forms before any submissions occur.
 
 ## Prerequisites
 
-- [IMPL-001: Dirty State Management](./IMPL-001-dirty-state-management.md) completed
+- IMPL-001 (Dirty State Management) completed
 - Zod installed for schema validation
-- React 19 with TypeScript configured
+- @hookform/resolvers installed for Zod integration with React Hook Form
 
----
+## Dependencies
+
+- IMPL-001: Dirty State Management
 
 ## Implementation Steps
 
 ### Step 1: Define Validation Types
 
-Create type definitions for validation results and form handles.
+Extend the type definitions to include validation-related types.
 
-**File**: `src/types/validation.types.ts`
+**File: `src/types/form-coordination.ts`** (additions)
 
 ```typescript
-import { z } from 'zod/v4';
-
+/**
+ * Represents a single field-level validation error
+ */
 export interface ValidationError {
   field: string;
   message: string;
 }
 
+/**
+ * Result of validating a single form
+ */
 export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
 }
 
+/**
+ * Summary of validation results for display in error summary
+ */
 export interface FormValidationSummary {
-  formId: string;
+  formId: FormId;
   formName: string;
   errors: ValidationError[];
 }
 
-export interface ChildFormHandle {
-  validate: () => ValidationResult;
-  submit: () => Promise<SubmitResult>;
-  reset: () => void;
-  getFormId: () => string;
+/**
+ * Interface that child forms must implement for validation coordination
+ */
+export interface ValidatableForm {
+  validate: () => Promise<ValidationResult>;
 }
 
-export interface SubmitResult {
-  success: boolean;
-  error?: string;
-}
-
-// Helper to convert Zod errors to ValidationError[]
-export function zodErrorsToValidationErrors(
-  zodError: z.ZodError
-): ValidationError[] {
-  return zodError.issues.map((issue) => ({
-    field: issue.path.join('.'),
-    message: issue.message,
-  }));
+/**
+ * Registry entry for a validatable form
+ */
+export interface FormRegistryEntry {
+  formId: FormId;
+  displayName: string;
+  validate: () => Promise<ValidationResult>;
 }
 ```
 
-### Step 2: Create Zod Schemas for Each Form
+### Step 2: Extend Zustand Store for Validation Registry
 
-Define validation schemas for each child form.
+Add form registration capabilities to the coordination store.
 
-**File**: `src/schemas/formSchemas.ts`
-
-```typescript
-import { z } from 'zod/v4';
-
-export const formASchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .min(2, 'Name must be at least 2 characters'),
-  email: z
-    .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
-});
-
-export const formBSchema = z.object({
-  address: z.string().min(1, 'Address is required'),
-  city: z.string().min(1, 'City is required'),
-  zipCode: z
-    .string()
-    .min(1, 'ZIP code is required')
-    .regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code'),
-});
-
-export const formCSchema = z.object({
-  phone: z
-    .string()
-    .min(1, 'Phone number is required')
-    .regex(/^\d{3}-\d{3}-\d{4}$/, 'Please enter phone as XXX-XXX-XXXX'),
-  preferredContact: z.enum(['email', 'phone', 'mail'], {
-    errorMap: () => ({ message: 'Please select a contact preference' }),
-  }),
-});
-
-export type FormAData = z.infer<typeof formASchema>;
-export type FormBData = z.infer<typeof formBSchema>;
-export type FormCData = z.infer<typeof formCSchema>;
-```
-
-### Step 3: Create Validation Store
-
-Create a Zustand store to manage validation state and results.
-
-**File**: `src/stores/validationStore.ts`
+**File: `src/stores/formCoordinationStore.ts`** (extend existing)
 
 ```typescript
 import { create } from 'zustand';
-import type { FormValidationSummary } from '../types/validation.types';
+import type {
+  FormId,
+  FormCoordinationState,
+  FormRegistryEntry,
+  ValidationResult,
+  FormValidationSummary,
+} from '../types/form-coordination';
 
-interface ValidationState {
-  validationErrors: FormValidationSummary[];
+interface ExtendedFormCoordinationState extends FormCoordinationState {
+  // Form registry
+  formRegistry: Map<FormId, FormRegistryEntry>;
+  registerForm: (entry: FormRegistryEntry) => void;
+  unregisterForm: (formId: FormId) => void;
+
+  // Validation state
   isValidating: boolean;
-  setValidationErrors: (errors: FormValidationSummary[]) => void;
+  validationErrors: FormValidationSummary[];
+  validateAllDirtyForms: () => Promise<boolean>;
   clearValidationErrors: () => void;
-  setIsValidating: (validating: boolean) => void;
-  hasValidationErrors: () => boolean;
 }
 
-export const useValidationStore = create<ValidationState>((set, get) => ({
-  validationErrors: [],
-  isValidating: false,
+export const useFormCoordinationStore = create<ExtendedFormCoordinationState>((set, get) => ({
+  // Dirty state (from IMPL-001)
+  dirtyForms: new Set<FormId>(),
 
-  setValidationErrors: (errors: FormValidationSummary[]) => {
-    set({ validationErrors: errors });
+  get isDirty() {
+    return get().dirtyForms.size > 0;
+  },
+
+  markFormDirty: (formId: FormId) => {
+    set((state) => {
+      const next = new Set(state.dirtyForms);
+      next.add(formId);
+      return { dirtyForms: next };
+    });
+  },
+
+  markFormClean: (formId: FormId) => {
+    set((state) => {
+      const next = new Set(state.dirtyForms);
+      next.delete(formId);
+      return { dirtyForms: next };
+    });
+  },
+
+  resetAllDirtyState: () => {
+    set({ dirtyForms: new Set() });
+  },
+
+  // Form registry
+  formRegistry: new Map<FormId, FormRegistryEntry>(),
+
+  registerForm: (entry: FormRegistryEntry) => {
+    set((state) => {
+      const next = new Map(state.formRegistry);
+      next.set(entry.formId, entry);
+      return { formRegistry: next };
+    });
+  },
+
+  unregisterForm: (formId: FormId) => {
+    set((state) => {
+      const next = new Map(state.formRegistry);
+      next.delete(formId);
+      return { formRegistry: next };
+    });
+  },
+
+  // Validation state
+  isValidating: false,
+  validationErrors: [],
+
+  validateAllDirtyForms: async () => {
+    const { dirtyForms, formRegistry } = get();
+
+    set({ isValidating: true, validationErrors: [] });
+
+    const validationPromises: Promise<FormValidationSummary | null>[] = [];
+
+    for (const formId of dirtyForms) {
+      const entry = formRegistry.get(formId);
+      if (entry) {
+        validationPromises.push(
+          entry.validate().then((result) => {
+            if (!result.valid) {
+              return {
+                formId: entry.formId,
+                formName: entry.displayName,
+                errors: result.errors,
+              };
+            }
+            return null;
+          })
+        );
+      }
+    }
+
+    const results = await Promise.all(validationPromises);
+    const errors = results.filter((r): r is FormValidationSummary => r !== null);
+
+    set({ isValidating: false, validationErrors: errors });
+
+    return errors.length === 0;
   },
 
   clearValidationErrors: () => {
     set({ validationErrors: [] });
   },
-
-  setIsValidating: (validating: boolean) => {
-    set({ isValidating: validating });
-  },
-
-  hasValidationErrors: () => {
-    return get().validationErrors.length > 0;
-  },
 }));
 ```
 
-### Step 4: Create Form Registry for Ref Management
+### Step 3: Create useFormRegistration Hook
 
-Create a registry to manage form refs without prop drilling.
+Create a hook that child forms use to register themselves for validation.
 
-**File**: `src/stores/formRegistryStore.ts`
-
-```typescript
-import { create } from 'zustand';
-import type { ChildFormHandle } from '../types/validation.types';
-
-interface FormRegistryState {
-  forms: Map<string, ChildFormHandle>;
-  registerForm: (formId: string, handle: ChildFormHandle) => void;
-  unregisterForm: (formId: string) => void;
-  getForm: (formId: string) => ChildFormHandle | undefined;
-  getAllForms: () => Map<string, ChildFormHandle>;
-}
-
-export const useFormRegistryStore = create<FormRegistryState>((set, get) => ({
-  forms: new Map(),
-
-  registerForm: (formId: string, handle: ChildFormHandle) => {
-    set((state) => {
-      const next = new Map(state.forms);
-      next.set(formId, handle);
-      return { forms: next };
-    });
-  },
-
-  unregisterForm: (formId: string) => {
-    set((state) => {
-      const next = new Map(state.forms);
-      next.delete(formId);
-      return { forms: next };
-    });
-  },
-
-  getForm: (formId: string) => {
-    return get().forms.get(formId);
-  },
-
-  getAllForms: () => {
-    return get().forms;
-  },
-}));
-```
-
-### Step 5: Create Custom Hook for Form Registration
-
-Create a hook that child forms use to register themselves.
-
-**File**: `src/hooks/useFormRegistration.ts`
+**File: `src/hooks/useFormRegistration.ts`**
 
 ```typescript
-import { useEffect, useImperativeHandle, type Ref } from 'react';
-import { useFormRegistryStore } from '../stores/formRegistryStore';
-import type { ChildFormHandle } from '../types/validation.types';
+import { useEffect, useCallback, useRef } from 'react';
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
+import type { FormId, ValidationResult } from '../types/form-coordination';
 
 interface UseFormRegistrationOptions {
-  formId: string;
-  ref: Ref<ChildFormHandle>;
-  handle: ChildFormHandle;
+  formId: FormId;
+  displayName: string;
 }
 
+interface UseFormRegistrationReturn {
+  setValidateFunction: (validateFn: () => Promise<ValidationResult>) => void;
+}
+
+/**
+ * Hook for child forms to register themselves with the coordination store.
+ * This allows the parent to trigger validation on all registered forms.
+ */
 export function useFormRegistration({
   formId,
-  ref,
-  handle,
-}: UseFormRegistrationOptions) {
-  const registerForm = useFormRegistryStore((state) => state.registerForm);
-  const unregisterForm = useFormRegistryStore((state) => state.unregisterForm);
+  displayName,
+}: UseFormRegistrationOptions): UseFormRegistrationReturn {
+  const registerForm = useFormCoordinationStore((state) => state.registerForm);
+  const unregisterForm = useFormCoordinationStore((state) => state.unregisterForm);
 
-  // Expose handle via ref for parent access
-  useImperativeHandle(ref, () => handle, [handle]);
+  // Use ref to store the validate function to avoid re-registering on every render
+  const validateFnRef = useRef<() => Promise<ValidationResult>>(() =>
+    Promise.resolve({ valid: true, errors: [] })
+  );
 
-  // Register with form registry
+  const setValidateFunction = useCallback((validateFn: () => Promise<ValidationResult>) => {
+    validateFnRef.current = validateFn;
+  }, []);
+
   useEffect(() => {
-    registerForm(formId, handle);
+    registerForm({
+      formId,
+      displayName,
+      validate: () => validateFnRef.current(),
+    });
+
     return () => {
       unregisterForm(formId);
     };
-  }, [formId, handle, registerForm, unregisterForm]);
+  }, [formId, displayName, registerForm, unregisterForm]);
+
+  return { setValidateFunction };
 }
 ```
 
-### Step 6: Implement Validation in Child Form
+### Step 4: Create useValidatedForm Hook
 
-Update child form to implement validation using Zod.
+Create a comprehensive hook that combines form tracking, registration, and validation.
 
-**File**: `src/components/ChildFormA.tsx`
+**File: `src/hooks/useValidatedForm.ts`**
 
 ```typescript
-import { forwardRef, useState, useMemo } from 'react';
-import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
-import { useFormRegistration } from '../hooks/useFormRegistration';
-import { formASchema, type FormAData } from '../schemas/formSchemas';
-import {
-  zodErrorsToValidationErrors,
-  type ChildFormHandle,
-  type ValidationResult,
-  type ValidationError,
-} from '../types/validation.types';
+import { useEffect, useCallback } from 'react';
+import { useForm, UseFormProps, UseFormReturn, FieldValues, FieldErrors } from 'react-hook-form';
+import { useDirtyTracking } from './useDirtyTracking';
+import { useFormRegistration } from './useFormRegistration';
+import type { FormId, ValidationResult, ValidationError } from '../types/form-coordination';
 
-const FORM_ID = 'formA';
-const FORM_NAME = 'User Information';
+interface UseValidatedFormOptions<T extends FieldValues> extends UseFormProps<T> {
+  formId: FormId;
+  displayName: string;
+}
 
-const INITIAL_DATA: FormAData = { name: '', email: '' };
+interface UseValidatedFormReturn<T extends FieldValues> extends UseFormReturn<T> {
+  formId: FormId;
+}
 
-export const ChildFormA = forwardRef<ChildFormHandle>(function ChildFormA(
-  _props,
-  ref
-) {
-  const [formData, setFormData] = useState<FormAData>(INITIAL_DATA);
-  const [errors, setErrors] = useState<ValidationError[]>([]);
+/**
+ * Converts React Hook Form errors to our ValidationError format
+ */
+function convertErrors<T extends FieldValues>(errors: FieldErrors<T>): ValidationError[] {
+  const result: ValidationError[] = [];
 
-  // Track dirty state
-  useFormDirtyTracking({
-    formId: FORM_ID,
-    currentData: formData,
-    initialData: INITIAL_DATA,
+  function processErrors(obj: FieldErrors<T>, prefix = '') {
+    for (const [key, value] of Object.entries(obj)) {
+      const fieldPath = prefix ? `${prefix}.${key}` : key;
+
+      if (value && typeof value === 'object') {
+        if ('message' in value && typeof value.message === 'string') {
+          result.push({
+            field: fieldPath,
+            message: value.message,
+          });
+        } else {
+          processErrors(value as FieldErrors<T>, fieldPath);
+        }
+      }
+    }
+  }
+
+  processErrors(errors);
+  return result;
+}
+
+/**
+ * Comprehensive hook that combines React Hook Form with dirty tracking
+ * and validation registration for coordinated form management.
+ */
+export function useValidatedForm<T extends FieldValues>({
+  formId,
+  displayName,
+  ...formOptions
+}: UseValidatedFormOptions<T>): UseValidatedFormReturn<T> {
+  const form = useForm<T>(formOptions);
+  const { reportDirtyState } = useDirtyTracking({ formId });
+  const { setValidateFunction } = useFormRegistration({ formId, displayName });
+
+  const { isDirty } = form.formState;
+  const { trigger, formState } = form;
+
+  // Report dirty state changes
+  useEffect(() => {
+    reportDirtyState(isDirty);
+  }, [isDirty, reportDirtyState]);
+
+  // Create validation function that uses React Hook Form's trigger
+  const validateForm = useCallback(async (): Promise<ValidationResult> => {
+    const isValid = await trigger();
+
+    if (isValid) {
+      return { valid: true, errors: [] };
+    }
+
+    // Get current errors after trigger
+    const errors = convertErrors(formState.errors);
+    return { valid: false, errors };
+  }, [trigger, formState.errors]);
+
+  // Register the validation function
+  useEffect(() => {
+    setValidateFunction(validateForm);
+  }, [setValidateFunction, validateForm]);
+
+  return {
+    ...form,
+    formId,
+  };
+}
+```
+
+### Step 5: Create Zod Schema Helpers
+
+Create utilities for defining form schemas with Zod.
+
+**File: `src/utils/validation-schemas.ts`**
+
+```typescript
+import { z } from 'zod';
+
+/**
+ * Common validation patterns for reuse across forms
+ */
+export const commonValidations = {
+  requiredString: (fieldName: string) =>
+    z.string().min(1, `${fieldName} is required`),
+
+  email: z.string().email('Please enter a valid email address'),
+
+  phone: z.string().regex(
+    /^\+?[1-9]\d{1,14}$/,
+    'Please enter a valid phone number'
+  ),
+
+  url: z.string().url('Please enter a valid URL'),
+
+  positiveNumber: z.number().positive('Must be a positive number'),
+
+  dateInFuture: z.date().refine(
+    (date) => date > new Date(),
+    'Date must be in the future'
+  ),
+};
+
+/**
+ * Example schemas for the three child forms
+ */
+export const userInfoSchema = z.object({
+  name: commonValidations.requiredString('Name'),
+  email: commonValidations.email,
+});
+
+export const addressSchema = z.object({
+  street: commonValidations.requiredString('Street address'),
+  city: commonValidations.requiredString('City'),
+  state: commonValidations.requiredString('State'),
+  zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code'),
+});
+
+export const preferencesSchema = z.object({
+  newsletter: z.boolean(),
+  notifications: z.enum(['all', 'important', 'none']),
+  theme: z.enum(['light', 'dark', 'system']),
+});
+
+export type UserInfoFormData = z.infer<typeof userInfoSchema>;
+export type AddressFormData = z.infer<typeof addressSchema>;
+export type PreferencesFormData = z.infer<typeof preferencesSchema>;
+```
+
+## Validation Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Parent as ParentContainer
+    participant Store as Zustand Store
+    participant FormA as ChildForm A
+    participant FormB as ChildForm B
+    participant RHF_A as React Hook Form A
+    participant RHF_B as React Hook Form B
+
+    User->>Parent: Click Save Button
+    Parent->>Store: validateAllDirtyForms()
+    Store->>Store: Set isValidating = true
+
+    par Validate All Dirty Forms
+        Store->>FormA: validate()
+        FormA->>RHF_A: trigger()
+        RHF_A-->>FormA: isValid, errors
+        FormA-->>Store: ValidationResult
+
+        Store->>FormB: validate()
+        FormB->>RHF_B: trigger()
+        RHF_B-->>FormB: isValid, errors
+        FormB-->>Store: ValidationResult
+    end
+
+    Store->>Store: Collect results
+    Store->>Store: Set isValidating = false
+
+    alt All Valid
+        Store-->>Parent: true (all valid)
+        Parent->>Parent: Proceed to submission
+    else Has Errors
+        Store->>Store: Set validationErrors
+        Store-->>Parent: false (has errors)
+        Parent->>Parent: Display error summary
+    end
+```
+
+## File Structure
+
+```
+src/
+├── types/
+│   └── form-coordination.ts      # Extended with validation types
+├── stores/
+│   └── formCoordinationStore.ts  # Extended with validation methods
+├── hooks/
+│   ├── useDirtyTracking.ts       # From IMPL-001
+│   ├── useFormRegistration.ts    # New: form registration
+│   └── useValidatedForm.ts       # New: comprehensive form hook
+└── utils/
+    └── validation-schemas.ts     # Zod schemas and helpers
+```
+
+## Usage Example
+
+### Child Form with Validation
+
+```typescript
+import { useValidatedForm } from '../hooks/useValidatedForm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { userInfoSchema, UserInfoFormData } from '../utils/validation-schemas';
+
+export function UserInfoForm() {
+  const {
+    register,
+    formState: { errors },
+  } = useValidatedForm<UserInfoFormData>({
+    formId: 'userInfo',
+    displayName: 'User Information',
+    resolver: zodResolver(userInfoSchema),
+    defaultValues: { name: '', email: '' },
   });
 
-  // Create form handle
-  const handle: ChildFormHandle = useMemo(
-    () => ({
-      getFormId: () => FORM_ID,
-
-      validate: (): ValidationResult => {
-        const result = formASchema.safeParse(formData);
-
-        if (result.success) {
-          setErrors([]);
-          return { valid: true, errors: [] };
-        }
-
-        const validationErrors = zodErrorsToValidationErrors(result.error);
-        setErrors(validationErrors);
-        return { valid: false, errors: validationErrors };
-      },
-
-      submit: async () => {
-        // Implementation in IMPL-003
-        return { success: true };
-      },
-
-      reset: () => {
-        setFormData(INITIAL_DATA);
-        setErrors([]);
-      },
-    }),
-    [formData]
-  );
-
-  // Register form
-  useFormRegistration({ formId: FORM_ID, ref, handle });
-
-  const getFieldError = (field: string): string | undefined => {
-    return errors.find((e) => e.field === field)?.message;
-  };
-
   return (
-    <div className="child-form">
-      <h2>{FORM_NAME}</h2>
+    <div className="form-section">
+      <h2>User Information</h2>
 
       <div className="form-field">
         <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          value={formData.name}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, name: e.target.value }))
-          }
-          aria-invalid={!!getFieldError('name')}
-          aria-describedby={getFieldError('name') ? 'name-error' : undefined}
-        />
-        {getFieldError('name') && (
-          <span id="name-error" className="error" role="alert">
-            {getFieldError('name')}
-          </span>
+        <input id="name" {...register('name')} />
+        {errors.name && (
+          <span className="error">{errors.name.message}</span>
         )}
       </div>
 
       <div className="form-field">
         <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, email: e.target.value }))
-          }
-          aria-invalid={!!getFieldError('email')}
-          aria-describedby={getFieldError('email') ? 'email-error' : undefined}
-        />
-        {getFieldError('email') && (
-          <span id="email-error" className="error" role="alert">
-            {getFieldError('email')}
-          </span>
+        <input id="email" type="email" {...register('email')} />
+        {errors.email && (
+          <span className="error">{errors.email.message}</span>
         )}
       </div>
     </div>
   );
-});
-```
-
-### Step 7: Create Validation Orchestration Hook
-
-Create a hook for the parent to orchestrate validation.
-
-**File**: `src/hooks/useFormValidation.ts`
-
-```typescript
-import { useCallback } from 'react';
-import { useFormDirtyStore } from '../stores/formDirtyStore';
-import { useFormRegistryStore } from '../stores/formRegistryStore';
-import { useValidationStore } from '../stores/validationStore';
-import type { FormValidationSummary } from '../types/validation.types';
-
-const FORM_DISPLAY_NAMES: Record<string, string> = {
-  formA: 'User Information',
-  formB: 'Address',
-  formC: 'Contact Preferences',
-};
-
-export function useFormValidation() {
-  const dirtyForms = useFormDirtyStore((state) => state.dirtyForms);
-  const getAllForms = useFormRegistryStore((state) => state.getAllForms);
-  const { setValidationErrors, clearValidationErrors, setIsValidating } =
-    useValidationStore();
-
-  const validateAllForms = useCallback((): boolean => {
-    setIsValidating(true);
-    clearValidationErrors();
-
-    const forms = getAllForms();
-    const validationResults: FormValidationSummary[] = [];
-
-    // Only validate dirty forms
-    for (const formId of dirtyForms) {
-      const form = forms.get(formId);
-      if (form) {
-        const result = form.validate();
-        if (!result.valid) {
-          validationResults.push({
-            formId,
-            formName: FORM_DISPLAY_NAMES[formId] ?? formId,
-            errors: result.errors,
-          });
-        }
-      }
-    }
-
-    setIsValidating(false);
-
-    if (validationResults.length > 0) {
-      setValidationErrors(validationResults);
-      return false;
-    }
-
-    return true;
-  }, [
-    dirtyForms,
-    getAllForms,
-    setValidationErrors,
-    clearValidationErrors,
-    setIsValidating,
-  ]);
-
-  return { validateAllForms };
 }
 ```
 
----
+### Parent Container Triggering Validation
 
-## Validation Flow Diagram
+```typescript
+import { useFormCoordinationStore } from '../stores/formCoordinationStore';
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant SaveButton
-    participant Hook as useFormValidation
-    participant Registry as formRegistryStore
-    participant FormA as ChildFormA
-    participant FormB as ChildFormB
-    participant Zod
-    participant Store as validationStore
+export function ParentContainer() {
+  const isDirty = useFormCoordinationStore((state) => state.dirtyForms.size > 0);
+  const isValidating = useFormCoordinationStore((state) => state.isValidating);
+  const validationErrors = useFormCoordinationStore((state) => state.validationErrors);
+  const validateAllDirtyForms = useFormCoordinationStore(
+    (state) => state.validateAllDirtyForms
+  );
 
-    User->>SaveButton: Click Save
-    SaveButton->>Hook: validateAllForms()
-    Hook->>Store: setIsValidating(true)
-    Hook->>Store: clearValidationErrors()
-    Hook->>Registry: getAllForms()
-    Registry-->>Hook: Map<formId, handle>
+  const handleSave = async () => {
+    const allValid = await validateAllDirtyForms();
 
-    par Validate Dirty Forms
-        Hook->>FormA: validate()
-        FormA->>Zod: schema.safeParse(data)
-        Zod-->>FormA: Result
-        FormA-->>Hook: ValidationResult
+    if (allValid) {
+      // Proceed to submission (IMPL-003)
+      console.log('All forms valid, proceeding to submit...');
+    }
+    // Errors are automatically stored and displayed
+  };
 
-        Hook->>FormB: validate()
-        FormB->>Zod: schema.safeParse(data)
-        Zod-->>FormB: Result
-        FormB-->>Hook: ValidationResult
-    end
+  return (
+    <div className="parent-container">
+      <button
+        onClick={handleSave}
+        disabled={!isDirty || isValidating}
+      >
+        {isValidating ? 'Validating...' : 'Save All Changes'}
+      </button>
 
-    alt All Valid
-        Hook->>Store: setIsValidating(false)
-        Hook-->>SaveButton: true
-    else Has Errors
-        Hook->>Store: setValidationErrors(summaries)
-        Hook->>Store: setIsValidating(false)
-        Hook-->>SaveButton: false
-    end
+      {validationErrors.length > 0 && (
+        <ErrorSummary errors={validationErrors} />
+      )}
+
+      {/* Child forms */}
+    </div>
+  );
+}
 ```
 
----
+## Testing Strategy
+
+### Unit Tests
+
+1. **formCoordinationStore.test.ts** (validation extensions)
+   - Test `registerForm` adds entry to registry
+   - Test `unregisterForm` removes entry from registry
+   - Test `validateAllDirtyForms` only validates dirty forms
+   - Test `validateAllDirtyForms` collects all errors
+   - Test `validateAllDirtyForms` returns true when all valid
+   - Test `validateAllDirtyForms` returns false when any invalid
+   - Test `clearValidationErrors` resets error state
+
+2. **useFormRegistration.test.ts**
+   - Test form is registered on mount
+   - Test form is unregistered on unmount
+   - Test validate function is called correctly
+
+3. **useValidatedForm.test.ts**
+   - Test validation function triggers React Hook Form validation
+   - Test errors are converted to ValidationError format
+   - Test dirty state is tracked correctly
+
+### Integration Tests
+
+1. Test complete validation flow with multiple forms
+2. Test partial validation (only dirty forms validated)
+3. Test error collection from multiple failed forms
+4. Test validation state transitions (idle -> validating -> complete)
 
 ## Acceptance Criteria
 
-| ID | Criterion | Validation |
-|----|-----------|------------|
-| AC2.1 | Clicking the save button triggers validation on all dirty forms | Verify `validate()` is called on each form in `dirtyForms` |
-| AC2.2 | Forms that are not dirty are not validated | Verify `validate()` is NOT called on forms not in `dirtyForms` |
-| AC2.3 | Validation errors are displayed within each child form | Verify error messages render next to invalid fields |
-| AC2.4 | The parent container displays an error summary when validation fails | Verify `validationErrors` array is populated in store |
-| AC2.5 | The error summary identifies which form(s) failed validation | Verify `formName` is included in each `FormValidationSummary` |
-| AC2.6 | The error summary lists specific validation errors for each form | Verify `errors` array contains field-level messages |
+- [ ] **AC2.1**: Clicking the save button triggers validation on all dirty forms via `validateAllDirtyForms()`
+- [ ] **AC2.2**: Forms that are not dirty are skipped during validation
+- [ ] **AC2.3**: Validation errors from React Hook Form are displayed within each child form
+- [ ] **AC2.4**: The `validationErrors` state contains a summary of all form validation failures
+- [ ] **AC2.5**: Each entry in `validationErrors` identifies which form failed by `formId` and `displayName`
+- [ ] **AC2.6**: Each validation error entry includes specific field-level error messages
+- [ ] **AC2.7**: The `isValidating` flag is `true` while validation is in progress
+- [ ] **AC2.8**: Validation runs in parallel for all dirty forms for performance
+- [ ] **AC2.9**: `validateAllDirtyForms()` returns `true` only when all forms pass validation
 
----
+## Notes
 
-## Unit Tests
-
-**File**: `src/schemas/formSchemas.test.ts`
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { formASchema, formBSchema } from './formSchemas';
-
-describe('formASchema', () => {
-  it('should pass with valid data', () => {
-    const result = formASchema.safeParse({
-      name: 'John Doe',
-      email: 'john@example.com',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should fail when name is empty', () => {
-    const result = formASchema.safeParse({
-      name: '',
-      email: 'john@example.com',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should fail when email is invalid', () => {
-    const result = formASchema.safeParse({
-      name: 'John',
-      email: 'not-an-email',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should fail when name is too short', () => {
-    const result = formASchema.safeParse({
-      name: 'J',
-      email: 'john@example.com',
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe('formBSchema', () => {
-  it('should pass with valid data', () => {
-    const result = formBSchema.safeParse({
-      address: '123 Main St',
-      city: 'Springfield',
-      zipCode: '12345',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should accept ZIP+4 format', () => {
-    const result = formBSchema.safeParse({
-      address: '123 Main St',
-      city: 'Springfield',
-      zipCode: '12345-6789',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('should fail with invalid ZIP code', () => {
-    const result = formBSchema.safeParse({
-      address: '123 Main St',
-      city: 'Springfield',
-      zipCode: 'ABCDE',
-    });
-    expect(result.success).toBe(false);
-  });
-});
-```
-
----
-
-## Dependencies
-
-- `zod` - Schema validation
-- `zustand` - State management
-- `vitest` - Unit testing
-
-## Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/types/validation.types.ts` | Create | Validation type definitions |
-| `src/schemas/formSchemas.ts` | Create | Zod schemas for all forms |
-| `src/stores/validationStore.ts` | Create | Validation state store |
-| `src/stores/formRegistryStore.ts` | Create | Form registry store |
-| `src/hooks/useFormRegistration.ts` | Create | Form registration hook |
-| `src/hooks/useFormValidation.ts` | Create | Validation orchestration hook |
-| `src/schemas/formSchemas.test.ts` | Create | Schema unit tests |
-
-## Next Steps
-
-After implementing validation flow, proceed to:
-- [IMPL-003: Submission Flow](./IMPL-003-submission-flow.md)
+- Validation runs in parallel using `Promise.all` for performance
+- React Hook Form's `trigger()` method is used to programmatically validate forms
+- The error conversion handles nested field errors (e.g., `address.city`)
+- Forms must be registered before they can be validated
+- Registration cleanup on unmount prevents stale references
