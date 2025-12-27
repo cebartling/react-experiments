@@ -22,12 +22,12 @@ Then('I should see the Preferences form', async function (this: PlaywrightWorld)
   await expect(this.page!.locator('[data-testid="preferences-form"]')).toBeVisible();
 });
 
-// Save button assertions
-Then('the save button should be disabled', async function (this: PlaywrightWorld) {
+// Global save button assertions (unique to avoid conflict with dirty-state.steps.ts)
+Then('the global save button should be disabled', async function (this: PlaywrightWorld) {
   await expect(this.page!.locator('[data-testid="save-button"]')).toBeDisabled();
 });
 
-Then('the save button should be enabled', async function (this: PlaywrightWorld) {
+Then('the global save button should be enabled', async function (this: PlaywrightWorld) {
   await expect(this.page!.locator('[data-testid="save-button"]')).toBeEnabled();
 });
 
@@ -94,7 +94,7 @@ When('I check the newsletter checkbox', async function (this: PlaywrightWorld) {
 });
 
 // Button clicks
-When('I click the save button', async function (this: PlaywrightWorld) {
+When('I click the global save button', async function (this: PlaywrightWorld) {
   await this.page!.click('[data-testid="save-button"]');
 });
 
@@ -107,20 +107,23 @@ Then('I should see the dirty form count indicator', async function (this: Playwr
   await expect(this.page!.locator('[data-testid="dirty-form-count"]')).toBeVisible();
 });
 
-// Error summary assertions
-Then('I should see an error summary', async function (this: PlaywrightWorld) {
+// Validation error summary assertions (unique to avoid conflict with validation.steps.ts)
+Then('I should see the validation error summary', async function (this: PlaywrightWorld) {
   await expect(this.page!.locator('[data-testid="error-summary"]')).toBeVisible();
 });
 
-Then('I should not see the error summary', async function (this: PlaywrightWorld) {
+Then('I should not see the validation error summary', async function (this: PlaywrightWorld) {
   await expect(this.page!.locator('[data-testid="error-summary"]')).not.toBeVisible();
 });
 
-Then('the error summary should mention validation errors', async function (this: PlaywrightWorld) {
-  await expect(this.page!.locator('[data-testid="error-summary"]')).toContainText(
-    'Validation Errors'
-  );
-});
+Then(
+  'the validation error summary should mention validation errors',
+  async function (this: PlaywrightWorld) {
+    await expect(this.page!.locator('[data-testid="error-summary"]')).toContainText(
+      'Validation Errors'
+    );
+  }
+);
 
 // Notification assertions
 Then('I should see a success notification', async function (this: PlaywrightWorld) {

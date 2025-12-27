@@ -12,18 +12,18 @@ Feature: UI Components
     And I should see the Preferences form
 
   Scenario: Save button is disabled when no forms are dirty
-    Then the save button should be disabled
+    Then the global save button should be disabled
 
   Scenario: Save button becomes enabled when a form has changes
     When I fill in the user name field with "John Doe"
-    Then the save button should be enabled
+    Then the global save button should be enabled
     And I should see the dirty form count indicator
 
   Scenario: Form displays validation error for invalid input
     When I fill in the user email field with "invalid-email"
-    And I click the save button
-    Then I should see an error summary
-    And the error summary should mention validation errors
+    And I click the global save button
+    Then I should see the validation error summary
+    And the validation error summary should mention validation errors
 
   Scenario: Successful save shows success notification
     When I fill in the user name field with "John Doe"
@@ -32,16 +32,16 @@ Feature: UI Components
     And I fill in the address city field with "New York"
     And I fill in the address state field with "NY"
     And I fill in the address zip field with "10001"
-    And I click the save button
+    And I click the global save button
     Then I should see a success notification
-    And the save button should be disabled
+    And the global save button should be disabled
 
   Scenario: Error summary can be dismissed
     When I fill in the user name field with "John"
-    And I click the save button
-    Then I should see an error summary
+    And I click the global save button
+    Then I should see the validation error summary
     When I click the dismiss error button
-    Then I should not see the error summary
+    Then I should not see the validation error summary
 
   Scenario: Form fields have proper labels
     Then the user name field should have a label "Name"
@@ -55,8 +55,8 @@ Feature: UI Components
 
   Scenario: Preferences form allows changing notification settings
     When I select "Important only" in the notifications dropdown
-    Then the save button should be enabled
+    Then the global save button should be enabled
 
   Scenario: Preferences form allows toggling newsletter subscription
     When I check the newsletter checkbox
-    Then the save button should be enabled
+    Then the global save button should be enabled
