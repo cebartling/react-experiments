@@ -1,5 +1,5 @@
 import { Before, After, BeforeAll, AfterAll, Status } from '@cucumber/cucumber';
-import { PlaywrightWorld } from './world';
+import { PlaywrightWorld } from './world.ts';
 
 BeforeAll(async function () {
   // Global setup before all scenarios

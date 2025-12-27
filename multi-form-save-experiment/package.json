@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:acceptance": "cucumber-js"
+    "test:acceptance": "NODE_OPTIONS='--import tsx' cucumber-js --import 'features/**/*.ts'"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -46,6 +46,7 @@
     "prettier": "^3.7.4",
     "tailwindcss": "^4.1.18",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "npm:rolldown-vite@7.2.5",
