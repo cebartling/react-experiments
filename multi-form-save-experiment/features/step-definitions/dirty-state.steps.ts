@@ -47,22 +47,31 @@ Then('the save button should be enabled', async function (this: PlaywrightWorld)
   await expect(button).toBeEnabled();
 });
 
-Then('the status should show {string}', async function (this: PlaywrightWorld, expectedStatus: string) {
-  const statusElement = this.page!.locator('[data-testid="dirty-status"]');
-  await expect(statusElement).toContainText(expectedStatus);
-});
-
-Then('the dirty forms should include {string}', async function (this: PlaywrightWorld, formId: string) {
-  const dirtyFormsElement = this.page!.locator('[data-testid="dirty-forms"]');
-  await expect(dirtyFormsElement).toContainText(formId);
-});
-
-Then('the dirty forms should not include {string}', async function (this: PlaywrightWorld, formId: string) {
-  const dirtyFormsElement = this.page!.locator('[data-testid="dirty-forms"]');
-  // Check if element exists and doesn't contain the formId
-  const count = await dirtyFormsElement.count();
-  if (count > 0) {
-    await expect(dirtyFormsElement).not.toContainText(formId);
+Then(
+  'the status should show {string}',
+  async function (this: PlaywrightWorld, expectedStatus: string) {
+    const statusElement = this.page!.locator('[data-testid="dirty-status"]');
+    await expect(statusElement).toContainText(expectedStatus);
   }
-  // If element doesn't exist (no dirty forms), the assertion passes
-});
+);
+
+Then(
+  'the dirty forms should include {string}',
+  async function (this: PlaywrightWorld, formId: string) {
+    const dirtyFormsElement = this.page!.locator('[data-testid="dirty-forms"]');
+    await expect(dirtyFormsElement).toContainText(formId);
+  }
+);
+
+Then(
+  'the dirty forms should not include {string}',
+  async function (this: PlaywrightWorld, formId: string) {
+    const dirtyFormsElement = this.page!.locator('[data-testid="dirty-forms"]');
+    // Check if element exists and doesn't contain the formId
+    const count = await dirtyFormsElement.count();
+    if (count > 0) {
+      await expect(dirtyFormsElement).not.toContainText(formId);
+    }
+    // If element doesn't exist (no dirty forms), the assertion passes
+  }
+);

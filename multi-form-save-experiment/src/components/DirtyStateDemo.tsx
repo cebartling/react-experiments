@@ -77,14 +77,9 @@ export function DirtyStateDemo() {
       <h2>Multi-Form Dirty State Demo</h2>
 
       <div className="status-bar" data-testid="status-bar">
-        <span data-testid="dirty-status">
-          Status: {isDirty ? 'Unsaved changes' : 'All saved'}
-        </span>
+        <span data-testid="dirty-status">Status: {isDirty ? 'Unsaved changes' : 'All saved'}</span>
         {isDirty && (
-          <span data-testid="dirty-forms">
-            {' '}
-            (Forms with changes: {dirtyFormIds.join(', ')})
-          </span>
+          <span data-testid="dirty-forms"> (Forms with changes: {dirtyFormIds.join(', ')})</span>
         )}
       </div>
 
@@ -94,11 +89,7 @@ export function DirtyStateDemo() {
       </div>
 
       <div className="actions">
-        <button
-          onClick={handleSaveAll}
-          disabled={!isDirty}
-          data-testid="save-all-button"
-        >
+        <button onClick={handleSaveAll} disabled={!isDirty} data-testid="save-all-button">
           Save All Changes
         </button>
       </div>
