@@ -29,9 +29,11 @@ Feature: Dirty State Management
     Then the save button should be disabled
     And the status should show "All saved"
 
-  Scenario: Save all button clears all dirty state
+  Scenario: Save all button clears all dirty state when forms are valid
     When I type "John" in the name field
+    And I type "john@example.com" in the email field
     And I type "123 Main St" in the street field
+    And I type "Boston" in the city field
     And I click the save all button
     Then the save button should be disabled
     And the status should show "All saved"
