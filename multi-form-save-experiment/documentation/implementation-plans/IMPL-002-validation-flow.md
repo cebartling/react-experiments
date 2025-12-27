@@ -455,7 +455,7 @@ src/
 
 ### Child Form with Validation
 
-```typescript
+```tsx
 import { useValidatedForm } from '../hooks/useValidatedForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userInfoSchema, UserInfoFormData } from '../utils/validation-schemas';
@@ -497,7 +497,7 @@ export function UserInfoForm() {
 
 ### Parent Container Triggering Validation
 
-```typescript
+```tsx
 import { useFormCoordinationStore } from '../stores/formCoordinationStore';
 
 export function ParentContainer() {
