@@ -16,15 +16,15 @@ export function ErrorSummary({ validationErrors, submissionErrors, onDismiss }: 
 
   return (
     <div
-      className="mb-6 rounded-md border border-red-200 bg-red-50 p-4"
+      className="mb-6 rounded-xl border border-red-200 bg-red-50 p-5 shadow-sm sm:mb-8"
       role="alert"
       aria-labelledby="error-summary-title"
       data-testid="error-summary"
     >
-      <div className="flex items-start">
-        <div className="flex-shrink-0">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 rounded-full bg-red-100 p-2">
           <svg
-            className="h-5 w-5 text-red-400"
+            className="h-5 w-5 text-red-600"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden="true"
@@ -36,21 +36,26 @@ export function ErrorSummary({ validationErrors, submissionErrors, onDismiss }: 
             />
           </svg>
         </div>
-        <div className="ml-3 flex-1">
-          <h3 id="error-summary-title" className="text-sm font-medium text-red-800">
+        <div className="flex-1">
+          <h3
+            id="error-summary-title"
+            className="text-sm font-semibold tracking-tight text-red-800"
+          >
             Please fix the following errors before saving:
           </h3>
 
           {hasValidation && (
-            <div className="mt-3">
-              <h4 className="text-sm font-medium text-red-700">Validation Errors</h4>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
+            <div className="mt-4">
+              <h4 className="text-sm font-semibold text-red-700">Validation Errors</h4>
+              <ul className="mt-2 space-y-2">
                 {validationErrors.map((error) => (
-                  <li key={error.formId}>
-                    <span className="font-medium">{error.formName}:</span>
-                    <ul className="ml-4 mt-1 list-inside list-disc">
+                  <li key={error.formId} className="text-sm text-red-700">
+                    <span className="font-semibold">{error.formName}:</span>
+                    <ul className="ml-4 mt-1 list-inside list-disc space-y-1">
                       {error.fieldErrors.map((fieldError, idx) => (
-                        <li key={idx}>{fieldError.message}</li>
+                        <li key={idx} className="text-red-600">
+                          {fieldError.message}
+                        </li>
                       ))}
                     </ul>
                   </li>
@@ -60,12 +65,13 @@ export function ErrorSummary({ validationErrors, submissionErrors, onDismiss }: 
           )}
 
           {hasSubmission && (
-            <div className="mt-3">
-              <h4 className="text-sm font-medium text-red-700">Submission Errors</h4>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-700">
+            <div className="mt-4">
+              <h4 className="text-sm font-semibold text-red-700">Submission Errors</h4>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-red-600">
                 {submissionErrors.map((error) => (
                   <li key={error.formId}>
-                    <span className="font-medium">{error.formName}:</span> {error.message}
+                    <span className="font-semibold text-red-700">{error.formName}:</span>{' '}
+                    {error.message}
                   </li>
                 ))}
               </ul>
@@ -74,11 +80,11 @@ export function ErrorSummary({ validationErrors, submissionErrors, onDismiss }: 
         </div>
 
         {onDismiss && (
-          <div className="ml-auto pl-3">
+          <div className="ml-auto flex-shrink-0 pl-3">
             <button
               type="button"
               onClick={onDismiss}
-              className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+              className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               aria-label="Dismiss errors"
             >
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

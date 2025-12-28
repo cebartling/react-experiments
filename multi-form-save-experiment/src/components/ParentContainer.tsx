@@ -23,15 +23,24 @@ export function ParentContainer() {
   }, [saveAllChanges]);
 
   return (
-    <Container className="py-8" data-testid="parent-container">
+    <Container className="py-8 sm:py-12" data-testid="parent-container">
       <NotificationList notifications={notifications} onDismiss={dismissNotification} />
 
-      <header className="mb-8 flex items-center justify-between">
+      <header className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Multi-Form Editor</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-surface-900 sm:text-3xl">
+            Multi-Form Editor
+          </h1>
           {dirtyFormCount > 0 && (
-            <p className="mt-1 text-sm text-gray-500" data-testid="dirty-form-count">
-              Unsaved changes in {dirtyFormCount} form(s)
+            <p
+              className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-amber-600"
+              data-testid="dirty-form-count"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+              </span>
+              Unsaved changes in {dirtyFormCount} form{dirtyFormCount !== 1 ? 's' : ''}
             </p>
           )}
         </div>
@@ -44,7 +53,7 @@ export function ParentContainer() {
         onDismiss={clearAllErrors}
       />
 
-      <div className="space-y-6" data-testid="forms-container">
+      <div className="space-y-6 sm:space-y-8" data-testid="forms-container">
         <FormErrorBoundary>
           <UserInfoForm />
         </FormErrorBoundary>

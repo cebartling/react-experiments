@@ -1,34 +1,6 @@
-import { Given, When, Then, DataTable } from '@cucumber/cucumber';
+import { When, Then, DataTable } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { PlaywrightWorld } from '../support/world.ts';
-
-const BASE_URL = 'http://localhost:5173';
-const MULTI_FORM_URL = `${BASE_URL}/multi-form`;
-
-// Navigation steps
-Given('I am on the demo page', async function (this: PlaywrightWorld) {
-  await this.page!.goto(BASE_URL);
-  await this.page!.waitForSelector('[data-testid="dirty-state-demo"]');
-});
-
-// Note: "I am on the multi-form editor page" is defined in ui-components.steps.ts
-
-When(
-  'I click the {string} navigation link',
-  async function (this: PlaywrightWorld, linkText: string) {
-    await this.page!.click(`nav a:has-text("${linkText}")`);
-  }
-);
-
-Then('I should be on the multi-form editor page', async function (this: PlaywrightWorld) {
-  await expect(this.page!).toHaveURL(MULTI_FORM_URL);
-  await expect(this.page!.locator('[data-testid="parent-container"]')).toBeVisible();
-});
-
-Then('I should be on the demo page', async function (this: PlaywrightWorld) {
-  await expect(this.page!).toHaveURL(BASE_URL + '/');
-  await expect(this.page!.locator('[data-testid="dirty-state-demo"]')).toBeVisible();
-});
 
 Then('I should see the page title {string}', async function (this: PlaywrightWorld, title: string) {
   await expect(this.page!.locator('header h1')).toContainText(title);

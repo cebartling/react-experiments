@@ -1,18 +1,7 @@
 Feature: Multi-Form Workflow
   As a user with multiple forms on a page
-  I want to navigate to the multi-form editor and complete common workflows
+  I want to complete common workflows
   So that I can efficiently manage my profile data
-
-  Scenario: Navigate from demo page to multi-form editor
-    Given I am on the demo page
-    When I click the "Multi-Form Editor" navigation link
-    Then I should be on the multi-form editor page
-    And I should see the page title "Multi-Form Editor"
-
-  Scenario: Navigate from multi-form editor to demo page
-    Given I am on the multi-form editor page
-    When I click the "Demo Mode" navigation link
-    Then I should be on the demo page
 
   Scenario: Complete user profile workflow - fill all required fields
     Given I am on the multi-form editor page

@@ -22,7 +22,7 @@ describe('Container', () => {
 
     const container = screen.getByText('Content').parentElement;
     expect(container).toHaveClass('mx-auto');
-    expect(container).toHaveClass('max-w-4xl');
+    expect(container).toHaveClass('max-w-3xl');
     expect(container).toHaveClass('px-4');
   });
 

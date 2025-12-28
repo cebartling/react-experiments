@@ -14,7 +14,7 @@ export function NotificationList({ notifications, onDismiss }: NotificationListP
     <div
       aria-live="polite"
       aria-label="Notifications"
-      className="fixed right-4 top-4 z-50 flex flex-col gap-2"
+      className="fixed right-4 top-20 z-50 flex flex-col gap-3 sm:right-6"
       data-testid="notification-list"
     >
       {notifications.map((notification) => (
@@ -37,9 +37,15 @@ function Notification({ notification, onDismiss }: NotificationProps) {
   const { severity, title, message, dismissible } = notification;
 
   const severityStyles = {
-    error: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    info: 'bg-green-50 border-green-200 text-green-800',
+    error: 'border-red-200 bg-red-50 text-red-800',
+    warning: 'border-amber-200 bg-amber-50 text-amber-800',
+    info: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  };
+
+  const iconBgStyles = {
+    error: 'bg-red-100',
+    warning: 'bg-amber-100',
+    info: 'bg-emerald-100',
   };
 
   const iconPaths = {
@@ -52,28 +58,25 @@ function Notification({ notification, onDismiss }: NotificationProps) {
 
   return (
     <div
-      className={`flex w-80 items-start gap-3 rounded-lg border p-4 shadow-lg ${severityStyles[severity]}`}
+      className={`flex w-80 items-start gap-3 rounded-xl border p-4 shadow-lg transition-all duration-300 animate-in slide-in-from-right ${severityStyles[severity]}`}
       role="alert"
     >
-      <svg
-        className="h-5 w-5 flex-shrink-0"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path fillRule="evenodd" d={iconPaths[severity]} clipRule="evenodd" />
-      </svg>
+      <div className={`flex-shrink-0 rounded-full p-1.5 ${iconBgStyles[severity]}`}>
+        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fillRule="evenodd" d={iconPaths[severity]} clipRule="evenodd" />
+        </svg>
+      </div>
 
-      <div className="flex-1">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="mt-1 text-sm opacity-90">{message}</p>
+      <div className="flex-1 pt-0.5">
+        <p className="text-sm font-semibold tracking-tight">{title}</p>
+        <p className="mt-1 text-sm opacity-80">{message}</p>
       </div>
 
       {dismissible && (
         <button
           type="button"
           onClick={onDismiss}
-          className="flex-shrink-0 rounded p-1 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2"
+          className="flex-shrink-0 rounded-lg p-1 opacity-60 transition-all hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current"
           aria-label="Dismiss notification"
         >
           <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

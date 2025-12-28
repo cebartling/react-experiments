@@ -24,13 +24,14 @@ export function SaveButton({ onSave }: SaveButtonProps) {
       onClick={onSave}
       disabled={isDisabled}
       className={`
-        inline-flex items-center rounded-md px-4 py-2 text-sm font-medium
-        shadow-sm transition-all focus:outline-none focus:ring-2
-        focus:ring-blue-500 focus:ring-offset-2
+        inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5
+        text-sm font-semibold tracking-tight
+        shadow-button transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
         ${
           isDisabled
-            ? 'cursor-not-allowed bg-gray-300 text-gray-500'
-            : 'bg-blue-600 text-white hover:bg-blue-700'
+            ? 'cursor-not-allowed border border-surface-200 bg-surface-100 text-surface-400'
+            : 'border border-transparent bg-primary-600 text-white hover:bg-primary-700 hover:shadow-button-hover active:bg-primary-800 active:scale-[0.98]'
         }
       `}
       aria-busy={isProcessing}
@@ -38,7 +39,7 @@ export function SaveButton({ onSave }: SaveButtonProps) {
     >
       {isProcessing && (
         <svg
-          className="-ml-1 mr-2 h-4 w-4 animate-spin text-current"
+          className="h-4 w-4 animate-spin text-current"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

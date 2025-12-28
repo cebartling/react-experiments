@@ -2,7 +2,7 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { PlaywrightWorld } from '../support/world.ts';
 
-const BASE_URL = 'http://localhost:5173/multi-form';
+const BASE_URL = 'http://localhost:5173';
 
 Given('I am on the multi-form editor page', async function (this: PlaywrightWorld) {
   await this.page!.goto(BASE_URL);

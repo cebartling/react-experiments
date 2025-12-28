@@ -15,7 +15,12 @@ export function Card({
 }: CardProps) {
   return (
     <Component
-      className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}
+      className={`
+        rounded-xl border border-surface-200 bg-white p-6 shadow-card
+        transition-shadow duration-200 hover:shadow-card-hover
+        sm:p-8
+        ${className}
+      `}
       data-testid={testId}
     >
       {children}
@@ -31,10 +36,12 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, description, actions }: CardHeaderProps) {
   return (
-    <div className="mb-6 flex items-start justify-between">
+    <div className="mb-6 flex items-start justify-between border-b border-surface-100 pb-5">
       <div>
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
+        <h2 className="text-lg font-bold tracking-tight text-surface-900">{title}</h2>
+        {description && (
+          <p className="mt-1.5 text-sm font-medium text-surface-500">{description}</p>
+        )}
       </div>
       {actions && <div className="ml-4">{actions}</div>}
     </div>

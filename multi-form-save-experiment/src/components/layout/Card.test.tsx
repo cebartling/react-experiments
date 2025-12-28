@@ -21,11 +21,11 @@ describe('Card', () => {
     );
 
     const card = screen.getByText('Content').parentElement;
-    expect(card).toHaveClass('rounded-lg');
+    expect(card).toHaveClass('rounded-xl');
     expect(card).toHaveClass('border');
     expect(card).toHaveClass('bg-white');
     expect(card).toHaveClass('p-6');
-    expect(card).toHaveClass('shadow-sm');
+    expect(card).toHaveClass('shadow-card');
   });
 
   it('renders as div by default', () => {
